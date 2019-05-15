@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>ceo驾驶舱</title>
+		<script type="text/javascript" src="../../../../js/jquery1.8.min.js" ></script>
+		<script type="text/javascript" src="../../../../js/echarts.min.3.8.5.js" ></script>
+		<script type="text/javascript" src="../../../../js/echarts-wordcloud.js" ></script>
+		<script type="text/javascript" src="../../../../js/random.js" ></script>
+		<style>
+			.left-top {
+				margin: 1rem;
+				background: #fff;
+				box-shadow:0 0 1rem #f3f3f3 ;
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 65%;
+				bottom: 50%;
+			}
+			.left-bottom {
+				margin: 1rem;
+				background: #fff;
+				box-shadow:0 0 1rem #f3f3f3 ;
+				position: absolute;
+				top: 50%;
+				left: 0;
+				right: 65%;
+				bottom: 0;
+			}
+			.right-top {
+				margin: 1rem;
+				background: #fff;
+				box-shadow:0 0 1rem #f3f3f3 ;
+				position: absolute;
+				top: 0;
+				left: 35%;
+				right: 0;
+				bottom: 50%;
+			}
+			.right-bottom {
+				margin: 1rem;
+				background: #fff;
+				box-shadow:0 0 1rem #f3f3f3 ;
+				position: absolute;
+				top: 50%;
+				right: 0;
+				left: 35%;
+				bottom: 0;
+			}
+			.title {
+				font-family: "Microsoft YaHei","Hiragino Sans GB W3";
+				font-size: 30px;
+				color: #37a2da;
+				margin-top: 10px;
+			}
+			.middle-cricle{
+				height: 60%;
+				width: 100%;
+				padding: 5px;
+			}	
+		</style>
+	</head>
+	
+	<script>
+		var historyOption = {
+            backgroundColor:"#fff",
+            title:{
+                text:'月度趋势数据',
+                textStyle:{
+                    color:'#000'
+                }
+            },
+            color :['#0ec1ff', '#10cdff', '#12daff', '#15ebff', '#17f8ff', '#1cfffb', '#1dfff1'],
+            tooltip: {show:true},
+            grid: {
+                top: '8%',
+                left: '1%',
+                right: '1%',
+                bottom: '8%',
+                containLabel: true,
+            },
+            legend: {
+                itemGap: 50,
+                data: ['销售额' ,'达成率'],
+                textStyle: {
+                    color: '#000',
+                    borderColor: '#000'
+                },
+            },
+            xAxis: [{
+                type: 'category',
+                boundaryGap: true,
+                axisLine: { //坐标轴轴线相关设置。数学上的x轴
+                    show: true,
+                    lineStyle: {
+                        color: '#000'
+                    },
+                },
+                axisLabel: { //坐标轴刻度标签的相关设置
+                    textStyle: {
+                        color: '#000',
+                        margin: 15,
+                    },
+                },
+                axisTick: {
+                    show: false,
+                },
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            }],
+            yAxis: [{
+                type: 'value',
+                // max: 140,
+                splitNumber: 7,
+                splitLine: {
+                    show: false,
+                    lineStyle: {
+                        color: '#0a3256'
+                    }
+                },
+                axisLine: {
+                    show: false,
+                },
+                axisLabel: {
+                    margin: 20,
+                    textStyle: {
+                        color: '#000',
+
+                    },
+                },
+                axisTick: {
+                    show: false,
+                },
+            },
+                {
+                    type: 'value',
+                    min: 0,
+                    // max: 140,
+                    splitNumber: 7,
+                    splitLine: {
+                        show: false,
+                        lineStyle: {
+                            color: '#0a3256'
+                        }
+                    },
+                    axisLine: {
+                        show: false,
+                    },
+                    axisLabel: {
+                        margin: 20,
+                        formatter: '{value}%',
+                        textStyle: {
+                            color: '#000',
+                        },
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+
+                }],
+           toolbox: {        show: true,        feature: {            saveAsImage: {}        }    },series: [{
+                name: '达成率',
+                type: 'line',
+                smooth:true,
+                yAxisIndex:1,
+                // smooth: true, //是否平滑曲线显示
+                // 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+                showAllSymbol: true,
+                symbol: 'emptyCircle',
+                symbolSize: 6,
+                lineStyle: {
+                    normal: {
+                        color: "#28ffb3", // 线条颜色
+                    },
+                    borderColor: '#000'
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    textStyle: {
+                        color: '#000',
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        color: "#28ffb3",
+
+                    }
+                },
+                tooltip: {
+                    show: false
+                },
+                areaStyle: { //区域填充样式
+                    normal: {
+                        //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgba(0,154,120,1)'
+                        },
+                            {
+                                offset: 1,
+                                color: 'rgba(0,0,0, 0)'
+                            }
+                        ], false),
+                        shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+                        shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+                    }
+                },
+                data: [51, 45, 5, 75, 145, 24, 97]
+
+            }, {
+                name: '销售额',
+                type: 'bar',
+                barWidth: 20,
+                tooltip: {
+                    show: false
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    textStyle: {
+                        color: '#fff',
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        // barBorderRadius: 5,
+                        // color: new echarts.graphic.LinearGradient(
+                        //     0, 0, 0, 1,
+                        //     [{
+                        //             offset: 0,
+                        //             color: '#14c8d4'
+                        //         },
+                        //         {
+                        //             offset: 1,
+                        //             color: '#43eec6'
+                        //         }
+                        //     ]
+                        // )
+                        color: function(params) {
+                            var colorList = ['#0ec1ff', '#10cdff', '#12daff', '#15ebff', '#17f8ff', '#1cfffb', '#1dfff1'];
+                            return colorList[params.dataIndex];
+                        }
+                    }
+                },
+                data: [200, 382, 102, 267, 186, 315, 316]
+            }]
+        };
+		var middleOption = {
+            backgroundColor:"#fff",
+		title : {
+			text: '集团总达成',
+			textStyle: {
+				color: '#37a2da'
+			},
+			x:'center',
+
+		},
+		tooltip : {
+			formatter: "{a} <br/>{b} = {c}%"
+		},
+		series: [{
+			name: '总达成',
+			type: "gauge",
+			startAngle: 180,
+			endAngle: 0,
+			min: 0,
+			max: 100,
+			radius: "100%",
+			center: ["50%", "75%"],
+
+			axisLine: {
+				show: true,
+				lineStyle: {
+					width: 20,
+					shadowBlur: 0,
+					color: [ [0.6, '#fd666d'],[0.8, '#37a2da'],[1, '#67e0e3']]
+				}
+			},
+
+		   itemStyle: {
+				normal: {
+					shadowBlur: 10
+				}
+			},
+			detail: {formatter:'{value}%'},
+			data: [{value:50}]
+		}]
+	};
+
+		changeOption(middleOption, "title;text", "销售总达成");
+		changeOption(middleOption, "series[0];data[0];value", randomData(1,100,0));
+
+		var saleachieveOption = clone(middleOption);
+
+        changeOption(middleOption, "title;text", "商务总达成");
+        changeOption(middleOption, "series[0];data[0];value", randomData(1,100,0));
+
+        var businessachieveOption = clone(middleOption);
+
+
+        changeOption(historyOption, "series[0];data", randomData(12,100,1));
+        changeOption(historyOption, "series[1];data", randomData(12,5000,0));
+        var salehistoryOption = clone(historyOption);
+
+        changeOption(historyOption, "series[0];data", randomData(12,100,1));
+        changeOption(historyOption, "series[1];data", randomData(12,5000,0));
+
+        var businesshistoryOption = clone(historyOption);
+
+
+        $(document).ready(function(){
+		var saleachieveChart = echarts.init(document.getElementById("saleachieve"));
+        saleachieveChart.setOption(saleachieveOption);
+
+		var businessachieveChart = echarts.init(document.getElementById("businessachieve"));
+        businessachieveChart.setOption(businessachieveOption);
+
+        var salehistoryChart = echarts.init(document.getElementById("salehistory"));
+        salehistoryChart.setOption(salehistoryOption);
+
+        var businesshistoryChart = echarts.init(document.getElementById("businesshistory"));
+        businesshistoryChart.setOption(businesshistoryOption);
+
+
+	});
+	</script>
+	
+	<body style="margin: 0;background:#f9f9f9;">
+		<div class="left-top" id="company-top"></div>
+		<div class="" id="person-top"></div>
+		<div class="left-top" onclick="changetab('../bi/ceo/overview/sale.html')">
+			<div class="title" style="margin-top: 3%;" align="center">公司销售达成</div>
+			<div class="title" align="center"  style="font-size: 23px;">总指标金额：<b id="saletarget">4500</b>万元</div>
+			<div class="title" align="center"  style="font-size: 23px;">当前销售金额：<b id="salereal">2484</b>万元</div>
+			<div class="middle-cricle" >
+				<div id="saleachieve" style="height: 100%;width: 100%;"></div>
+			</div>
+		</div>
+		<div class="left-bottom"  onclick="changetab('../bi/ceo/overview/business.html')">
+			<div class="title" style="margin-top: 3%;" align="center">公司商务达成</div>
+			<div class="title" align="center" id="indicators-score" style="font-size: 23px;">总指标金额：<b id="businesstarget">4500</b>万元</div>
+			<div class="title" align="center" id="real-score" style="font-size: 23px;">当前销售金额：<b id="businessreal">4500</b>万元</div>
+			<div class="middle-cricle" >
+				<div id="businessachieve" style="height: 100%;width: 100%;"></div>
+			</div>
+		</div>
+		<div class="right-top" id="salehistory"></div>
+		<div class="right-bottom" id="businesshistory"></div>
+	</body>
+	
+</html>

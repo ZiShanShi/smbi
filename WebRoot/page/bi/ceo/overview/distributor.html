@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>经销商管理</title>
+    <script type="text/javascript" src="../../../../js/jquery1.8.min.js"></script>
+    <script type="text/javascript" src="../../../../js/echarts.min.js"></script>
+    <style>
+        .halfleftbottom {
+            margin: 1rem;
+            background: #fff;
+            box-shadow:0 0 1rem #f3f3f3 ;
+            position: absolute;
+            width: 68%;
+            height:58%;
+            left: 0;
+            bottom: 0;
+            padding: 5px;
+        }
+        .halfrightbottom{
+            margin: 1rem;
+            background: #fff;
+            box-shadow:0 0 1rem #f3f3f3 ;
+            position: absolute;
+            width: 28%;
+            height: 48%;
+            right: 0;
+            bottom: 0;
+            padding: 5px;
+        }
+        .halflefttop{
+            margin: 1rem;
+            background: #fff;
+            box-shadow:0 0 1rem #f3f3f3 ;
+            position: absolute;
+            width: 68%;
+            height: 35%;
+            left: 0;
+            top: 0;
+            padding: 5px;
+        }
+        .halfrighttop{
+            margin: 1rem;
+            background: #fff;
+            box-shadow:0 0 1rem #f3f3f3 ;
+            position: absolute;
+            width: 28%;
+            height: 45%;
+            right: 0;
+            top: 0;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<script>
+    var dataWest = [], dataEast = [], dataNorthEast = [], dataSouthEast = [], dataSouth = [];
+    for (var i = 0; i < 35; i++) {
+        var onewest = [];
+        onewest[0] = Math.random() * 200;
+        onewest[1] = Math.random() * 200;
+        onewest[2] = Math.random() * 200;
+        onewest[3] = Math.random() * 200;
+        onewest[4] = 'West经销商' + i;
+        dataWest.push(onewest);
+
+        var oneeast = [];
+        oneeast[4] = 'East经销商' + i;
+        oneeast[1] = Math.random() * 200;
+        oneeast[2] = Math.random() * 200;
+        oneeast[3] = Math.random() * 200
+        oneeast[0] = Math.random() * 200
+        dataEast.push(oneeast);
+
+        var oneSouth = [];
+        oneSouth[4] = 'South经销商' + i;
+        oneSouth[1] = Math.random() * 200;
+        oneSouth[2] = Math.random() * 200;
+        oneSouth[3] = Math.random() * 200;
+        oneSouth[0] = Math.random() * 200;
+        dataSouth.push(oneSouth);
+
+        var oneNorthEast = [];
+        oneNorthEast[4] = 'NorthEast经销商' + i;
+        oneNorthEast[1] = Math.random() * 200;
+        oneNorthEast[2] = Math.random() * 200;
+        oneNorthEast[3] = Math.random() * 200;
+        oneNorthEast[0] = Math.random() * 200;
+        dataNorthEast.push(oneNorthEast);
+
+        var oneSouthEast = [];
+        oneSouthEast[4] = 'SouthEast经销商' + i;
+        oneSouthEast[1] = Math.random() * 200;
+        oneSouthEast[2] = Math.random() * 200;
+        oneSouthEast[3] = Math.random() * 200;
+        oneSouthEast[0] = Math.random() * 200;
+        dataSouthEast.push(oneSouthEast);
+    }
+
+    var schema = [
+        {name: 'distributor', index: 0, text: '经销商'},
+        {name: 'intorydays', index: 1, text: '库存天数'},
+        {name: 'sale', index: 2, text: '经销商销售'},
+        {name: 'account', index: 3, text: '经销商账期'},
+
+    ];
+
+
+    var itemStyle = {
+        normal: {
+            opacity: 0.8,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+    };
+
+    var scatterOption = {
+        color: [
+            "#fc97af",
+            "#87f7cf",
+            "#f7f494",
+            "#72ccff",
+            "#f7c5a0",
+            "#d4a4eb",
+            "#d2f5a6",
+            "#76f2f2"
+        ],
+        legend: {
+            y: 'top',
+            data: ['East', 'SouthEast', 'NorthEast', 'South', 'West'],
+            textStyle: {
+                color: '#222',
+                fontSize: 16
+            }
+        },
+        grid: {
+            x: '10%',
+            x2: 150,
+            y: '18%',
+            y2: '10%'
+        },
+        tooltip: {
+            padding: 10,
+            backgroundColor: '#222',
+            borderColor: '#777',
+            borderWidth: 1,
+            formatter: function (obj) {
+                var value = obj.value;
+                return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
+                    + obj.seriesName + ': ' + value[4]
+                    + '</div>'
+                    + schema[1].text + '：' + value[0] + '<br>'
+                    + schema[2].text + '：' + value[1] + '<br>'
+                    + schema[3].text + '：' + value[2] + '<br>';
+            }
+        },
+        xAxis: {
+            type: 'value',
+            name: '平均账期',
+            nameGap: 16,
+            nameTextStyle: {
+                color: '#222',
+                fontSize: 14
+            },
+
+            splitLine: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#222'
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '销售额',
+            nameLocation: 'end',
+            nameGap: 20,
+            nameTextStyle: {
+                color: '#222',
+                fontSize: 16
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#222'
+                }
+            },
+            splitLine: {
+                show: false
+            }
+        },
+        visualMap: [
+            {
+                left: 'right',
+                top: '10%',
+                dimension: 2,
+                min: 0,
+                max: 250,
+                itemWidth: 30,
+                itemHeight: 120,
+                calculable: true,
+                precision: 0.1,
+                text: ['圆形大小：库存天数'],
+                textGap: 30,
+                textStyle: {
+                    color: '#222'
+                },
+                inRange: {
+                    symbolSize: [10, 70]
+                },
+                outOfRange: {
+                    symbolSize: [10, 70],
+                    color: ['rgba(255,255,255,.2)']
+                },
+                controller: {
+                    inRange: {
+
+                    },
+                    outOfRange: {
+                        color: ['#444']
+                    }
+                }
+            }],
+       toolbox: {        show: true,        feature: {            saveAsImage: {}        }    },series: [
+            {
+                name: 'East',
+                type: 'scatter',
+                itemStyle: itemStyle,
+                data: dataEast
+            },
+            {
+                name: 'SouthEast',
+                type: 'scatter',
+                itemStyle: itemStyle,
+                data: dataSouthEast
+            },
+            {
+                name: 'NorthEast',
+                type: 'scatter',
+                itemStyle: itemStyle,
+                data: dataNorthEast
+            }
+            ,{
+                name: 'South',
+                type: 'scatter',
+                itemStyle: itemStyle,
+                data: dataSouth
+            }
+            ,{
+                name: 'West',
+                type: 'scatter',
+                itemStyle: itemStyle,
+                data: dataWest
+            }
+        ]
+
+    };
+
+    //------------------------------------
+
+    var scaleData = [{
+        'name': '公立',
+        'value': 10
+    },
+        {
+            'name': '民营',
+            'value': 10
+        },
+        {
+            'name': '连锁诊所',
+            'value': 30
+        },
+        {
+            'name': '技工加工所',
+            'value': 10
+        },
+        {
+            'name': '二级分销商',
+            'value': 10
+        }
+    ];
+    // 随机颜色
+    var rich = {
+        black: {
+            color: '#000',
+            align: 'center',
+            padding: [3, 0]
+        }
+    };
+    var placeHolderStyle = {
+        normal: {
+            label: {
+                show: false
+            },
+            labelLine: {
+                show: false
+            },
+            color: 'rgba(0, 0, 0, 0)',
+            borderColor: 'rgba(0, 0, 0, 0)',
+            borderWidth: 0
+        }
+    };
+    function bg2(){
+        return '#'+Math.floor(Math.random()*0xffffff).toString(16);
+    }
+
+    function rancolors(len){
+        var color=[];
+        for (var i = 0; i <= len; i++) {
+            var sjys=bg2();
+            color.push(sjys);
+            for (var i = 0; i < color.length; i++) {
+                if(color[i]=sjys){
+                    color[i]=bg2();
+                }
+            }
+        }
+        return color;
+    }
+    var data = [];
+    var color=rancolors(7)
+    for (var i = 0; i < scaleData.length; i++) {
+        data.push({
+            value: scaleData[i].value,
+            name: scaleData[i].name,
+            itemStyle: {
+                normal: {
+                    borderWidth: 50,
+                    shadowBlur: 100,
+                    borderColor:color[i],
+                    shadowColor: color[i]
+                }
+            }
+        }, {
+            value: 50,
+            name: '',
+            itemStyle: placeHolderStyle
+        });
+    }
+    var seriesObj = [{
+        name: '',
+        type: 'pie',
+        clockWise: false,
+        radius: [80, 135],
+        hoverAnimation: false,
+        itemStyle: {
+            normal: {
+                label: {
+                    show: true,
+                    position: 'outside',
+                    color: '#222',
+                    formatter: function(params) {
+                        var percent = 0;
+                        var total = 0;
+                        for (var i = 0; i < scaleData.length; i++) {
+                            total += scaleData[i].value;
+                        }
+                        percent = ((params.value / total) * 100).toFixed(0);
+                        if(params.name !== '') {
+                            return params.name + '\n{white|' + '占比' + percent + '%}';
+                        }else {
+                            return '';
+                        }
+                    },
+                    rich: rich
+                },
+                labelLine: {
+                    length:10,
+                    length2:40,
+                    show: true,
+                    color:'#00ffff'
+                }
+            }
+        },
+        data: data
+    }];
+    var salesAcountOption = {
+        title: {
+            text:'经销商纯销占比',
+            textStyle:{
+                color:'#222'
+            },
+            left:'20'
+        },
+        tooltip: {
+            show: false
+        },
+        legend: {
+            show: false
+        },
+        toolbox: {
+            show: false
+        },
+       toolbox: {        show: true,        feature: {            saveAsImage: {}        }    },series: seriesObj
+    };
+ //--------------------------------------------------------------
+
+    var invetoryVarianceOption = {
+        title: {
+            text:'月度库存差异量',
+            textStyle:{
+                color:'#fff'
+            },
+            left:'20'
+        },
+        tooltip: {
+        },
+        grid: {
+            top: '10%',
+            left: '1%',
+            right: '1%',
+            bottom: '8%',
+            containLabel: true,
+        },
+        xAxis: [{
+            type: 'category',
+            data:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+            boundaryGap: false,
+            axisLine: { //坐标轴轴线相关设置。数学上的x轴
+                show: true,
+                lineStyle: {
+                    color: '#233e64'
+                },
+            },
+            axisLabel: { //坐标轴刻度标签的相关设置
+                textStyle: {
+                    color: '#6a9cd5',
+                    margin:15,
+                },
+            },
+            axisTick: { show: false,},
+        }],
+        yAxis: [{
+            type: 'value',
+            splitNumber: 7,
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    color: '#233e64'
+                }
+            },
+            axisLine: {show: false,},
+            axisLabel: {
+                margin:20,
+                textStyle: {
+                    color: '#6a9cd5',
+                },
+                formatter:function(params) {
+                    return params + "%";
+                }
+            },
+            axisTick: { show: false,},
+        }],
+       toolbox: {        show: true,        feature: {            saveAsImage: {}        }    },series: [{
+            name: '库存差异量',
+            type: 'line',
+            smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+            symbolSize:0,
+
+            lineStyle: {
+                normal: {
+                    color: "#3deaff"   // 线条颜色
+                }
+            },
+
+            areaStyle: { //区域填充样式
+                normal: {
+                    //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0,  color: 'rgba(61,234,255, 0.9)'},
+                        { offset: 0.7,  color: 'rgba(61,234,255, 0)'}
+                    ], false),
+
+                    shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+                    shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+                }
+            },
+            data: [90, 105, 84, -125, 110, 92, 98,-51,41,48,95,-85]
+        }]
+    };
+//----------------------------------------------------------
+
+    var scale = 0.6;
+    var echartData = [{
+        value: 2154,
+        percent:51,
+        name: 'East'
+    }, {
+        percent:-31,
+        value: 3854,
+        name: 'SouthEast'
+    }, {
+        percent:131,
+        value: 3515,
+        name: 'NorthEast'
+    }, {
+        percent:-49,
+        value: 3515,
+        name: 'South'
+    }, {
+        percent:91,
+        value: 3854,
+        name: 'West'
+    }]
+    var rich = {
+        yellow: {
+            color: "#ffc72b",
+            fontSize: 30 * scale,
+            padding: [5, 4],
+            align: 'center'
+        },
+        total: {
+            color: "#ffc72b",
+            fontSize: 40 * scale,
+            align: 'center'
+        },
+        black: {
+            color: "#000",
+            align: 'center',
+            fontSize: 14 * scale,
+            padding: [21, 0]
+        },
+        blue: {
+            color: '#49dff0',
+            fontSize: 16 * scale,
+            align: 'center'
+        },
+        hr: {
+            borderColor: '#0b5263',
+            width: '100%',
+            borderWidth: 1,
+            height: 0,
+        }
+    }
+    var pieoption = {
+        title: {
+            text:'总经销商数',
+            left:'center',
+            top:'53%',
+            padding:[24,0],
+            textStyle:{
+                color:'#222',
+                fontSize:18*scale,
+                align:'center'
+            }
+        },
+        legend: {
+            selectedMode:false,
+            formatter: function(name) {
+                var total = 0; //各科正确率总和
+                var averagePercent; //综合正确率
+                echartData.forEach(function(value, index, array) {
+                    total += value.value;
+                });
+                return '{total|' + total + '}';
+            },
+            data: [echartData[0].name],
+            // data: ['高等教育学'],
+            // itemGap: 50,
+            left: 'center',
+            top: 'center',
+            icon: 'none',
+            align:'center',
+            textStyle: {
+                color: "#222",
+                fontSize: 16 * scale,
+                rich: rich
+            },
+        },
+       toolbox: {        show: true,        feature: {            saveAsImage: {}        }    },series: [{
+            name: '总经销商数',
+            type: 'pie',
+            radius: ['42%', '50%'],
+            hoverAnimation: false,
+            color: ['#c487ee', '#deb140', '#49dff0', '#034079', '#6f81da', '#00ffb4'],
+            label: {
+                normal: {
+                    formatter: function(params, ticket, callback) {
+                        var total = 0; //考生总数量
+                        var percent = 0; //考生占比
+                        echartData.forEach(function(value, index, array) {
+                            total += value.value;
+                        });
+                        percent = ((params.value / total) * 100).toFixed(1);
+                        return '{white|区域：' + params.name + '}\n{hr|}\n{yellow|个数：' + params.value + '}\n{blue|经销商占比：' + percent + '%}\n{white|库存差异比：' + params.percent + '%}';
+                    },
+                    rich: rich
+                },
+            },
+            labelLine: {
+                normal: {
+                    length: 55 * scale,
+                    length2: 0,
+                    lineStyle: {
+                        color: '#0b5263'
+                    }
+                }
+            },
+            data: echartData
+        }]
+    };
+
+
+
+   var piesoption = {
+
+       toolbox: {        show: true,        feature: {            saveAsImage: {}        }    },series: [
+            {
+                name: ' 总销售额（万元）',
+                type: 'pie',
+                radius: ['60%', '80%'],
+                center: ['15%', '50%'],
+                startAngle: 225,
+                color: [new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: '#00a2ff'
+                }, {
+                    offset: 1,
+                    color: '#70ffac'
+                }]), "transparent"],
+                labelLine: {
+                    normal: {
+                        show: false
+                    }
+                },
+                label: {
+                    normal: {
+                        position: 'center'
+                    }
+                },
+                data: [{
+                    value: 75,
+                    name: '总销售额',
+                    label: {
+                        normal: {
+                            formatter: '总销售额',
+                            textStyle: {
+                                color: '#222',
+                                fontSize: 16
+
+                            }
+                        }
+                    }
+                }, {
+                    value: 25,
+                    name: '%',
+                    label: {
+                        normal: {
+                            formatter: '\n400',
+                            textStyle: {
+                                color: '#007ac6',
+                                fontSize: 30
+
+                            }
+                        }
+                    }
+                },
+                    {
+                        value: 0,
+                        name: '%',
+                        label: {
+                            normal: {
+                                formatter: '万元',
+                                textStyle: {
+                                    color: '#222',
+                                    fontSize: 16
+
+                                }
+                            }
+                        }
+                    }]
+            },
+            {
+                name: '平均账期',
+                type: 'pie',
+                radius: ['60%', '80%'],
+                center: ['46%', '50%'],
+                startAngle: 225,
+                color: [new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: '#00a2ff'
+                }, {
+                    offset: 1,
+                    color: '#70ffac'
+                }]), "transparent"],
+                labelLine: {
+                    normal: {
+                        show: false
+                    }
+                },
+                label: {
+                    normal: {
+                        position: 'center'
+                    }
+                },
+                data: [{
+                    value: 75,
+                    name: '平均账期',
+                    label: {
+                        normal: {
+                            formatter: '平均账期',
+                            textStyle: {
+                                color: '#222',
+                                fontSize: 16
+
+                            }
+                        }
+                    }
+                }, {
+                    value: 25,
+                    name: '%',
+                    label: {
+                        normal: {
+                            formatter: '\n85',
+                            textStyle: {
+                                color: '#007ac6',
+                                fontSize: 30
+
+                            }
+                        }
+                    }
+                },
+                    {
+                        value: 0,
+                        name: '%',
+                        label: {
+                            normal: {
+                                formatter: '天',
+                                textStyle: {
+                                    color: '#222',
+                                    fontSize: 16
+
+                                }
+                            }
+                        }
+                    }]
+            },
+            {
+                name: ' 平均库存天数',
+                type: 'pie',
+                radius: ['60%', '80%'],
+                center: ['80%', '50%'],
+                startAngle: 225,
+                labelLine: {
+                    normal: {
+                        show: false
+                    }
+                },
+                label: {
+                    normal: {
+                        position: 'center'
+                    }
+                },
+                data: [{
+                    value: 75,
+                    "itemStyle": {
+                        "normal": {
+                            "color": new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                "offset": 0,
+                                "color": '#f125ff'
+                            }, {
+                                "offset": 1,
+                                "color": '#2dcbff'
+                            }]),
+                        }
+                    },
+                    name: '平均库存天数',
+                    label: {
+                        normal: {
+                            formatter: '平均库存天数',
+                            textStyle: {
+                                color: '#222',
+                                fontSize: 16
+
+                            }
+                        }
+                    }
+                }, {
+                    value: 25,
+                    name: '%',
+                    label: {
+                        normal: {
+                            formatter: '\n34',
+                            textStyle: {
+                                color: '#f125ff',
+                                fontSize: 30
+
+                            }
+                        }
+                    }
+                },
+                    {
+                        value: 0,
+                        name: '%',
+                        label: {
+                            normal: {
+                                formatter: '天',
+                                textStyle: {
+                                    color: '#222',
+                                    fontSize: 16
+
+                                }
+                            }
+                        }
+                    }]
+            },
+
+        ]
+    };
+    $(document).ready(function () {
+        var middleChart = echarts.init(document.getElementById("scatter"));
+        middleChart.setOption(piesoption);
+        var righttopChart = echarts.init(document.getElementById("sales-acount"));
+        righttopChart.setOption(salesAcountOption);
+        var rightbottomchart = echarts.init(document.getElementById("invetory-variance"));
+        rightbottomchart.setOption(invetoryVarianceOption);
+
+        var piechart = echarts.init(document.getElementById("pie"));
+        piechart.setOption(pieoption);
+    });
+</script>
+
+<body style="margin: 0;background: #f9f9f9;">
+<div id="scatter" class="halflefttop">
+
+</div>
+<div id="sales-acount" class="halfrightbottom"></div>
+<div id="invetory-variance" class="halfleftbottom"></div>
+<div id="pie" class="halfrighttop"></div>
+</body>
+
+</html>

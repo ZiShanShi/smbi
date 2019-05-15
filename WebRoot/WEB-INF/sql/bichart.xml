@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sql PUBLIC "sql" "../config/sql.dtd" >
+
+<sqls>
+	<dataSpace name="bichart">
+
+		<sql name="getLastDataTime">
+			SELECT top 1 BizDate from @{DDITable} ORDER BY BizDate desc
+
+		</sql>
+
+		<sql name="getGaugeAchieve">
+			SELECT
+			sum(monthsum) as sumdata, sum(monthTarget) as target , (ISNULL(sum(monthsum), 0) * 100/ ISNULL(sum(monthTarget), 1)) as achieve
+			from VIEW_@{dataType}_Month_@{brandType} m
+			LEFT JOIN md_peroid p on m.peroid = p.id
+			WHERE @{filter}
+
+		</sql>
+
+		<sql name="getMonthAchieve">
+			SELECT
+			MONTH,
+			ISNULL(SUM(monthsum), 0) AS sumdata,
+			ISNULL(SUM(monthTarget), 0) AS target,
+			(
+			ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS achieve
+			FROM
+			md_peroid p
+			LEFT JOIN  m ON m.peroid = p.id
+			WHERE
+			YEAR = @{year}
+			@{userid}
+			GROUP BY
+			p.[month]
+			ORDER BY
+			[month]
+
+		</sql>
+
+
+		<sql name="brandbak">
+			SELECT *,
+			(achieve - preachieve) * 100/ CASE WHEN preachieve = 0 THEN 1 ELSE preachieve END  as growth
+
+			from (
+			SELECT
+			a01.Brand,
+			SUM (monthsum) AS sumdata,
+			SUM (monthTarget) AS target,
+			SUM (presum) AS presumdata,
+			SUM (pretarget) AS pretarget,
+			(
+			ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS achieve,
+			(
+			ISNULL(SUM(presum), 0) * 100 / ISNULL(SUM(pretarget), 1)
+			) AS preachieve
+
+			from(
+			SELECT
+			Brand, m.@{datatypecode}, p.monthno, monthsum, monthTarget
+			from @{tableName} m
+			LEFT JOIN md_peroid p on p.id = m.peroid
+			where @{filter}
+			)a01
+			LEFT JOIN
+			(
+			SELECT　@{datatypecode},monthno, monthsum as presum　, monthTarget as pretarget  from @{tableName} m
+			LEFT JOIN md_peroid p on p.id = m.peroid
+			)a02 on a01.@{datatypecode} = a02.@{datatypecode} and a01.monthno = a02.monthno + 12
+			GROUP BY a01.Brand
+			) total
+
+		</sql>
+		<sql name="getBrandAchieve">
+
+			SELECT a01.Brand, a01.sumdata, a02.presumdata, a01.target ,a01.achieve ,
+			(sumdata - presumdata) * 100/ CASE WHEN presumdata = 0 THEN 1 ELSE presumdata END  as growth
+			from (
+			SELECT
+			Brand,
+			p.year,
+			SUM (monthsum) AS sumdata,
+			SUM (monthTarget) AS target,
+			(ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS achieve
+			FROM
+			@{tableName} m
+			LEFT JOIN md_peroid p ON p.id = m.peroid
+			WHERE
+			@{filter}
+			GROUP BY brand, [year]
+			)a01
+			LEFT JOIN
+			(
+			SELECT
+			Brand,
+
+			p.year,
+			SUM (monthsum) AS presumdata,
+			SUM (monthTarget) AS pretarget,
+			(
+			ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS preachieve
+			FROM
+			@{tableName} m
+			LEFT JOIN md_peroid p ON p.id = m.peroid
+
+			GROUP BY brand, [year]
+			) a02
+			on a01.Brand = a02.Brand  and a01.year = a02.year + 1
+
+
+		</sql>
+
+		<sql name="getAreaAchieve">
+			SELECT a01.Region, sumdata,presumdata, target,achieve,
+			(sumdata - presumdata) * 100/ CASE WHEN presumdata = 0 THEN 1 ELSE presumdata END  as growth
+			from (
+			SELECT
+			r.Region,
+			[year],
+			SUM (monthsum) AS sumdata,
+			SUM (monthTarget) AS target,
+			(
+			ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS achieve
+			FROM
+			RSMRegion r
+			@{organizationJoin}
+			LEFT JOIN md_peroid p ON m.peroid = p.id
+			WHERE
+			@{filter}
+			AND r.Region IS NOT NULL
+			AND p.id IS NOT NULL
+			GROUP BY
+			r.Region,[year]
+			)a01
+			LEFT JOIN
+			(
+			SELECT
+			r.Region,
+			[year],
+			SUM (monthsum) AS presumdata,
+			SUM (monthTarget) AS pretarget,
+			(
+			ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS preachieve
+			FROM
+			RSMRegion r
+			@{organizationJoin}
+			LEFT JOIN md_peroid p ON m.peroid = p.id
+			WHERE
+			r.Region IS NOT NULL
+			AND p.id IS NOT NULL
+			GROUP BY
+			r.Region,[year]
+			)a02 on a01.Region = a02.Region and a01.[year] = a02.[year] + 1
+
+		</sql>
+
+		<sql name="getAreaAchieveBak">
+			SELECT * , (achieve - preachieve) * 100/ CASE WHEN preachieve = 0 THEN 1 ELSE preachieve END  as growth from (
+			SELECT
+			Region,
+			sum(monthsum) as sumdata,
+			sum(monthTarget) as target ,
+			sum(presum) as presumdata,
+			sum(pretarget) as pretarget ,
+			(ISNULL(sum(monthsum), 0) * 100/ ISNULL(sum(monthTarget), 1)) as achieve,
+			(ISNULL(sum(presum), 0) * 100/ ISNULL(sum(pretarget), 1)) as preachieve
+			from (
+
+			SELECT
+			r.Region, m.@{datatypecode}, p.id,monthsum,monthTarget,p.monthno
+			from RSMRegion r
+			@{organizationJoin}
+
+			LEFT JOIN md_peroid p on m.peroid = p.id
+
+			WHERE  @{filter} and r.Region is not null and p.id is not null
+			)a01
+			LEFT JOIN
+			(
+			SELECT monthsum as presum,monthTarget as pretarget,p.monthno as premonthno, m.@{datatypecode} as @{datatypecode}
+			from @{tableName} m
+			LEFT JOIN md_peroid p on m.peroid = p.id
+			) a02 on a01.@{datatypecode} = a02.@{datatypecode} and a01.monthno = a02.premonthno + 12
+			group by Region
+			) alldata
+		</sql>
+
+		<sql name="getCompanySum">
+			<![CDATA[
+			SELECT
+			top 10
+
+			 a01.CompanyName, a01.Amount, preAmount from (
+					SELECT
+					YEAR,
+				agg.CompanyCode,
+				b.CompanyName,
+				SUM (Amount) AS Amount
+					FROM
+					agg_Sale_c_o_pe_pr agg
+					LEFT JOIN md_peroid a ON agg.peroid = a.id
+					LEFT JOIN Company b ON agg.CompanyCode = b.Companycode
+					WHERE
+					aggcode = '@{aggcode}'
+					and @{filter}
+					@{userid}
+			GROUP BY
+				YEAR,
+				agg.CompanyCode,
+			b.CompanyName
+			)a01
+			LEFT JOIN(
+			SELECT
+							YEAR,
+				agg.CompanyCode,
+				SUM (Amount) AS preAmount
+					FROM
+						agg_Sale_c_o_pe_pr agg
+					LEFT JOIN md_peroid a ON agg.peroid = a.id
+					LEFT JOIN Company b ON agg.CompanyCode = b.Companycode
+					WHERE
+						aggcode = '@{aggcode}'
+			GROUP BY
+				YEAR,
+			b.CompanyName,
+				agg.CompanyCode
+			) a02  on a01.CompanyCode = a02.CompanyCode and a01.year = a02.year + 1
+			ORDER BY Amount desc
+			]]>
+
+		</sql>
+		<sql name="getDsoAmount">
+			SELECT
+			TOP 10 a01.terminalname,
+			a01.Amount,
+			preAmount
+			FROM
+			(
+			SELECT
+			YEAR,
+			terminalname,
+			SUM (Amount) AS Amount
+			FROM
+			agg_Sale_c_o_pe_pr agg
+			LEFT JOIN md_peroid a ON agg.peroid = a.id
+			LEFT JOIN Company b ON agg.CompanyCode = b.Companycode
+			LEFT JOIN LargeDSO l on b.Family = l.terminalname
+			WHERE
+			aggcode = '@{aggcode}'
+			AND @{filter}
+			@{userid}
+			and terminalname is not null
+			GROUP BY
+			YEAR,
+			terminalname
+			) a01
+			LEFT JOIN (
+			SELECT
+			YEAR,
+			terminalname,
+			SUM (Amount) AS preAmount
+			FROM
+			agg_Sale_c_o_pe_pr agg
+			LEFT JOIN md_peroid a ON agg.peroid = a.id
+			LEFT JOIN Company b ON agg.CompanyCode = b.Companycode
+			LEFT JOIN LargeDSO l on b.Family = l.terminalname
+			WHERE
+			aggcode = '@{aggcode}'
+			GROUP BY
+			YEAR,
+
+			terminalname
+			) a02 ON a01.terminalname = a02.terminalname
+			AND a01. YEAR = a02. YEAR + 1
+			ORDER BY Amount desc
+		</sql>
+		<sql name="getai">
+			SELECT a01.Region, Quantity, preQuantity,
+			ISNULL(Quantity, 0) / ISNULL(preQuantity, 1) AS rate
+			FROM(
+			SELECT
+			Region,  SUM(Quantity) AS Quantity
+			FROM (
+			SELECT
+			Region, peroid,SUM(Quantity) AS Quantity,pr.brand
+			FROM agg_@{dataType}_d_o_pe_pr agg
+			LEFT JOIN DistributorHierarchy h ON h.DistributorCode = agg.DistributorCode
+			LEFT JOIN Product pr ON agg.ProductCode = pr.ProductCode
+			WHERE aggcode = '@{aggcode}' @{userid}
+			AND pr.ProductType LIKE '%Abutment%'
+			AND Region IS NOT NULL
+			GROUP BY Region, peroid, pr.brand
+			) a0
+			LEFT JOIN md_peroid p ON p.id = a0.peroid
+			where @{filter}
+			GROUP BY Region,brand
+			)a01
+			LEFT JOIN
+			(
+			SELECT
+			Region,  SUM(Quantity) AS preQuantity
+			FROM (
+			SELECT
+			Region, peroid,SUM(Quantity) AS Quantity,pr.brand
+			FROM agg_@{dataType}_d_o_pe_pr agg
+			LEFT JOIN DistributorHierarchy h ON h.DistributorCode = agg.DistributorCode
+			LEFT JOIN Product pr ON agg.ProductCode = pr.ProductCode
+			WHERE aggcode = '@{aggcode}' @{userid}
+			AND pr.ProductType LIKE '%implant%'
+			AND Region IS NOT NULL
+			GROUP BY Region, peroid, pr.brand
+			) a0
+			LEFT JOIN md_peroid p ON p.id = a0.peroid
+			where @{filter}
+			GROUP BY Region,brand
+			)
+			a02 ON a01.Region = a02.Region
+
+		</sql>
+		<sql name="getaibak">
+			SELECT a01.Region, Quantity, preQuantity,
+			ISNULL(Quantity, 0) / ISNULL(preQuantity, 1) as rate
+			from(
+			SELECT
+			Region, sum(Quantity) AS Quantity
+			from agg_@{dataType}_d_pe_pr agg
+			LEFT JOIN DistributorHierarchy h on h.DistributorCode = agg.DistributorCode
+			LEFT JOIN md_peroid p on p.id = agg.peroid
+			WHERE aggcode = 'DistributorCode-peroid-productType'
+			and ProductType like '%Abutment%'
+			and Region is not null
+			and @{filter}
+			GROUP BY Region
+			)a01
+			LEFT JOIN
+			(
+			SELECT
+			Region,sum(Quantity) AS preQuantity
+			from agg_@{dataType}_d_pe_pr agg
+			LEFT JOIN DistributorHierarchy h on h.DistributorCode = agg.DistributorCode
+			LEFT JOIN md_peroid p on p.id = agg.peroid
+			WHERE aggcode = 'DistributorCode-peroid-productType'
+			and ProductType like '%implant%'
+			and Region is not null
+			and @{filter}
+			GROUP BY Region
+			)
+			a02 on a01.Region = a02.Region
+
+		</sql>
+		<sql name="aggTarget">
+			update @{aggtable}  set @{aggtable}.@{targetName} = m.monthTarget
+
+			from @{aggtable} agg
+			LEFT JOIN md_peroid p on agg.peroid = p.id
+			LEFT JOIN @{targetTableName} m on
+			agg.brand = m.Brand and p.quarter = m.quarter and p.[year] = m.[Year]
+			@{tagertjion}
+
+			WHERE
+			agg.brand  is not null  and agg.peroid is not null
+			@{targetfilter}
+			and m.Category = '@{category}'
+
+		</sql>
+
+		<sql name="aggAchieve">
+
+			UPDATE @{aggtable} set @{achieve} = ISNULL(@{account}, 0) * 100 / ISNULL(@{target}, 1)
+
+			from @{aggtable} WHERE @{target} is not null
+
+
+		</sql>
+		<sql name="aggMgrowth">
+
+			UPDATE @{aggtable}  set @{mgrowth} =
+			(a0.@{account} - a0.preAccount) * 100/ preAccount
+			from(
+			SELECT agg.id, agg.@{account}, preAccount,@{aggdimensions} from @{aggtable}  agg
+			LEFT JOIN md_peroid p on p.id = agg.peroid
+
+			inner JOIN
+			(
+			SELECT [monthno],@{dimensions}, @{account} as preAccount from @{aggtable} ag
+			LEFT JOIN md_peroid p1 on p1.id = ag.peroid
+			) a01
+			ON a01.[monthno] + 12 = p.monthno and @{growthjion}
+			)
+			a0
+			WHERE  preAccount is not null
+
+		</sql>
+	</dataSpace>
+</sqls>

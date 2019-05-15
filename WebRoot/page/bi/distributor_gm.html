@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>经销商管理</title>
+    <link href="../../css/distributor.css" rel="stylesheet">
+    <link href="../../css/control.css" rel="stylesheet">
+    		<link href="../../css/jquery-ui.min.css" rel="stylesheet">
+		<link href="../../css/jquery.multiselect.css" rel="stylesheet">
+    <script type="text/javascript" src="../../js/jquery1.8.min.js"></script>
+    		<script type="text/javascript" src="../../js/jquery-ui-1.10.4.js" ></script>
+		<script type="text/javascript" src="../../js/jquery.multiselect.js" ></script>
+    <script type="text/javascript" src="../../js/echarts.min.3.8.5.js"></script>
+    <script type="text/javascript" src="../../js/china.js"></script>
+    <script type="text/javascript" src="../../js/foundation-2.0.js"></script>
+    <script type="text/javascript" src="../../js/control.js"></script>
+    <script type="text/javascript" src="../../js/random.js"></script>
+    <script type="text/javascript" src="../../option/distributor_gm.js"></script>
+    <style>
+        
+    </style>
+</head>
+
+<script>
+
+    $(document).ready(function () {
+        var middleChart = echarts.init(document.getElementById("scatter"));
+        middleChart.setOption(piesoption);
+        var righttopChart = echarts.init(document.getElementById("sales-acount"));
+        righttopChart.setOption(salesAcountOption);
+        var mapchart = echarts.init(document.getElementById("invetory-variance"));
+        mapchart.setOption(mapoption);
+
+        //var piechart = echarts.init(document.getElementById("pie"));
+        //piechart.setOption(pieoption);
+        
+        var righttopChart = echarts.init(document.getElementById("topsales"));
+        righttopChart.setOption(compareoption);
+        
+        var heatchart = echarts.init(document.getElementById("inventory"));
+        heatchart.setOption(inventoryOption);
+        
+        heatchart.on('legendselectchanged', function(params) {
+        	 var option = heatchart.getOption();
+        	 if(params.name == "账期") {
+        	 	option.yAxis[0].axisLabel.formatter = '{value}月'; 
+        	 }else {
+        	 	option.yAxis[0].axisLabel.formatter = '{value}天'; 
+        	 }
+        	 heatchart.setOption(option);
+        });
+        
+        $(window).bind('resize',resizeChart);
+
+        mapchart.on('mouseover', function(params) {
+    	    var city = params.name;
+    	    
+    	    if (city == '福建' || city == '广东' || city == '广西' || city == '海南') {
+    	        rightbottomchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "福建"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "广东"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "广西"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "海南"
+    	        });
+    	    }
+
+    	    if (city == '江苏' || city == '浙江' || city == '安徽' || city == '江西' || city == '湖北' || city == '湖南') {
+    	        
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "江苏"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "浙江"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "安徽"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "江西"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "湖北"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "湖南"
+    	        });
+    	    }
+
+    	    if (city == '山东' || city == '河南') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "山东"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "河南"
+    	        });
+    	       
+    	    }
+
+    	    if (city == '重庆' || city == '四川' || city == '贵州' || city == '云南') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "重庆"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "四川"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "贵州"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "云南"
+    	        });
+
+    	    }
+    	    if (city == '北京' || city == '天津' || city == '河北') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "北京"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "天津"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "河北"
+    	        });
+    	    }
+    	    if (city == '山西' || city == '陕西' || city == '甘肃' || city == '青海' || city == '宁夏' || city == '新疆' ) {
+
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "山西"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "陕西"
+    	        });
+    	         mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "甘肃"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "青海"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "宁夏"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "新疆"
+    	        });
+
+    	    }
+    	    if (city == '辽宁' || city == '吉林' || city == '黑龙江'|| city == '内蒙古') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "辽宁"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "吉林"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "黑龙江"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'highlight',
+    	            name: "内蒙古"
+    	        });
+    	    }
+
+    	});
+
+    	mapchart.on('mouseout', function(params) {
+    	    var city = params.name;
+    	    if (city == '福建' || city == '广东' || city == '广西' || city == '海南') {
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "福建"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "广东"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "广西"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "海南"
+    	        });
+    	    }
+    	    if (city == '江苏' || city == '浙江' || city == '安徽' || city == '江西' || city == '湖北' || city == '湖南') {
+    	        
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "江苏"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "浙江"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "安徽"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "江西"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "湖北"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "湖南"
+    	        });
+    	    }
+    	    
+    	    if (city == '山东' || city == '河南') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "山东"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "河南"
+    	        });
+    	    
+    	    }
+
+    	    if (city == '重庆' || city == '四川' || city == '贵州' || city == '云南') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "重庆"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "四川"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "贵州"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "云南"
+    	        });
+
+    	    }
+    	    if (city == '北京' || city == '天津' || city == '河北') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "北京"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "天津"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "河北"
+    	        });
+
+    	    }
+    	    if (city == '山西' || city == '陕西' || city == '甘肃' || city == '青海' || city == '宁夏' || city == '新疆' ) {
+
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "山西"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "陕西"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "甘肃"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "青海"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "宁夏"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "新疆"
+    	        });
+
+    	    }
+    	    if (city == '辽宁' || city == '吉林' || city == '黑龙江'|| city == '内蒙古') {
+
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "辽宁"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "吉林"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "黑龙江"
+    	        });
+    	        mapchart.dispatchAction({
+    	            type: 'downplay',
+    	            name: "内蒙古"
+    	        });
+    	    }
+    	    
+    	});
+
+        initCommonMutiSelect();
+
+        initPeroidMonth();
+    });
+</script>
+
+<body style="margin: 0;background: #f9f9f9;">
+<div   class="halflefttop">
+	<div id="scatter"  style="width: 100%; height: 100%;padding-top: 30px;display: table;"></div>
+</div>
+<div  class="halfrighttop">
+	<div class="panel-inner">
+		<div class="title-img">
+			<img src="../../image/report-color.png" width="24">
+		</div>
+		<div class="title">经销商纯销占比</div>
+		<div id="sales-acount" class="report-body"></div>
+	</div>
+</div>
+<div  class="halfleftmiddle">
+	<div class="panel-inner">
+		<div class="title-img">
+			<img src="../../image/report-color.png" width="24">
+		</div>
+		<div class="title">经销商区域占比</div>
+		<div id="invetory-variance" class="report-body"></div>
+	</div>
+</div>
+
+<div class="halfrightmiddle">
+<div class="panel-inner">
+		<div class="title-img">
+			<img src="../../image/report-color.png" width="24">
+		</div>
+		<div class="title">月度进销存对比</div>
+		<div id="topsales" style="width: 100%;height: 100%"></div> 
+	</div>
+<div class = "details-bottom" onclick="changetab('../bi/distributoraccount.html',2,4)">&nbsp;&gt;&gt;&nbsp;明细&nbsp;&nbsp;</div>
+
+</div>
+
+<div class="bottom">
+	<div class="panel-inner">
+			<div class="title-img">
+				<img src="../../image/report-color.png" width="24">
+			</div>
+			<div class="title">经销商库存&账期</div>
+			<div id="inventory" style="width: 100%;height: 100%"></div>
+	</div>
+	<div class = "details-bottom" onclick="changetab('../bi/inventorysum.html', 2, 3)">&nbsp;&gt;&gt;&nbsp;明细&nbsp;&nbsp;</div>
+
+</div>
+<div class = "periodselectdiv ">
+			<div style="float: left;">年：
+				<select id="year" class="periodselect">
+					<option>2017</option>
+					<option selected="selected">2018</option>
+					<option>2019</option>
+					<option>2020</option>
+				</select>
+				</div>
+				<div style="float: left;">季度：
+				<select id="quarter" class="periodselect">
+
+					<option value="1">Q1</option>
+					<option value="2">Q2</option>
+					<option value="3">Q3</option>
+					<option value="4">Q4</option>
+				</select>
+				</div>
+					<div style="float: left;">月份：
+				<select id="month" class="periodselect">
+
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+				</select>
+				</div>
+				<div style="float: left;">产品线：
+					<select id="brand"  class="periodselect" >
+						<option value="Straumann">士卓曼</option>
+						<option value="Anthogyr">安卓健</option>
+						<option value="Tplus">T-plus</option>
+					</select>
+				</div>
+			</div>
+</body>
+
+</html>
