@@ -35,10 +35,12 @@
             var instance = echarts.getInstanceByDom(document.getElementById("salehistory"));
             var option = instance.getOption();
             var one = topicMap[1];
-            one.type = type;
+			one.type = type;
 
 
             if ("Roxolid" == type) {
+                //one.fields = "Amount;roxolidtarget;roxolidachieve;roxolidygrowth;region;";
+                //one.filter = " and ProductType like '%Roxolid%'";
                 option.yAxis[0].name = "颗数";
                 option.yAxis[0].axisLabel.formatter = "{value}";
                 option.tooltip.formatter = function(params,) {
@@ -56,6 +58,8 @@
 
                 };
             } else {
+                //one.fields = "Amount;target;achieve;ygrowth;region";
+                //one.filter = undefined;
                 option.yAxis[0].name = "销售额(k)";
                 option.yAxis[0].axisLabel.formatter = "{value}k";
                 option.tooltip.formatter = function(params,) {

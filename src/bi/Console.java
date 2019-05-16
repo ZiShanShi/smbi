@@ -15,6 +15,7 @@ import foundation.util.Util;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Console extends Callable {
 
@@ -100,12 +101,14 @@ public class Console extends Callable {
             return;
         }
 
+
+
 		if (Util.isNull(fields)) {
 			if (AggConstant.achieve.equalsIgnoreCase(code)) {
                 String sqlName = request.getParameter(AggConstant.dataName);
                 aggCode = request.getParameter(AggConstant.BI_Field_Aggcode);
                 dataType = request.getParameter(AggConstant.dataType);
-                if (Util.isNull(sqlName) || Util.isNull(aggCode)) {
+                if (Util.isNull(sqlName)) {
                     return;
                 } else {
                     fields = sqlName;
@@ -163,7 +166,14 @@ public class Console extends Callable {
     private List<String> combineList(List<String> fieldList) {
         ArrayList<String> resultList = new ArrayList<>();
         for (String field : fieldList) {
+            if (Util.isNull(field)) {
+                field = Util.String_Empty;
+            }
             resultList.add(combineOneData(field));
+        }
+        List<String> collect = resultList.stream().filter(s -> !Util.isNull(s)).collect(Collectors.toList());
+        if (collect.size() == 0) {
+            resultList = new ArrayList<>();
         }
         return resultList;
     }

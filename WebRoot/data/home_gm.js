@@ -308,20 +308,24 @@ var businesshistoryOption = clone(historyOption);
 var topicMap = [
     {
         id:"saleachieve",
-        topicCode: "Sale",
-        fields: "achieve;target;Amount",
+        topicCode: "achieve",
+        fields: "",
+        dataname:"getGaugeAchieve",
+        dataType:'sellout',
         elementMap:{
             "series[0];data[0];value":"achieve",
             "#saletarget":"target",
-            "#salereal":"Amount"
+            "#salereal":"sumdata"
 
         },
     }
     ,
     {
         id:"businessachieve",
-        topicCode: "Purchase",
-        fields: "achieve;target;Amount",
+        topicCode: "achieve",
+        fields: "",
+        dataname:"getGaugeAchieve",
+        dataType:'sellin',
         elementMap:{
             "series[0];data":"achieve",
             "#businesstarget":"target",

@@ -26,7 +26,7 @@
 			WHERE aggcode = '@{aggcode}' and @{filter} and @{notnull} @{userid}
 			)
 			a01
-			GROUP BY  @{groupby}
+			@{groupby}
 
 		</sql>
 

@@ -37,6 +37,14 @@ public class LeftSegment  {
 
     }
 
+    public String getAcronymString () {
+        if (Util.isNull(leftTable) || Util.isNull(nowtable) || Util.isNull(leftField) || Util.isNull(nowField)) {
+            return null;
+        } else {
+            return MessageFormat.format(AggConstant.LeftJoinFactor_Template, nowtable,nowField,leftTableAcronym,leftField);
+        }
+    }
+
     @Override
     public int hashCode() {
         if (Util.isNull(nowtable)) {

@@ -51,7 +51,7 @@ function changeOption(option, key, value) {
     var idx = endkey.indexOf(".");
     if(idx != -1) {
         var prekey = endkey.substring(0, idx);
-        var endkey = endkey.substring(idx, endkey.length);
+        var endkey = endkey.substring(idx + 1, endkey.length);
 
         if (value instanceof Array) {
             for(var i = 0; i <value.length; i++) {
@@ -163,6 +163,9 @@ function resizeChart() {
 function formatterOneMoney(money) {
 	  if(money && money!=null){
 	        money = String(money);
+	        if("" == money.trim()) {
+                return "";
+            }
 	        var left=money.split('.')[0],right=money.split('.')[1];
 	        right = right ? (right.length>=2 ? '.'+right.substr(0,2) : '.'+right+'0') : '.00';
 	        var temp = left.split('').reverse().join('').match(/(\d{1,3})/g);
@@ -557,6 +560,9 @@ function resetChartData(one) {
 
     chartInstance.showLoading('default', {text:'获取中..'});
     Server.call("root/bi/data", params, function (result) {
+        if(!result) {
+            return;
+        }
         for (var one in map){
             var val = map[one];
             var top = one.substring(0, 1);

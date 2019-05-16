@@ -1,9 +1,6 @@
 package bi;
 
-import bi.define.AggDimensionsContainer;
-import bi.define.AggMainFieldContainer;
-import bi.define.Dimension;
-import bi.define.DimensionGroup;
+import bi.define.*;
 import bi.exception.AggCalculateException;
 import foundation.persist.sql.LeftSegment;
 import foundation.persist.sql.NamedSQL;
@@ -21,9 +18,8 @@ import java.util.stream.Collectors;
 public class GroupSqlBulider {
     private Logger logger;
     private List<String> measurmentList;
-    private Map<String, LeftSegment> mainSegmentMap;
+    private Map<MainField, LeftSegment> mainSegmentMap;
     private Map<String, Dimension> dimensionLevelMap;
-    private boolean isMonthData = false;
 
     private static Map<String, String> peroidNameMap = new HashMap<>();
     static {
@@ -37,7 +33,7 @@ public class GroupSqlBulider {
     private String aggCode;
     private String filter;
     private String userType;
-    private boolean addRegion = false;
+    private boolean addDistributor = false;
 
     public GroupSqlBulider() {
         logger = Logger.getLogger(this.getClass());
@@ -47,9 +43,8 @@ public class GroupSqlBulider {
         this.aggCode = null;
         this.filter = null;
         this.userType = null;
-        this.isMonthData = false;
         this.addBrand = false;
-        this.addRegion = false;
+        this.addDistributor = false;
         this.userId = null;
 
         dimensionLevelMap = null;
@@ -68,26 +63,34 @@ public class GroupSqlBulider {
         long brandCount = Arrays.stream(fieldsArray).filter(s -> s.equalsIgnoreCase(AggConstant.Brand)).count();
         if (brandCount == 0) {
             addBrand = true;
-            dragableFieldList.add(new AggDragableField(AggConstant.Brand));
-        }
-        long regionCount = Arrays.stream(fieldsArray).filter(s -> s.equalsIgnoreCase(AggConstant.Region)).count();
-        if (regionCount == 0) {
-            addRegion = true;
-            dragableFieldList.add(new AggDragableField(AggConstant.Region));
+            dragableFieldList.add(new AggDragableField(AggConstant.Brand, true));
         }
 
-        //默认添加peroid orgaineze  pr
-        dragableFieldList.add(new AggDragableField(AggConstant.peroid));
+        //默认添加peroid orgaineze  pr  Distributor 截取
+        dragableFieldList.add(new AggDragableField(AggConstant.peroid, true));
 
         if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
-            dragableFieldList.add(new AggDragableField(AggConstant.RSM));
+            dragableFieldList.add(new AggDragableField(AggConstant.RSM, true));
         } else {
-            dragableFieldList.add(new AggDragableField(userType));
+            dragableFieldList.add(new AggDragableField(userType, true));
         }
 
         for (String field : fieldsArray) {
             field = field.trim();
-            AggDragableField aggDragableField = new AggDragableField(field);
+            if (field.toLowerCase().startsWith(AggConstant.distributor)) {
+                AggDragableField distributorDragableField = new AggDragableField(AggConstant.DistributorCode, true);
+                if (!dragableFieldList.contains(distributorDragableField)) {
+                    dragableFieldList.add(distributorDragableField);
+                    addDistributor = true;
+                }
+
+            }
+
+            int dotidx = field.indexOf(Util.Dot);
+            if (dotidx != -1) {
+                field = field.substring(dotidx + 1, field.length());
+            }
+            AggDragableField aggDragableField = new AggDragableField(field, true);
             if (aggDragableField.getType().equals(EDragableFieldType.unknown)) {
                 logger.error(MessageFormat.format("fields中存在不能识别的字段:{0}", field));
                 return null;
@@ -102,7 +105,7 @@ public class GroupSqlBulider {
 
             for (String filterField : filterFieldList) {
                 filterField = filterField.trim();
-                AggDragableField aggDragableField = new AggDragableField(filterField);
+                AggDragableField aggDragableField = new AggDragableField(filterField, false);
 
                 if (aggDragableField.getType().equals(EDragableFieldType.unknown)) {
                     logger.error(MessageFormat.format("{0}--filters中存在不能识别的字段:{1}",topicCode, filterField));
@@ -136,45 +139,7 @@ public class GroupSqlBulider {
                 // 包含peroid 相关
                 Dimension dimension = aggDragableField.getDimension();
                 String groupId = dimension.getGroupId();
-                String dimensionCode = dimension.getCode();
 
-                /*if (groupId.equalsIgnoreCase(AggConstant.peroid) && (dimensionCode.equalsIgnoreCase(AggConstant.month))) {
-                    //包含    月  则关联peroid 否则 将peroid 变成 year 到 month 的
-                    this.isMonthData = true;
-
-                    Dimension peroidDimension = AggDimensionsContainer.getInstance().getPeroidDimension(AggConstant.peroid);
-                    dimensionLevelMap.put(groupId, peroidDimension);
-                    if (dimensionCode.equalsIgnoreCase(AggConstant.month)) {
-                        String peroidName = AggMainFieldContainer.getTableName(rawField);
-                        LeftSegment leftSegment = AggMainFieldContainer.getleftSegment(peroidName);
-                        mainSegmentMap.put(rawField, leftSegment);
-                    }
-                }else if (groupId.equalsIgnoreCase(AggConstant.peroid) && !(dimensionCode.equalsIgnoreCase(AggConstant.month) || dimensionCode.equalsIgnoreCase(AggConstant.peroid))){
-                    //需将 year 加到quarter
-                    regroup = true;
-
-                    String peroidName = AggMainFieldContainer.getTableName(rawField);
-
-                    LeftSegment leftSegment = AggMainFieldContainer.getleftSegment(peroidName);
-                    // 只加了一层  目前够用
-                    String parentCode = dimension.getParentCode();
-                    if (!parentCode.equalsIgnoreCase(dimensionCode)) {
-                        //多加了leftjion 需要后面减
-                        mainSegmentMap.put(parentCode, leftSegment);
-                    }
-                    mainSegmentMap.put(rawField, leftSegment);
-
-                }else if(groupId.equalsIgnoreCase(AggConstant.peroid) && (dimensionCode.equalsIgnoreCase(AggConstant.peroid))) {
-                    Dimension preDimension = dimensionLevelMap.get(groupId);
-
-                    if (Util.isNull(preDimension)) {
-                        dimensionLevelMap.put(groupId, dimension);
-                    }
-                }*/
-
-                /*if (isMonthData && groupId.equalsIgnoreCase(AggConstant.peroid)) {
-                    continue;
-                }*/
                 Dimension preDimension = dimensionLevelMap.get(groupId);
 
                 if (Util.isNull(preDimension)) {
@@ -201,10 +166,17 @@ public class GroupSqlBulider {
                 regroup = true;
                 String mainTableName = aggDragableField.getTableName();
                 LeftSegment leftSegment = AggMainFieldContainer.getleftSegment(mainTableName);
-                mainSegmentMap.put(rawField, leftSegment);
+                MainField mainField = new MainField(rawField, EMainFieldType.main);
+                mainSegmentMap.put(mainField, leftSegment);
+            }else if (EDragableFieldType.filter.equals(type)) {
+                regroup = true;
+                String mainTableName = aggDragableField.getTableName();
+                LeftSegment leftSegment = AggMainFieldContainer.getleftSegment(mainTableName);
+                MainField mainField = new MainField(rawField, EMainFieldType.filter);
+                mainSegmentMap.put(mainField, leftSegment);
             }
 
-        }
+            }
         this.aggTableName = combineAggTableName(topicCode, dimensionLevelMap);
 
         this.aggCode = combineAggCode(dimensionLevelMap);
@@ -226,7 +198,8 @@ public class GroupSqlBulider {
         DimensionGroup dimensionGroupById = AggDimensionsContainer.getInstance().getDimensionGroupById(groupId);
         String masterTableName = dimensionGroupById.getMasterTableName();
         LeftSegment leftSegment = AggMainFieldContainer.getleftSegment(masterTableName);
-        mainSegmentMap.put(rawField, leftSegment);
+        MainField mainField = new MainField(rawField, EMainFieldType.main);
+        mainSegmentMap.put(mainField, leftSegment);
     }
 
     private String getCommonAggSql() {
@@ -286,14 +259,28 @@ public class GroupSqlBulider {
 
         }else if (name.toLowerCase().equalsIgnoreCase("groupby")) {
             builder = getFieldByDimenisonFilter(AggConstant.GroupBy);
-
-            variantString = builder.toString();
+            if (!builder.isEmpty()) {
+                variantString = MessageFormat.format("GROUP BY  {0}", builder.toString());
+            } else {
+                variantString = Util.String_Empty;
+            }
         }else if (name.toLowerCase().equalsIgnoreCase("filter")) {
-            String[] filterSegment = filter.split(Util.And);
+            String[] split = filter.split(Util.And);
             builder = new ContentBuilder(Util.And);
-            for (String oneSegment : filterSegment) {
-                builder.append(MessageFormat.format("({0})", oneSegment));
-
+            for (String oneSegment : split) {
+                oneSegment = oneSegment.trim();
+                Integer index = checkOneFilter(oneSegment);
+                if (Util.isNull(index)) {
+                    continue;
+                }
+                String filterName = oneSegment.substring(0, index).trim();
+                MainField mainField = new MainField(filterName, EMainFieldType.filter);
+                LeftSegment leftSegment = mainSegmentMap.get(mainField);
+                if (Util.isNull(leftSegment)) {
+                    builder.append(MessageFormat.format("({0})", oneSegment));
+                } else {
+                    builder.append(MessageFormat.format("({0})", MessageFormat.format(AggConstant.Select_Field_Template, leftSegment.getLeftTableAcronym(), oneSegment)));
+                }
             }
             variantString = builder.toString();
         }
@@ -336,7 +323,7 @@ public class GroupSqlBulider {
                 if (addBrand && AggConstant.Brand.equalsIgnoreCase(code)) {
                     continue;
                 }
-                if (addRegion && AggConstant.Region.equalsIgnoreCase(code)) {
+                if (addDistributor && AggConstant.DistributorCode.equalsIgnoreCase(code)) {
                     continue;
                 }
                 if (AggConstant.SuperAdmin.equalsIgnoreCase(userType) && code.equalsIgnoreCase(AggConstant.RSM)) {
@@ -350,7 +337,7 @@ public class GroupSqlBulider {
                 if (addBrand && AggConstant.Brand.equalsIgnoreCase(code)) {
                     continue;
                 }
-                if (addRegion && AggConstant.Region.equalsIgnoreCase(code)) {
+                if (addDistributor && AggConstant.DistributorCode.equalsIgnoreCase(code)) {
                     continue;
                 }
                 if (AggConstant.SuperAdmin.equalsIgnoreCase(userType) && code.equalsIgnoreCase(AggConstant.RSM)) {
@@ -359,12 +346,16 @@ public class GroupSqlBulider {
                     field = MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.A01, code);
                 }
             }
+
             finalFieldSet.add(field.trim());
         }
         //main
-        Set<String> mainFieldSet = mainSegmentMap.keySet();
-        for (String mainField : mainFieldSet) {
-            LeftSegment leftSegment = mainSegmentMap.get(mainField);
+        Set<MainField> mainFieldSet = mainSegmentMap.keySet();
+        for (MainField mainFieldBean : mainFieldSet) {
+            String mainField = mainFieldBean.getField();
+            EMainFieldType fieldType = mainFieldBean.getType();
+
+            LeftSegment leftSegment = mainSegmentMap.get(mainFieldBean);
             String leftTableAcronym = leftSegment.getLeftTableAcronym();
             String field = null;
             if (AggConstant.Raw.equalsIgnoreCase(type)) {
@@ -374,13 +365,18 @@ public class GroupSqlBulider {
             }else if (AggConstant.GroupBy.equalsIgnoreCase(type)) {
                 field = MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.A01, mainField);
             }
+            if (Util.isNull(fieldType) || ((AggConstant.GroupBy.equalsIgnoreCase(type)|| AggConstant.Real.equalsIgnoreCase(type)) && fieldType.equals(EMainFieldType.filter))) {
+                continue;
+            }
+
             finalFieldSet.add(field.trim());
         }
 
 
-
         String collect = finalFieldSet.stream().collect(Collectors.joining(Util.comma));
-        builder.append(collect);
+        if (!Util.isNull(collect)) {
+            builder.append(collect);
+        }
 
         return builder;
     }
@@ -389,7 +385,9 @@ public class GroupSqlBulider {
         ContentBuilder builder;
         builder = new ContentBuilder(Util.String_Space);
 
+        // ArrayList<LeftSegment> leftSegmentsList = new ArrayList<>();
         Collection<LeftSegment> leftSegmentsCollextion = mainSegmentMap.values();
+
         HashSet<LeftSegment> leftSegmentSets = new HashSet<>(leftSegmentsCollextion);
         //转set 去重
         for (LeftSegment leftSegment : leftSegmentSets) {
@@ -397,11 +395,8 @@ public class GroupSqlBulider {
             String leftTableAcronym = leftSegment.getLeftTableAcronym();
             String leftSqlSegment = AggConstant.LeftJoinMain_Template.replace(AggConstant.LeftJoin_MainTable, MessageFormat.format(AggConstant.LeftJointableAs, mainTableName, leftTableAcronym));
 
-            leftSegment.setLeftTable(leftTableAcronym);
 
-            leftSqlSegment = leftSqlSegment.replace(AggConstant.LeftJoin_Leftjionfactor, leftSegment.toString());
-
-            leftSegment.setLeftTable(mainTableName);
+            leftSqlSegment = leftSqlSegment.replace(AggConstant.LeftJoin_Leftjionfactor, leftSegment.getAcronymString());
 
             builder.append(leftSqlSegment);
 
@@ -428,14 +423,47 @@ public class GroupSqlBulider {
         ArrayList<String> filterFieldList = new ArrayList<>();
         String[] filterSegment = filter.split(Util.And);
         for (String oneSegment : filterSegment) {
-            int index = oneSegment.indexOf(Util.Equal);
-            if (index == -1) {
+            Integer idx = checkOneFilter(oneSegment);
+            if (Util.isNull(idx)) {
                 continue;
             }
-            String fieldName = oneSegment.substring(0, index);
+            String fieldName = oneSegment.substring(0, idx).trim();
             filterFieldList.add(fieldName);
         }
         return filterFieldList;
+    }
+
+    private Map<String, String> filterFieldMap() {
+        if (Util.isNull(filter))
+        return null;
+
+        HashMap<String, String> filterFieldMap = new HashMap<>();
+        String[] filterSegment = filter.split(Util.And);
+        for (String oneSegment : filterSegment) {
+            Integer idx = checkOneFilter(oneSegment);
+            if (Util.isNull(idx)) {
+                continue;
+            }
+            String fieldName = oneSegment.substring(0, idx).trim();
+            String fieldValue = oneSegment.substring(idx, oneSegment.length()).trim();
+            filterFieldMap.put(fieldName, fieldValue);
+        }
+        return filterFieldMap;
+    }
+
+    private Integer checkOneFilter (String filter) {
+        int index = filter.indexOf(Util.Equal);
+
+        if (index == -1) {
+            index = filter.indexOf(Util.Standrad_like);
+            if (index == -1) {
+                index = filter.indexOf(Util.Standrad_unEqual);
+                if (index == -1) {
+                    return  null;
+                }
+            }
+        }
+        return index;
     }
 
     private String combineAggCode(Map<String, Dimension> dimensionLevelMap) {
@@ -475,22 +503,29 @@ public class GroupSqlBulider {
         }
         this.userType = userType;
         this.userId = userId;
-        String[] split = aggCode.split(Util.semicolon);
-
-        ArrayList<String> strings = new ArrayList<>(Arrays.asList(split));
-        if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
-            strings.add(AggConstant.RSM);
-        } else {
-            strings.add(userType);
-        }
-
-        String realAggCode = strings.stream().collect(Collectors.joining(Util.Separator));
-
         EAchieveDataType achieveDataType = EAchieveDataType.valueOf(dataType);
         Map<String, String> paramsMap = initBaseParams(type, achieveDataType, filter);
 
-        paramsMap.put(AggConstant.BI_Field_Aggcode, realAggCode);
+        if (aggCode != null) {
+            String[] split = aggCode.split(Util.semicolon);
 
+            ArrayList<String> strings = new ArrayList<>(Arrays.asList(split));
+
+            if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
+                strings.add(AggConstant.RSM);
+            } else {
+                strings.add(userType);
+            }
+
+            String realAggCode = strings.stream().collect(Collectors.joining(Util.Separator));
+
+
+
+            paramsMap.put(AggConstant.BI_Field_Aggcode, realAggCode);
+
+
+
+        }
         if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
             paramsMap.put("userid", Util.String_Empty);
         } else {

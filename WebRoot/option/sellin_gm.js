@@ -884,10 +884,10 @@ var pieoption = {
 
 
 var topicMap = [
-    {
+   {
         id:"saleachieve",
         topicCode: "achieve",
-        fields: "",
+        //fields: "Amount;target;achieve",
         dataname:"getGaugeAchieve",
         type:"total",
         dataType:"sellin",
@@ -897,13 +897,12 @@ var topicMap = [
             "#salereal":"sumdata"
 
         },
-        filterCode:"ytd"
     }
     ,
     {
         id:"salehistory",
         topicCode: "achieve",
-        fields: "",
+        //fields: "Amount;target;achieve;ygrowth;region",
         dataname:"getAreaAchieve",
         type:"total",
         dataType:"sellin",
@@ -912,14 +911,14 @@ var topicMap = [
             "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",
-            "series[3];data":"growth"
+            "series[3];data":"ygrowth"
         },
 
     },
     {
         id:"productlineSale",
         topicCode: "achieve",
-        fields: "",
+        //fields: "Amount;target;achieve;ygrowth;brand",
         dataname:"getBrandAchieve",
         type:"total",
         dataType:"sellin",
@@ -928,28 +927,29 @@ var topicMap = [
             "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",
-            "series[3];data":"growth"
+            "series[3];data":"ygrowth"
 
         },
 
-    }
+    },
 
-    ,/*{
-        id:"purchase11",
+    {
+        id:"purchase",
         topicCode: "Purchase",
-        fields:"Region;Quantity",
+        fields:"region;Quantity",
         elementMap:{
-            "data.name":"Region",
-            "data.value":"Quantity",
+            "series[0];data.name":"region",
+            "series[0];data.value":"Quantity",
 
         },
     }
-    ,*/
+    ,
     {
         id:"provincceRank",
         topicCode: "achieve",
         dataname:"getai",
         dataType:"Purchase",
+        aggcode:'DistributorCode;peroid;productCode',
         elementMap:{
             "xAxis[0];data":"Region",
             "series[0];data":"Quantity",
@@ -957,6 +957,6 @@ var topicMap = [
             "series[2];data":"rate",
         },
     }
-    ,
+
 
 ];

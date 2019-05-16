@@ -183,39 +183,41 @@ public class WorkEngine extends Engine {
 			throw new AggBaseException("字段不是target结尾:" + tableName);
 
 		}
-		Connection connection = SqlSession.createConnection();
-		String selectSql = MessageFormat.format(AggConstant.CONNECTION_Field_Template, tableName);
-		PreparedStatement ps = connection.prepareStatement(selectSql);
-		ResultSet rs = ps.executeQuery();
-		ResultSetMetaData meta = rs.getMetaData();
+        Connection connection = null;
+		try {
+            connection = SqlSession.createConnection();
+            String selectSql = MessageFormat.format(AggConstant.CONNECTION_Field_Template, tableName);
+            PreparedStatement ps = connection.prepareStatement(selectSql);
+            ResultSet rs = ps.executeQuery();
+            ResultSetMetaData meta = rs.getMetaData();
 
-		int columeCount = meta.getColumnCount();
-		ArrayList<String> dimensionList = new ArrayList<>();
-		for (int i = 1; i <= columeCount; i++) {
-			String aggTableField = meta.getColumnName(i);
-			if (AggConstant.filedUnCatchList.contains(aggTableField)) {
-				continue;
-			}
-            Dimension dimension = AggDimensionsContainer.getDimensionByCode(aggTableField);
-            if (Util.isNull(dimension)) {
-                continue;
+            int columeCount = meta.getColumnCount();
+            ArrayList<String> dimensionList = new ArrayList<>();
+            for (int i = 1; i <= columeCount; i++) {
+                String aggTableField = meta.getColumnName(i);
+                if (AggConstant.filedUnCatchList.contains(aggTableField)) {
+                    continue;
+                }
+                Dimension dimension = AggDimensionsContainer.getDimensionByCode(aggTableField);
+                if (Util.isNull(dimension)) {
+                    continue;
+                }
+                if (dimension.getCode().equalsIgnoreCase(AggConstant.peroid)) {
+                    continue;
+                }
+                dimensionList.add(dimension.getCode());
             }
-            if (dimension.getCode().equalsIgnoreCase(AggConstant.peroid)) {
-                continue;
-            }
-            dimensionList.add(dimension.getCode());
-        }
-        dimensionList.add(AggConstant.BI_Field_Aggcode);
+            dimensionList.add(AggConstant.BI_Field_Aggcode);
 
-        String growthjion = dimensionList.stream()
-                .map(s -> MessageFormat.format(AggConstant.LeftJoinFactor_Template, AggConstant.agg, s, AggConstant.A01, s))
-                .collect(Collectors.joining(Util.And));
+            String growthjion = dimensionList.stream()
+                    .map(s -> MessageFormat.format(AggConstant.LeftJoinFactor_Template, AggConstant.agg, s, AggConstant.A01, s))
+                    .collect(Collectors.joining(Util.And));
 
-        String dimensions = dimensionList.stream()
-                .collect(Collectors.joining(Util.comma));
-        String aggdimensions = dimensionList.stream().filter(s -> !s.equalsIgnoreCase(AggConstant.BI_Field_Aggcode))
-                .map(s -> MessageFormat.format(AggConstant.Select_Field_Template,AggConstant.agg, s))
-                .collect(Collectors.joining(Util.comma));
+            String dimensions = dimensionList.stream()
+                    .collect(Collectors.joining(Util.comma));
+            String aggdimensions = dimensionList.stream().filter(s -> !s.equalsIgnoreCase(AggConstant.BI_Field_Aggcode))
+                    .map(s -> MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.agg, s))
+                    .collect(Collectors.joining(Util.comma));
 		/*Map<String, DimensionGroup> dimensionGroupMap = AggDimensionsContainer.getInstance().getDimensionGroupMap();
 		Collection<DimensionGroup> DimensionGroups = dimensionGroupMap.values();
 
@@ -272,42 +274,48 @@ public class WorkEngine extends Engine {
 					.collect(Collectors.joining(Util.comma));
 
 			String aggcode = onecombineDimensionList.stream().collect(Collectors.joining(Util.Separator));*/
-			String account = "Amount";
-			String growth =  targetName.replace("target", "ygrowth");
+            String account = "Amount";
+            String growth = targetName.replace("target", "ygrowth");
 
-			NamedSQL getMgrowth = null;
-			try {
-				getMgrowth = NamedSQL.getInstance("aggMgrowth");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+            NamedSQL getMgrowth = null;
 
-			getMgrowth.setParam("aggtable", tableName);
-			getMgrowth.setParam("mgrowth", growth);
-			getMgrowth.setParam("account", account);
-			getMgrowth.setParam("dimensions", dimensions);
-			getMgrowth.setParam("aggdimensions", aggdimensions);
-			getMgrowth.setParam("growthjion", growthjion);
-			//getMgrowth.setParam("aggcode", aggcode);
-			int i = 0;
-			try {
-				i = SQLRunner.execSQL(getMgrowth);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			logger.info(MessageFormat.format("更新表：{0}字段：{1} 条数：{2}", tableName, growth, i));
+            getMgrowth = NamedSQL.getInstance("aggMgrowth");
 
-			getMgrowth.setParam("target", AggConstant.Roxolid.toLowerCase() + targetName);
-			account = "Quantity";
-			getMgrowth.setParam("account", account);
-			getMgrowth.setParam("mgrowth", AggConstant.Roxolid.toLowerCase() + growth);
-			int newi = 0;
-			try {
-				newi = SQLRunner.execSQL(getMgrowth);
-			} catch (Exception e) {
+
+            getMgrowth.setParam("aggtable", tableName);
+            getMgrowth.setParam("mgrowth", growth);
+            getMgrowth.setParam("account", account);
+            getMgrowth.setParam("dimensions", dimensions);
+            getMgrowth.setParam("aggdimensions", aggdimensions);
+            getMgrowth.setParam("growthjion", growthjion);
+            //getMgrowth.setParam("aggcode", aggcode);
+            int i = 0;
+            try {
+                i = SQLRunner.execSQL(getMgrowth);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            logger.info(MessageFormat.format("更新表：{0}字段：{1} 条数：{2}", tableName, growth, i));
+
+            getMgrowth.setParam("target", AggConstant.Roxolid.toLowerCase() + targetName);
+            account = "Quantity";
+            getMgrowth.setParam("account", account);
+            getMgrowth.setParam("mgrowth", AggConstant.Roxolid.toLowerCase() + growth);
+            int newi = 0;
+
+            newi = SQLRunner.execSQL(getMgrowth);
+            logger.info(MessageFormat.format("更新表：{0}字段：{1} 条数：{2}", tableName, AggConstant.Roxolid.toLowerCase() + growth, newi));
+
+        }catch (Exception e) {
 				e.printStackTrace();
-			}
-			logger.info(MessageFormat.format("更新表：{0}字段：{1} 条数：{2}", tableName, AggConstant.Roxolid.toLowerCase() + growth, newi));
+		}
+		finally {
+            if (!Util.isNull(connection)) {
+                connection.close();
+                connection = null;
+            }
+        }
+
 
 
 	}

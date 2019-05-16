@@ -58,7 +58,10 @@ public class Util {
 	public static final String Standrad_And = "and";
 	public static final String Standrad_Or = "or";
 	public static final String Percentage = "%";
-	public static final String SqlLike = "LIKE";
+	public static String like = " like ";
+	public static String Standrad_like = "like";
+	public static String unEqual = " <> ";
+	public static String Standrad_unEqual = "<>";
 	public static final String String_Space = " ";
 	public static final String windows_slash = "/";
 	public static final String java_slash = "\\";
@@ -66,6 +69,7 @@ public class Util {
 
 	public static int field;
     private static  ArrayList<String> tmpArr = new ArrayList<String>();
+
 
 	public static String newShortGUID() {
 		UUID uuid = UUID.randomUUID();

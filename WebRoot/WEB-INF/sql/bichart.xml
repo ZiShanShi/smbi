@@ -4,6 +4,9 @@
 <sqls>
 	<dataSpace name="bichart">
 
+		<sql name="getAdminTarget">
+
+		</sql>
 		<sql name="getLastDataTime">
 			SELECT top 1 BizDate from @{DDITable} ORDER BY BizDate desc
 
@@ -15,6 +18,7 @@
 			from VIEW_@{dataType}_Month_@{brandType} m
 			LEFT JOIN md_peroid p on m.peroid = p.id
 			WHERE @{filter}
+			@{userid}
 
 		</sql>
 
@@ -28,7 +32,7 @@
 			) AS achieve
 			FROM
 			md_peroid p
-			LEFT JOIN  m ON m.peroid = p.id
+			LEFT JOIN VIEW_@{dataType}_Month_@{brandType} m ON m.peroid = p.id
 			WHERE
 			YEAR = @{year}
 			@{userid}
@@ -238,7 +242,8 @@
 		</sql>
 		<sql name="getDsoAmount">
 			SELECT
-			TOP 10 a01.terminalname,
+			TOP 10
+			a01.terminalname,
 			a01.Amount,
 			preAmount
 			FROM
@@ -355,6 +360,50 @@
 			a02 on a01.Region = a02.Region
 
 		</sql>
+
+		<sql name="getDistributorAchieve">
+			SELECT dis.DistributorName, a01.sumdata, a02.presumdata, a01.target ,a01.achieve ,
+			(sumdata - presumdata) * 100/ CASE WHEN presumdata = 0 THEN 1 ELSE presumdata END  as growth
+			from (
+			SELECT
+			m.DistributorCode,
+			p.year,
+			SUM (monthsum) AS sumdata,
+			SUM (monthTarget) AS target,
+			(ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS achieve
+			FROM
+			@{tableName} m
+			LEFT JOIN md_peroid p ON p.id = m.peroid
+			LEFT JOIN DistributorHierarchy h on m.DistributorCode = h.DistributorCode
+			WHERE
+			@{filter}
+			GROUP BY m.DistributorCode, [year]
+			)a01
+			LEFT JOIN
+			(
+			SELECT
+			m.DistributorCode,
+
+			p.year,
+			SUM (monthsum) AS presumdata,
+			SUM (monthTarget) AS pretarget,
+			(
+			ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1)
+			) AS preachieve
+			FROM
+			@{tableName} m
+			LEFT JOIN md_peroid p ON p.id = m.peroid
+
+			GROUP BY m.DistributorCode, [year]
+			) a02
+			on a01.DistributorCode = a02.DistributorCode  and a01.year = a02.year + 1
+			LEFT JOIN Distributor dis on dis.DistributorCode = a01.DistributorCode
+
+		</sql>
+
+
+
 		<sql name="aggTarget">
 			update @{aggtable}  set @{aggtable}.@{targetName} = m.monthTarget
 
@@ -372,11 +421,9 @@
 		</sql>
 
 		<sql name="aggAchieve">
-
 			UPDATE @{aggtable} set @{achieve} = ISNULL(@{account}, 0) * 100 / ISNULL(@{target}, 1)
 
 			from @{aggtable} WHERE @{target} is not null
-
 
 		</sql>
 		<sql name="aggMgrowth">
@@ -398,5 +445,7 @@
 			WHERE  preAccount is not null
 
 		</sql>
+
+
 	</dataSpace>
 </sqls>

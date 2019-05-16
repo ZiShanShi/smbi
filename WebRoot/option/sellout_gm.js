@@ -877,14 +877,31 @@
 
 
 var topicMap = [
+
+    {
+        id:"saleachieve",
+        topicCode: "achieve",
+        //fields: "",
+        dataname:"getGaugeAchieve",
+        dataType:'sellout',
+        elementMap:{
+            "series[0];data[0];value":"achieve",
+            "#saletarget":"target",
+            "#salereal":"sumdata"
+
+        },
+    }
+    ,
     {
 
         id:"salehistory",
-        topicCode: "Sale",
-        fields: "Amount;target;achieve;ygrowth;region",
+        topicCode: "achieve",
+        //fields: "",
+        dataname:"getAreaAchieve",
+        dataType:'sellout',
         elementMap:{
-            "xAxis[0];data":"region",
-            "series[0];data":"Amount",
+            "xAxis[0];data":"Region",
+            "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",
             "series[3];data":"ygrowth"
@@ -892,11 +909,13 @@ var topicMap = [
     }
     ,{
         id:"productlineSale",
-        topicCode: "Sale",
-        fields: "brand;Amount;target;achieve",
+        topicCode: "achieve",
+        //fields: "",
+        dataname:"getBrandAchieve",
+        dataType:'sellout',
         elementMap:{
-            "xAxis[0];data":"brand",
-            "series[0];data":"Amount",
+            "xAxis[0];data":"Brand",
+            "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",
 
@@ -905,29 +924,18 @@ var topicMap = [
 
     },
     {
-        id:"saleachieve",
-        topicCode: "Sale",
-        fields: "target,Amount;achieve",
-        elementMap:{
-            "series[0];data[0];value":"achieve",
-            "#saletarget":"target",
-            "#salereal":"Amount"
-
-        },
-        filterCode:"ytd"
-    }
-    ,{
         id:"distributorRank",
         topicCode: "achieve",
         dataname:"getCompanySum",
-		aggcode:'brand;CompanyCode;peroid',
+        aggcode:'brand;CompanyCode;peroid',
         elementMap:{
             "xAxis[0];data":"CompanyName",
             "series[0];data":"Amount",
             "series[1];data":"preAmount",
 
         },
-		filter: " and b.CompanyType = '民营'"
+        filter: " and b.CompanyType = '民营'"
+
     }
     ,{
         id:"dsosale",
@@ -935,7 +943,6 @@ var topicMap = [
         dataname:"getDsoAmount",
 		aggcode:'brand;CompanyCode;peroid',
         elementMap:{
-
             "xAxis[0];data":"terminalname",
             "series[0];data":"Amount",
             "series[1];data":"preAmount",

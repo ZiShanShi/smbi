@@ -16,13 +16,18 @@ import foundation.util.Util;
 public class AggDragableField {
     private Dimension dimension;
     private String field;
-
     private EDragableFieldType type;
     private String tableName;
 
 
-    public AggDragableField(String field) {
+    public AggDragableField(String field, boolean isDimension) {
         this.field = field;
+
+        if (!isDimension) {
+            checkIsMainField(field);
+            type = EDragableFieldType.filter;
+            return;
+        }
 
         Dimension dimension = AggDimensionsContainer.getDimensionByCode(field);
 

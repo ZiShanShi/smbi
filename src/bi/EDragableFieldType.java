@@ -1,5 +1,5 @@
 package bi;
 
 public enum EDragableFieldType {
-    agg,main,measurment,unknown;
+    agg,main,measurment,unknown,filter;
 }

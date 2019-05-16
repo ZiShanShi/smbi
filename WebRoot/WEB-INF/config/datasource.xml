@@ -4,9 +4,9 @@
 <datasource>
 	<defination 
 		driverName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
-    	url="jdbc:sqlserver://localhost;DatabaseName=STRInterface"
+    	url="jdbc:sqlserver://192.168.5.63;DatabaseName=STRInterface"
         username="sa"
-        password="123456"
+        password="MLJ520ph"
         characterEncoding="utf-8"
         maxActive="20" 
         initialSize="1" 

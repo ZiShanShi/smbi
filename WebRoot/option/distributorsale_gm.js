@@ -454,6 +454,7 @@
 //**********************4.下中，经销商排名
 	
     var distributorOption = {
+        color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
     		 tooltip: {
     		        trigger: 'axis',
     		        formatter: function(params, ticket, callback) {
@@ -473,7 +474,7 @@
     		    },
             legend:{
             	show:true,
-            	data:['2018','2019','2019target']
+            	data:['LYTD','YTD','指标','达成','增长']
             },
             grid:{
             	left:'12%',
@@ -483,7 +484,7 @@
             },
             
             xAxis: {
-                data: ['上海思创', '杭州昆德', '广东益升', '北京医健通', '江苏美安', '成都众合', '山东瑞康德', '北京麦创', '北京同心', '北京德诺'],
+                data: [],
                 boundaryGap: true,
                 axisLine: { //坐标轴轴线相关设置。数学上的x轴
                     show: true,
@@ -558,282 +559,41 @@
                        }
                    },      saveAsImage: {}        }    },series: [{
                 type: 'bar',
-                name:'2019',
+                name:'LYTD',
 
-                data: [10150, 8337, 7568, 7377, 5078, 4689, 4486, 4420, 2789, 2507]
+                data: []
             }
             ,
             {
                 type: 'bar',
-                name:'2018',
+                name:'YTD',
 
-                data: [10500, 8337, 7582, 7237, 5507, 4668, 4446, 7420, 1278, 9250]
+                data: []
             },
             {
                 type: 'bar',
-                name:'2019target',
+                name:'指标',
 
-                data: [11505, 4887, 4182, 3705, 48257, 10048, 4586, 1870, 4878, 9000]
+                data: []
+            },
+            {
+                type: 'line',
+                name:'达成',
+
+                data: []
+            },
+            {
+                type: 'line',
+                name:'增长',
+
+                data: []
             }
 
             ]
         };
-    
-//**********************5.右下，省份排名
-    var provienceOption = {
-	        backgroundColor: "#fff",
-	        tooltip: {
-	            trigger: 'axis',
-	            formatter: function(params, ticket, callback) {
 
-	                var res = params[0].name;
 
-	                for (var i = 0, l = params.length; i < l; i++) {
-	                    if (params[i].seriesType === 'line') {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
-	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
-	                    }
-	                }
-	                return res;
 
-	            }
-	        },
-	        "grid": {
-	        	bottom:'15%',
-	        	top:'15%',
-	        	right:'12%',
-	            textStyle: {
-	                color: "#222"
-	            }
-	        },
-	        "legend": {
-	            textStyle: {
-	                color: '#222',
-	            },
-	            "data": ['Abutment', 'implant', 'A/i']
-	        },
-	
-	
-	        "calculable": true,
-	        "xAxis": [{
-	            "type": "category",
-	            "axisLine": {
-	                lineStyle: {
-	                    color: '#222'
-	                }
-	            },
-	            "splitLine": {
-	                "show": false
-	            },
-	            "axisTick": {
-	                "show": false
-	            },
-	            "splitArea": {
-	                "show": false
-	            },
-	            "axisLabel": {
-	                "interval": 0,
-	
-	            },
-	            "data": ['east','south','west','north','northeast'],
-	        }],
-	        "yAxis": [{
-	            "type": "value",
-	            "splitLine": {
-	                "show": false
-	            },
-	            "axisLine": {
-	                lineStyle: {
-	                    color: '#222'
-	                }
-	            },
-	            "axisTick": {
-	                "show":  true
-	            },
-	            "axisLabel": {
-	                "interval": 0,
-	
-	            },
-	            "splitArea": {
-	                "show": false
-	            }
-	        },{
-                    type: 'value',
-                    // max: 140,
-                    splitNumber: 7,
-                    splitLine: {
-                        show: false,
-                        lineStyle: {
-                            color: '#0a3256'
-                        }
-                    },
-                    axisLine: {
-                        show: true,
-                    },
-                    axisLabel: {
-                        margin: 20,
-                        formatter: '{value}',
-                        textStyle: {
-                            color: '#000',
-                        },
-                    },
-                    axisTick: {
-                        show: true,
-                    }
-	
-	        }],
-	
-	        toolbox: {        show: true,        feature: {     myDownload: {
-                        show: true,
-                        title: '数据导出',
-                        icon: 'image://http://localhost:8080/smbi/image/excel.svg',
-                        onclick: function (){
-                            alert('暂不支持');
-                        }
-                    },       saveAsImage: {}        }    },series: [{
-	            "name": "Abutment",
-	            "type": "bar",
-	            "barGap": "10%",
-	            "itemStyle": {
-	                "normal": {
-	                    "color": "rgba(255,144,128,1)",
-	                }
-	            },
-	            "data": [
-	                30677,
-	                19696,
-	                12798,
-	                24275,
-	                4278
-	            ],
-	        },
-	
-	            {
-	                "name": "implant",
-	                "type": "bar",
-	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(0,191,183,1)",
-	                    }
-	                },
-	                "data": [
-	                    31022,
-	                    10832,
-	                    8833,
-	                    9175,
-	                    5656
-	                ]
-	            }, {
-	                "name": "A/i",
-	                "type": "line",
-	                symbolSize:12,
-	                symbol:'circle',
-	                yAxisIndex: 1,
-	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(152,130,128,13)",
-	                        "barBorderRadius": 0,
-	                    }
-	                },
-	                "data": [
-	                    0.89,
-	                    1.83,
-						1.90,
-						2.57,
-						0.76
-	                ]
-	            },
-	        ]
-	    };
-var pieclick = false;
-var growthdata = [{
-		    value: 9315,
-		    name: 'east'
-		},
-		{
-		    value: 3110,
-		    name: 'south'
-		},
-		{
-		    value: 2314,
-		    name: 'west'
-		},
-		{
-		    value: 1315,
-		    name: 'north'
-		},
-		{
-		    value: 3815,
-		    name: 'northeast'
-		}];
-var purchasedata = [{
-    value: 335,
-    name: 'east'
-},
-{
-    value: 310,
-    name: 'south'
-},
-{
-    value: 234,
-    name: 'west'
-},
-{
-    value: 135,
-    name: 'north'
-},
-{
-    value: 135,
-    name: 'northeast'
-}
-];
-
-var pieoption = {
-	    tooltip: {
-	        trigger: 'item',
-	        formatter: "{b}: <br/>  {c} ({d}%)"
-	    },
-	    color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
-	    legend: {
-	        data: ['east', 'south', 'west', 'north', 'northeast'],
-	    },
-	   toolbox: {        show: true,        feature: {   myDownload: {
-                   show: true,
-                   title: '数据导出',
-                   icon: 'image://http://localhost:8080/smbi/image/excel.svg',
-                   onclick: function (){
-                       alert('暂不支持');
-                   }
-               },         saveAsImage: {}        }    },series: [{
-	        type: 'pie',
-	        radius : '60%',
-	        center:['50%', '60%'],
-	        data: purchasedata,
-	        itemStyle: {
-	            emphasis: {
-	                shadowBlur: 10,
-	                shadowOffsetX: 0,
-	                shadowColor: 'rgba(0, 0, 0, 0.5)'
-	            }
-	        },
-	        itemStyle: {
-	            normal: {
-	                label: {
-	                    show: true,
-	                    //	                            position:'inside',
-	                    formatter: '{b}: \n({d}%)'
-	                }
-	            },
-	            labelLine: {
-	                show: true,
-	                length:1,
-	                length2:1,
-	                smooth:0.5
-	            }
-	        }
-	    }],
-	};
 
 var topicMap = [
     {
@@ -881,6 +641,24 @@ var topicMap = [
             "series[1];data":"target",
             "series[2];data":"achieve",
             "series[3];data":"growth"
+
+        },
+
+    },
+    {
+        id:"distributorRank",
+        topicCode: "achieve",
+        //fields: "",
+        dataname:"getDistributorAchieve",
+        type:"total",
+        dataType:"Distributor",
+        elementMap:{
+            "xAxis[0];data":"DistributorName",
+            "series[0];data":"presumdata",
+            "series[1];data":"sumdata",
+            "series[2];data":"target",
+            "series[3];data":"achieve",
+            "series[4];data":"growth"
 
         },
 

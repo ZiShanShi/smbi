@@ -102,7 +102,12 @@
 				click:function (event, ui) {
                     var region = ui.value;
                     var one = topicMap[3];
-                    one.filter = " and region = '" + region + "'";
+                    if (region.trim() == "all") {
+                        one.filter = undefined;
+					}else {
+                        one.filter = " and region = '" + region + "'";
+					}
+                    resetChartData(one);
                 }
 			});
 
