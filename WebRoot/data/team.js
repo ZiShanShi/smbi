@@ -11,3 +11,57 @@ var purchasedataset = [
    [16953, 9613, 3626, 5546, 2961, 11702],
    [140, 123, 98, 131, 102, 166]
 ];
+
+
+var topicMap = [
+
+    {
+        id:"teamachieve",
+        topicCode: "achieve",
+        //fields: "Amount;target;achieve",
+        dataname:"getTeamAchieve",
+        //type:"total",
+        dataType:"sellout",
+        elementMap:{
+            "series[0];data[0];value":"achieve",
+            "#saletarget":"target",
+            "#salereal":"sumdata"
+
+        },
+    },
+
+    {
+        id:"businessrank",
+        topicCode: "achieve",
+        //fields: "Amount;target;achieve",
+        dataname:"getTeamAchieveDetail",
+        //type:"total",
+        dataType:"sellin",
+        elementMap:{
+            "xAxis[0];data":"name",
+            "series[0];data":"sumdata",
+            "series[1];data":"target",
+            "series[2];data":"achieve",
+
+        },
+    },
+
+    {
+        id:"salerank",
+        topicCode: "achieve",
+        //fields: "Amount;target;achieve",
+        dataname:"getTeamAchieveDetail",
+        //type:"total",
+        dataType:"sellout",
+        elementMap:{
+            "xAxis[0];data":"name",
+            "series[0];data":"sumdata",
+            "series[1];data":"target",
+            "series[2];data":"achieve",
+
+        },
+    }
+
+
+
+];

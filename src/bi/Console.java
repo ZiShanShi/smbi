@@ -101,8 +101,6 @@ public class Console extends Callable {
             return;
         }
 
-
-
 		if (Util.isNull(fields)) {
 			if (AggConstant.achieve.equalsIgnoreCase(code)) {
                 String sqlName = request.getParameter(AggConstant.dataName);

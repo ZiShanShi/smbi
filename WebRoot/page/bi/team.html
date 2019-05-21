@@ -21,7 +21,15 @@
 	</head>
 	
 	<script>
-		changeOption(middleOption, "series[0];data[0];value", 140);
+		//changeOption(middleOption, "series[0];data[0];value", 140);
+
+        function chartRefresh() {
+            for(var i = 0; i <topicMap.length; i++) {
+                var one = topicMap[i];
+                resetChartData(one);
+            }
+        }
+
 		var teamachieveOption = clone(middleOption);
 
         $(document).ready(function(){
@@ -103,8 +111,12 @@
 	        $("#saletarget").html(formatterOneMoney(65648.49));
 			$("#salereal").html(formatterOneMoney(91727.68));
 
+            initCommonMutiSelect();
+
         	$(window).bind('resize',resizeChart);
             initPeroidMonth();
+
+
 	});
 	</script>
 	

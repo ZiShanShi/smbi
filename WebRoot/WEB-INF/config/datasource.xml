@@ -2,11 +2,14 @@
 <!DOCTYPE datasource PUBLIC "datasource" "datasource.dtd" >
 
 <datasource>
+	<!--password="MLJ520ph"-->
+
 	<defination 
 		driverName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
     	url="jdbc:sqlserver://192.168.5.63;DatabaseName=STRInterface"
         username="sa"
-        password="MLJ520ph"
+
+		password="MLJ520ph"
         characterEncoding="utf-8"
         maxActive="20" 
         initialSize="1" 

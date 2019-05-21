@@ -61,7 +61,7 @@ public class AggUtil {
             return EAggCreateCode.uncreated;
         }
 
-        if (!(oneDimensionGroups.contains(AggConstant.peroid) && oneDimensionGroups.contains(AggConstant.Region))) {
+        if (!(oneDimensionGroups.contains(AggConstant.peroid))) {
             //剔除不含期间维度的表
             return EAggCreateCode.parse;
         }
@@ -89,7 +89,7 @@ public class AggUtil {
                 .collect(Collectors.joining(Util.comma));
         fields += Util.stringJoin(Util.comma, measurments);
 
-        String target = MessageFormat.format(AggConstant.Create_AggField_Template, AggConstant.target, AggConstant.AggField_Default_Length, AggConstant.AggField_Default_decimalLength);
+       /* String target = MessageFormat.format(AggConstant.Create_AggField_Template, AggConstant.target, AggConstant.AggField_Default_Length, AggConstant.AggField_Default_decimalLength);
         fields += Util.stringJoin(Util.comma, target);
 
         String achieve = MessageFormat.format(AggConstant.Create_AggField_Template, AggConstant.achieve, AggConstant.AggField_Default_Length, AggConstant.AggField_Default_decimalLength);
@@ -106,7 +106,7 @@ public class AggUtil {
 
         String roxolidyGrowth = MessageFormat.format(AggConstant.Create_AggField_Template, AggConstant.roxolidyGrowth, AggConstant.AggField_Default_Length, AggConstant.AggField_Default_decimalLength);
         fields += Util.stringJoin(Util.comma, roxolidyGrowth);
-
+*/
 
         NamedSQL createSql = NamedSQL.getInstance(AggConstant.Sql_createTableTemplate);
         createSql.setParam(AggConstant.Sql_Field_tableName, aggTableName);

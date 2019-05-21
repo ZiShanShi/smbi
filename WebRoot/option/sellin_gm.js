@@ -956,6 +956,17 @@ var topicMap = [
             "series[1];data":"preQuantity",
             "series[2];data":"rate",
         },
+    },
+    {
+        id:"distributor",
+        topicCode: "achieve",
+        dataname:"getRegionGrowrthAmount",
+        dataType:"Purchase",
+        aggcode:'brand;peroid;region',
+        elementMap:{
+            "series[0];data.name":"region",
+            "series[0];data.value":"added",
+        },
     }
 
 

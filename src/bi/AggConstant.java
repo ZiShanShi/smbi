@@ -207,7 +207,7 @@ public class AggConstant {
 
 
         DataTypeMap.put(EAchieveDataType.sellin, "Supervisor");
-        DataTypeMap.put(EAchieveDataType.sellout, "Saleperson");
+        DataTypeMap.put(EAchieveDataType.sellout, "Salesperson");
         DataTypeMap.put(EAchieveDataType.Distributor, "distributor");
         DataTypeMap.put(EAchieveDataType.Sale, EAchieveDataType.Sale.name());
         DataTypeMap.put(EAchieveDataType.Inventory, EAchieveDataType.Inventory.name());

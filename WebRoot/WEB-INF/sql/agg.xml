@@ -23,7 +23,7 @@
 			SELECT @{selectfield} from (
 			SELECT  @{selectinfield} FROM @{aggtable} agg
 			@{leftjion}
-			WHERE aggcode = '@{aggcode}' and @{filter} and @{notnull} @{userid}
+			WHERE aggcode = '@{aggcode}' and @{filter} and @{notnull} @{user}
 			)
 			a01
 			@{groupby}

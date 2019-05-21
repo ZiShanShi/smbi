@@ -2,8 +2,10 @@ package bi;
 
 import bi.define.*;
 import bi.exception.AggCalculateException;
+import foundation.data.Entity;
 import foundation.persist.sql.LeftSegment;
 import foundation.persist.sql.NamedSQL;
+import foundation.persist.sql.SQLRunner;
 import foundation.util.ContentBuilder;
 import foundation.util.Util;
 import foundation.variant.VariantList;
@@ -292,7 +294,7 @@ public class GroupSqlBulider {
                     .map(s -> Util.bracketStr(Util.stringJoin(s, AggConstant.AGG_IS_NOT_NULL , Util.Or, s ,AggConstant.AGG_IS_NOT_Empty)))
                     .collect(Collectors.joining(Util.And));
             variantString = notnullFilter;
-        }else if (name.toLowerCase().equalsIgnoreCase("userid")) {
+        }else if (name.toLowerCase().equalsIgnoreCase("user")) {
             if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
                 variantString = Util.String_Empty;
             } else {
@@ -505,19 +507,29 @@ public class GroupSqlBulider {
         this.userId = userId;
         EAchieveDataType achieveDataType = EAchieveDataType.valueOf(dataType);
         Map<String, String> paramsMap = initBaseParams(type, achieveDataType, filter);
+        paramsMap.put("userid", userId);
+        paramsMap.put("userType", userType);
 
         if (aggCode != null) {
             String[] split = aggCode.split(Util.semicolon);
 
-            ArrayList<String> strings = new ArrayList<>(Arrays.asList(split));
+            ArrayList<String> aggcodelist = new ArrayList<>(Arrays.asList(split));
 
             if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
-                strings.add(AggConstant.RSM);
+                aggcodelist.add(AggConstant.RSM);
             } else {
-                strings.add(userType);
+                aggcodelist.add(userType);
             }
 
-            String realAggCode = strings.stream().collect(Collectors.joining(Util.Separator));
+            Collections.sort(aggcodelist, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return  o1.toLowerCase().compareTo(o2.toLowerCase());
+                }
+            });
+
+
+            String realAggCode = aggcodelist.stream().collect(Collectors.joining(Util.Separator));
 
 
 
@@ -527,10 +539,20 @@ public class GroupSqlBulider {
 
         }
         if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
-            paramsMap.put("userid", Util.String_Empty);
+            paramsMap.put("user", Util.String_Empty);
+            paramsMap.put("onlyuser", Util.String_Empty);
         } else {
-            String userid = Util.stringJoin(Util.And, Util.quotedEqualStr(MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.agg, userType), userId));
-            paramsMap.put("userid", userid);
+            String user = Util.stringJoin(Util.And, Util.quotedEqualStr(MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.agg, userType), userId));
+            String onlyuser = Util.stringJoin(Util.And, Util.quotedEqualStr(userType, userId));
+            paramsMap.put("user", user);
+            paramsMap.put("onlyuser", onlyuser);
+            if (!Util.isNull(achieveDataType)) {
+                String dataTableType = AggConstant.DataTypeMap.get(achieveDataType);
+                String targetuser = Util.stringJoin(Util.And, Util.quotedEqualStr(MessageFormat.format(AggConstant.Select_Field_Template, "m", dataTableType), userId));
+                paramsMap.put("targetuser", targetuser);
+
+
+            }
         }
 
         try {
@@ -541,7 +563,7 @@ public class GroupSqlBulider {
             for (VariantSegment variantSegment : variantList) {
                 String name = variantSegment.getName();
                 String value = paramsMap.get(name);
-                if (Util.isNull(value) && !name.equalsIgnoreCase("userid")) {
+                if (Util.isNull(value) && !name.equalsIgnoreCase("user")) {
                     //TODO  未匹配 咋整  报错
                     if (AggConstant.organizationJoin.equalsIgnoreCase(name)) {
                         String tableName = paramsMap.get(AggConstant.Sql_Field_tableName);
@@ -551,8 +573,48 @@ public class GroupSqlBulider {
 
                     } else if (AggConstant.PageFilter.equalsIgnoreCase(name)) {
                         value = Util.defaultFilter;
-                    } else {
-                        throw new AggCalculateException(MessageFormat.format("有字段未匹配==={0}", name));
+                    } else if ("lastinventorydate".equalsIgnoreCase(name)) {
+                        NamedSQL inventoryDateSql = NamedSQL.getInstance(AggConstant.lastDataTimeSql);
+                        inventoryDateSql.setParam(AggConstant.DDITable, AggConstant.DDI_I);
+                        Entity entity = SQLRunner.getEntity(inventoryDateSql);
+                        if (!Util.isNull(entity)) {
+                            String bizdate = entity.getString(AggConstant.BizDate);
+                            value = bizdate;
+                        }
+                        //TODO
+                        value = "2018-08-17";
+
+                    }else if ("dataTypeSegment".equalsIgnoreCase(name)){
+                        if (!Util.isNull(achieveDataType)) {
+                            if (achieveDataType.equals(EAchieveDataType.sellin)) {
+                                value = "a0.LoginName = m.Supervisor or a0.LoginName = m.RSM";
+                            } else if (achieveDataType.equals(EAchieveDataType.sellout)) {
+                                value = "a0.LoginName = m.Supervisor or a0.LoginName = m.RSM or a0.LoginName = m.Salesperson";
+                            }
+                        } else {
+                            throw new AggCalculateException(MessageFormat.format("{0}有字段未匹配==={1}", sqlName, name));
+                        }
+                    }
+                    else if ("brandfilter".equalsIgnoreCase(name)) {
+                        String brand = paramsMap.get("brand");
+                        if (!Util.isNull(brand)) {
+                            value = MessageFormat.format(" and brand = {0}", Util.quotedStr(brand));
+                        } else {
+                            value = Util.String_Empty;
+                        }
+
+                    }else if ("countfilter".equalsIgnoreCase(name)) {
+                        String brand = paramsMap.get("countfilter");
+                        if (!Util.isNull(brand)) {
+                            value = MessageFormat.format(" and {0}", Util.quotedStr(brand));
+                        } else {
+                            value = Util.String_Empty;
+                        }
+
+                    }
+
+                    else {
+                        throw new AggCalculateException(MessageFormat.format("{0}有字段未匹配==={1}", sqlName, name));
                     }
 
                 }

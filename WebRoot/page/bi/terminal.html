@@ -18,19 +18,18 @@
     <script type="text/javascript" src="../../js/random.js"></script>
     <script type="text/javascript" src="../../data/terminal.js"></script>
     <script type="text/javascript" src="../../option/terminal.js"></script>
-    <script type="text/javascript" src="../../js/grid.js"></script>
 
 </head>
 
 <script>
-    var grid;
-    var data1 = [];
-    for (var name in keywords) {
-        data1.push({
-            name: name,
-            value: Math.sqrt(keywords[name])
-        });
+
+    function chartRefresh() {
+        for(var i = 0; i <topicMap.length; i++) {
+            var one = topicMap[i];
+            resetChartData(one);
+        }
     }
+
 
     $(document).ready(
         function () {
@@ -41,7 +40,7 @@
             constitutechart.setOption(accountsoption);
             constitutechart.on('mouseover', function (params) {
                 // 控制台打印数据的名称
-                if ('士卓曼' == params.name || '安卓健' == params.name) {
+                if ('Straumann' == params.name || 'Anthogyr' == params.name) {
                     constitutechart.dispatchAction({
                         type: 'highlight',
                         name: "overlap"
@@ -52,15 +51,14 @@
 
             constitutechart.on('mouseout', function (params) {
                 // 控制台打印数据的名称
-                if ('士卓曼' == params.name || '安卓健' == params.name) {
+                if ('Straumann' == params.name || 'Anthogyr' == params.name) {
                     constitutechart.dispatchAction({
                         type: 'downplay',
                         name: "overlap"
                     });
                 }
             });
-            var volatilitychart = echarts.init(document
-                .getElementById("volatility"));
+            var volatilitychart = echarts.init(document.getElementById("volatility"));
             volatilitychart.setOption(accountOption);
 
             initCommonMutiSelect();
@@ -69,7 +67,11 @@
             $("#area").multiselect({minWidth: 80});
 
             $(window).bind('resize', resizeChart);
+
+            initCommonMutiSelect();
+
             initPeroidMonth();
+
         });
 </script>
 
@@ -105,7 +107,7 @@
 
             <div style="float: left;">区域：
                 <select id="area" class="periodselect" style="width:80px;">
-                    <option selected="selected">all</option>
+                    <option selected="selected">All</option>
                     <option>east</option>
                     <option>south</option>
                     <option>west</option>
@@ -115,7 +117,7 @@
             </div>
             <div style="float: left;">客户类型：
                 <select id="customertype" class="periodselect" style="width:80px;">
-                    <option selected="selected">all</option>
+                    <option selected="selected">All</option>
                     <option>公立</option>
                     <option>民营</option>
                     <option>连锁诊所</option>

@@ -19,6 +19,8 @@ function randomData(length, multiple, fixed) {
     return data;
 }
 
+
+
 function getOneRandom(multiple, fixed) {
     return parseFloat((Math.random() * multiple).toFixed(fixed));
 }
@@ -54,14 +56,26 @@ function changeOption(option, key, value) {
         var endkey = endkey.substring(idx + 1, endkey.length);
 
         if (value instanceof Array) {
+            if (!isNaN(endkey)) {
+                option[prekey] = value[endkey];
+            }
+
             for(var i = 0; i <value.length; i++) {
                 var one = option[prekey][i];
+                if (!one) {
+                    one = {};
+                }
                 one[endkey] = value[i];
             }
         }
 
     }else {
-        option[endkey] = value;
+        if("formatter" == endkey && value instanceof Array) {
+            option[endkey] = value[0];
+        }else {
+            option[endkey] = value;
+        }
+
     }
 
 }
@@ -566,15 +580,19 @@ function resetChartData(one) {
         for (var one in map){
             var val = map[one];
             var top = one.substring(0, 1);
+
             if("#" == top) {
                 $(one).html(formatterOneMoney(result[val]));
+            }else if ("$" == top) {
+                var variable = one.substring(1, one.length);
+                setLocalData(variable,result[val]);
             }
             else {
                 changeOption(option, one, result[val]);
             }
 
         }
-
+        var opt = JSON.stringify(option);
         chartInstance.setOption(option);
         chartInstance.hideLoading();
     });

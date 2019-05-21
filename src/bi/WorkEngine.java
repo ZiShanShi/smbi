@@ -459,7 +459,7 @@ public class WorkEngine extends Engine {
 			progressor.endPhase();
 		}
 
-		aggAchieve(operator);
+		//aggAchieve(operator);
 
 		progressor.endPhase();
 		instance.setState(State.Idle);

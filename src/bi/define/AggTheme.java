@@ -96,7 +96,7 @@ public class AggTheme {
 
 	private boolean checkTableExists()  {
 	    boolean flag  = true;
-		if (!AggUtil.checkTableExists(sourceTable)) {
+			if (!AggUtil.checkTableExists(sourceTable)) {
 			throw new AggDBlLoadException(MessageFormat.format("{0} 表不存在", sourceTable));
 		}
 		if (!AggUtil.checkTableExists(targetTable)) {
@@ -110,6 +110,7 @@ public class AggTheme {
                 }
                 if (EAggCreateCode.parse.equals(createCode)) {
                     flag = false;
+                    return flag;
                 }
                 connection = SqlSession.createConnection();
                 flag = AggTableContainer.getInstance().loadOneTableFromDb(connection, targetTable);

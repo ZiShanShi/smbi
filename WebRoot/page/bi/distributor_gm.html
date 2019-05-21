@@ -23,6 +23,13 @@
 
 <script>
 
+    function chartRefresh() {
+        for(var i = 0; i <topicMap.length; i++) {
+            var one = topicMap[i];
+            resetChartData(one);
+        }
+    }
+
     $(document).ready(function () {
         var middleChart = echarts.init(document.getElementById("scatter"));
         middleChart.setOption(piesoption);
@@ -43,9 +50,11 @@
         heatchart.on('legendselectchanged', function(params) {
         	 var option = heatchart.getOption();
         	 if(params.name == "账期") {
-        	 	option.yAxis[0].axisLabel.formatter = '{value}月'; 
+        	     option.xAxis.data = getLocalData("	accountDistributorNames");
+				 option.yAxis[0].axisLabel.formatter = '{value}月';
         	 }else {
-        	 	option.yAxis[0].axisLabel.formatter = '{value}天'; 
+                 option.xAxis.data = getLocalData("inventoryDistributorNames");
+				 option.yAxis[0].axisLabel.formatter = '{value}天';
         	 }
         	 heatchart.setOption(option);
         });
