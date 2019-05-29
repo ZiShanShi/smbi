@@ -949,7 +949,7 @@ var topicMap = [
         topicCode: "achieve",
         dataname:"getai",
         dataType:"Purchase",
-        aggcode:'DistributorCode;peroid;productCode',
+        aggcode:'DistributorCode;peroid;productCode;region',
         elementMap:{
             "xAxis[0];data":"Region",
             "series[0];data":"Quantity",

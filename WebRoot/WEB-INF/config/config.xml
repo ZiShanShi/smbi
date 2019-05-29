@@ -17,7 +17,8 @@
 	<param name="defaultExcel2003Template" value="@{fileRepository}/template/data.xls" remark="excel2003默认导出模板" />
 	<param name="ModelPicPathRoot" value="@{path_application}/model" remark="modelPicPath" />
 	<param name="URL_WebMan" value="http://192.168.5.63:3456/api/" remark="WebMan"/>
-	
+	<param name="adminCode" value="U108272" remark="admin人看的指标对应的人"/>
+
 	<!-- 2.不受权限控制的资源 -->
 	<freeVisit>
 		<!-- 2.1不受权限控制的资源类型 -->

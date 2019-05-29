@@ -4,8 +4,10 @@ import bi.agg.Operator;
 import bi.exception.AggBaseException;
 import com.google.gson.Gson;
 import foundation.callable.Callable;
+import foundation.config.Configer;
 import foundation.data.Entity;
 import foundation.data.EntitySet;
+import foundation.data.Page;
 import foundation.persist.DataHandler;
 import foundation.persist.Field;
 import foundation.persist.TableMeta;
@@ -45,14 +47,25 @@ public class Console extends Callable {
 				getLastTime();
 			} else if ("aggachieve".equalsIgnoreCase(operator)) {
 			    aggAchieve();
+            } else if ("refreshterritory".equalsIgnoreCase(operator)) {
+			    refreshTerrtory();
             }
 
 
 		}
 		else {
-			writer.ReplyError("bad bi console message path:" + fullPath);
-		}
+            writer.ReplyError("bad bi console message path:" + fullPath);
+        }
 	}
+
+    private void refreshTerrtory() {
+        try {
+            Util.changeData("Salesperson", "LoginName", "SuperAdmin");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public void aggAchieve() {
         ThemeContext context = null;
@@ -95,8 +108,15 @@ public class Console extends Callable {
         String fields = request.getParameter(AggConstant.fields);
         String code = request.getParameter(AggConstant.BI_Field_Code);
         String filter = request.getParameter(AggConstant.filter);
+        boolean isTable = Util.stringToBoolean(request.getParameter("isTable"), false);
+
         String dataType = null;
         String aggCode = null;
+
+        if ("superadmin".equalsIgnoreCase(userType)) {
+            userId = Configer.getParam("adminCode");
+        }
+
         if (Util.isNull(code) || Util.isNull(userType) || Util.isNull(userId)) {
             return;
         }
@@ -138,12 +158,34 @@ public class Console extends Callable {
             Date pre = new Date();
             EntitySet entitySet = SQLRunner.getEntitySet(resultNamedSql);
             Date now = new Date();
-            logger.info("耗时：" + (now.getTime() - pre.getTime()) / 1000);
-            combineResultSql(entitySet);
+            logger.info(resultSql + " 耗时：" + (now.getTime() - pre.getTime()) / 1000);
+
+            if (isTable) {
+                combineTableData(entitySet);
+            } else {
+                combineResultSql(entitySet);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    private void combineTableData(EntitySet entitySet) {
+        List<Entity> entityList = entitySet.getEntityList();
+        int count = entityList.size();
+        Page page = getPage(count);
+        int beginNo = page.getBeginRecordNo_1();
+        int endNo = page.getEndRecordNo();
+
+        List<Entity> collect = entityList.stream().skip(beginNo).limit(endNo).collect(Collectors.toList());
+
+        resultPool.addValue("rows",collect);
+        if (page != null) {
+            resultPool.addValue("page", page);
+            resultPool.addValue("total", page.getRecordCount());
+        }
     }
 
 

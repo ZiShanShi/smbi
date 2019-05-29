@@ -83,7 +83,7 @@ public class AggMainFieldContainer extends Preloader {
                     if (AggConstant.filedUnCatchList.contains(aggTableField)) {
                         continue;
                     }
-                    fieldTableMap.put(aggTableField, tableName);
+                    fieldTableMap.put(MessageFormat.format(AggConstant.Select_Field_Template, tableName,aggTableField), tableName);
                 }
             }
 

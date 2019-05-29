@@ -88,9 +88,9 @@ var salesDetailFields = [
  		{caption: "销售日期", field: "bizdate",type:'date'},
  		{caption: "月", field: "month",type:'select',
  			defaultvalue:[
- 			              {code:"01",name:"1"},{code:"02",name:"2"},{code:"03",name:"3"},
- 			              {code:"04",name:"4"},{code:"05",name:"5"},{code:"06",name:"6"},{code:"07",name:"7"},
- 			              {code:"08",name:"8"},{code:"09",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
+ 			              {code:"1",name:"1"},{code:"2",name:"2"},{code:"3",name:"3"},
+ 			              {code:"4",name:"4"},{code:"5",name:"5"},{code:"6",name:"6"},{code:"7",name:"7"},
+ 			              {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
  			              ]
  		},
      ]},
@@ -129,9 +129,9 @@ var purchaseDetailFields = [
 	{caption: "采购日期", field: "bizDate",type:'date'},
 	{caption: "月", field: "month",type:'select',
 		defaultvalue:[
-		              {code:"01",name:"1"},{code:"02",name:"2"},{code:"03",name:"3"},
-		              {code:"04",name:"4"},{code:"05",name:"5"},{code:"06",name:"6"},{code:"07",name:"7"},
-		              {code:"08",name:"8"},{code:"09",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
+		              {code:"1",name:"1"},{code:"2",name:"2"},{code:"3",name:"3"},
+		              {code:"4",name:"4"},{code:"5",name:"5"},{code:"6",name:"6"},{code:"7",name:"7"},
+		              {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
 			              ]
 		},
 	   ]},
@@ -159,9 +159,9 @@ var inventoryDetailFields = [
               	{caption: "库存日期", field: "endDate",type:'date',must:true},
               	{caption: "月", field: "month",type:'select',
               		defaultvalue:[
-              		            {code:"01",name:"1"},{code:"02",name:"2"},{code:"03",name:"3"},
-              		            {code:"04",name:"4"},{code:"05",name:"5"},{code:"06",name:"6"},{code:"07",name:"7"},
-              		            {code:"08",name:"8"},{code:"09",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
+              		            {code:"1",name:"1"},{code:"2",name:"2"},{code:"3",name:"3"},
+              		            {code:"4",name:"4"},{code:"5",name:"5"},{code:"6",name:"6"},{code:"7",name:"7"},
+              		            {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
               		            ]
               		},
               	   ]},
@@ -296,8 +296,9 @@ var inventorySumFields = [
                     ];
 
 var distributorAccountFields = [
-                        {code: "period", text: "期间", fields: [
-                          {caption: "年份", field: "year", filterField: "year", type: "select", defaultvalue:[{code:"2018",name:"2018"},{code:"2019",name:"2019"}]},
+                        {code: "period", text: "期间",
+							fields: [
+                          {caption: "年份", field: "year", must:true, filterField: "year", type: "select", defaultvalue:[{code:"2017",name:"2017"},{code:"2018",name:"2018"},{code:"2019",name:"2019"}]},
                          ]},
                     	 {code: "area", text: "区域", fields: [
 							{caption: "大区", field: "region", filterField: "regionid", type: "select", defaultvalue:[ {code:"east",name:"east"},{code:"west",name:"west"},{code:"south",name:"south"},{code:"southeast",name:"southeast"},{code:"northeast",name:"northeast"},{code:"north",name:"north"}]},
@@ -311,25 +312,24 @@ var distributorAccountFields = [
 
 var totalTerminalFields = [
                         {code: "period", text: "期间", fields: [
-							{caption: "年份", field: "year", filterField: "year", type: "select", defaultvalue:[{code:"2018",name:"2018"},{code:"2019",name:"2019"}]},
-							{caption: "月份", field: "month", filterField: "month", type: "select", defaultvalue:[{code:"12",name:"12"},{code:"11",name:"11"}]},
+							{caption: "年份", field: "year", filterField: "year", type: "select", must: true, defaultvalue:[{code:"2017",name:"2017"},{code:"2018",name:"2018"},{code:"2019",name:"2019"}]},
+							{caption: "月份", field: "month", filterField: "month", type: "select", must: true, defaultvalue:[{code:"1",name:"1"},{code:"2",name:"2"},{code:"3",name:"3"},
+                                    {code:"4",name:"4"},{code:"5",name:"5"},{code:"6",name:"6"},{code:"7",name:"7"},
+                                    {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},]},
                          ]},
                     	 {code: "hierarchy", text: "架构", fields: [
-                    	    {caption: "RSM", field: "hierarchy1", type: "select", defaultvalue:[{code:"FredZheng",name:"FredZheng"},{code:"EileenFeng",name:"EileenFeng"}]},                    
-                    	    {caption: "RSM姓名", field: "hierarchy1", type: "select", defaultvalue:[{code:"FredZheng",name:"FredZheng"},{code:"EileenFeng",name:"EileenFeng"}]},                    
-                            {caption: "主管", field: "hierarchy1", type: "select", defaultvalue:[{code:"RichardYang",name:"RichardYang"},{code:"EvenLiu",name:"EvenLiu"}]},                      
-                            {caption: "主管姓名", field: "hierarchy1", type: "select", defaultvalue:[{code:"RichardYang",name:"RichardYang"},{code:"EvenLiu",name:"EvenLiu"}]},                      
-                            {caption: "负责销售", field: "hierarchy", type: "select", defaultvalue:[{code:"CocoMao",name:"CocoMao"},{code:"MessiMei",name:"MessiMei"}]},          
-                            {caption: "销售姓名", field: "hierarchy", type: "select", defaultvalue:[{code:"CocoMao",name:"CocoMao"},{code:"MessiMei",name:"MessiMei"}]}                      
+                    	    {caption: "RSM", field: "rsm", type: "select", defaultvalue:[{code:"FredZheng",name:"FredZheng"},{code:"EileenFeng",name:"EileenFeng"}]},
+                            {caption: "主管", field: "Supervisor", type: "select", defaultvalue:[{code:"RichardYang",name:"RichardYang"},{code:"EvenLiu",name:"EvenLiu"}]},
+                            {caption: "负责销售", field: "Salesperson", type: "select", defaultvalue:[{code:"CocoMao",name:"CocoMao"},{code:"MessiMei",name:"MessiMei"}]},
                     	 ]},
                     	 {code: "area", text: "区域", fields: [
-                    	   {caption: "大区", field: "region", filterField: "regionid", type: "select", defaultvalue:[ {code:"east",name:"east"},{code:"west",name:"west"},{code:"south",name:"south"},{code:"southeast",name:"southeast"},{code:"northeast",name:"northeast"},{code:"north",name:"north"}]},
+                    	   {caption: "大区", field: "region", filterField: "region", type: "select", defaultvalue:[ {code:"east",name:"east"},{code:"west",name:"west"},{code:"south",name:"south"},{code:"southeast",name:"southeast"},{code:"northeast",name:"northeast"},{code:"north",name:"north"}]},
                     	 ]},
                     	 {code: "porduct", text: "产品", fields: [
-                    	    {caption: "产品线", field: "brand", filterField: "brandid", type: "select", defaultvalue:[{code:"Straumann",name:"Straumann"},{code:"Anthogyr",name:"Anthogyr"}]},
+                    	    {caption: "产品线", field: "brand", filterField: "brand", type: "select", defaultvalue:[{code:"Straumann",name:"Straumann"},{code:"Anthogyr",name:"Anthogyr"}]},
                     	 ]},
                     	 {code: "customer", text: "客户", fields: [
-                    		    {caption: "终端客户代码", field: "clientcode", filterField: "customerid"},
-                    		    {caption: "终端客户名称", field: "customername", filterField: "customerid"}
+                    		    {caption: "终端代码", field: "companycode", filterField: "companycode"},
+                    		    {caption: "终端名称", field: "conpanyname", filterField: "conpanyname"}
                     		 ]}
                     ];

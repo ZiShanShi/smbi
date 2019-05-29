@@ -234,6 +234,28 @@ function initDateime(type) {
 			FilterArea.getItem('endDate').input.val(endtime);
 		}	
 	}
+
+    if('year' == type) {
+        var yeardiv = FilterArea.getItem('year');
+        var endtime = yeardiv.val();
+        if (endtime == "") {
+            var datetime = new DateTime();
+            endtime = datetime.year;
+            var select = $("#select_", yeardiv);
+            select.val(endtime);
+        }
+    }
+
+    if('month' == type) {
+        var yeardiv = FilterArea.getItem('month');
+        var endtime = yeardiv.val();
+        if (endtime == "") {
+            var datetime = new DateTime();
+            endtime = datetime.month + 1;
+            var select = $("#select_", yeardiv);
+            select.val(endtime);
+        }
+    }
 			
 }
 

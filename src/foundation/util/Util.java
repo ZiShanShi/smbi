@@ -1,11 +1,13 @@
 package foundation.util;
 
+import bi.AggConstant;
 import foundation.config.Configer;
 import foundation.data.DataType;
 import foundation.data.Entity;
 import foundation.data.EntitySet;
 import foundation.persist.DataBaseType;
 import foundation.persist.DataHandler;
+import foundation.persist.SqlSession;
 import foundation.persist.sql.NamedSQL;
 import foundation.persist.sql.SQLRunner;
 import foundation.user.OnlineUser;
@@ -16,7 +18,11 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -695,17 +701,90 @@ public class Util {
 		}
 		return value;
 	}
-	public static void changeData() throws Exception {
-		
-		NamedSQL getemployeeidSql = NamedSQL.getInstance("getemployeeid");
+
+    public static boolean checkTableExists(String tableName) {
+        Connection connection = SqlSession.createConnection();
+        ResultSet rs = null;
+        try {
+            rs = connection.getMetaData().getTables(null, null, tableName, null);
+            if (rs.next()) {
+                return true;
+            }else {
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return false;
+    }
+
+	public static void changeData(String basePosition) throws Exception {
+		changeData(basePosition, "id", "admin");
+	}
+
+
+	public static void changeData(String basePosition, String baseId) throws Exception {
+		changeData(basePosition, baseId, "admin");
+	}
+
+	public static void changeData(String basePosition, String baseId, String adminStr) throws Exception {
+	    if (Util.isNull(baseId)) {
+	        baseId = "id";
+        }
+        if (Util.isNull(baseId)) {
+	        baseId = "admin";
+        }
+ 		//1 根据岗位 重建 territory 表
+        NamedSQL getOrganizationType = NamedSQL.getInstance("getOrganizationType");
+        EntitySet typeSet = SQLRunner.getEntitySet(getOrganizationType);
+        List<String> typeList = typeSet.getFieldList("type");
+        if (!typeList.contains(basePosition)) {
+            throw new Exception("未包含最基础岗位");
+        }
+        boolean exists = checkTableExists("territory");
+        if (exists) {
+            NamedSQL dropTable = NamedSQL.getInstance("dropTable");
+            dropTable.setParam("table", "territory");
+            SQLRunner.execSQL(dropTable);
+        }
+
+        if (!typeList.contains(adminStr)) {
+            typeList.add(adminStr);
+        }
+        ContentBuilder builder = new ContentBuilder(Util.comma);
+        for (String type : typeList) {
+            builder.append(MessageFormat.format("[{0}] nvarchar({1}) NULL", type, 32));
+            builder.append(MessageFormat.format("[{0}] nvarchar({1}) NULL", Util.stringJoin(type, "name"), 32));
+        }
+        String fields = builder.toString();
+
+        NamedSQL createSql = NamedSQL.getInstance("createCommonTableTemplate");
+        createSql.setParam(AggConstant.Sql_Field_tableName, "territory");
+        createSql.setParam(AggConstant.Sql_Field_fields, fields);
+        SQLRunner.execSQL(createSql);
+
+
+        //2 刷新数据
+		NamedSQL getemployeeidSql = NamedSQL.getInstance("getBaseUserByOrganization");
+        getemployeeidSql.setParam("baseId", baseId);
+        getemployeeidSql.setParam("baseType", basePosition);
 		EntitySet employeeSet = SQLRunner.getEntitySet(getemployeeidSql);
 		List<String> idList = new ArrayList<String>();
 		List<String> parentIdList = new ArrayList<String>();
 		//1所有一级岗位
 		for (Entity entity : employeeSet) {
-			String id = entity.getString("id");
+			String id = entity.getString(baseId);
 			idList.add(id);
-			String parentid = entity.getString("parentid");
+			String parentid = entity.getString("Parent" + baseId);
 			parentIdList.add(parentid);
 		}
 		
@@ -718,42 +797,53 @@ public class Util {
 		//2格式新架构
 		for (String id : idList) {
 			Entity entity = new Entity("territory");
-			entity.set("parentid1", id);
+            NamedSQL getAdminByOrganization = NamedSQL.getInstance("getUserByOrganization");
+            getAdminByOrganization.setParam("loginName", id);
+            Entity userEntity = SQLRunner.getEntity(getAdminByOrganization);
+            String englishName = userEntity.getString("EnglishName");
+            entity.set(basePosition, id);
+            entity.set(basePosition + "name", englishName);
 			String childId = id;
 			field = 1;
 			
 			while (field <= entity.getFieldCount()) {
-				field++;
-				String childid = addparentid(entity, childId, "getparentidfromemployee");
+				String childid = addparentid(entity, childId, "getparentidfromorganization", baseId);
 				
 				if (childid == null) {
-					break;
+				    //中间断层 或者RSM
+                    String adminCode = Configer.getParam("adminCode");
+                    //strumann 特殊
+                    getAdminByOrganization.setParam("loginName", adminCode);
+                    Entity adminEntity = SQLRunner.getEntity(getAdminByOrganization);
+                    String adminId = adminEntity.getString(baseId);
+                    String adminname = adminEntity.getString("EnglishName");
+                    entity.set(adminStr, adminId);
+                    entity.set(adminStr+"name", adminname);
+                    break;
 				}
 				childId = childid;
+				field++;
+
 			}
 			DataHandler.addLine(entity);
 		}
 		
 	}
 
-	protected static String addparentid(Entity entity, String id, String sqlname) throws Exception {
-		String  parents = "parentid";
-		if(sqlname.equalsIgnoreCase("getgrandparentidfromemployee")){
-			parents = "grandpaid";
-		}
+	protected static String addparentid(Entity entity, String id, String sqlname, String baseId) throws Exception {
+		String  parents = "Parent" + baseId;
+
 		if(Util.isEmptyStr(id)) {
 			return null;
 		}
 		NamedSQL getparentidfromemployee = NamedSQL.getInstance(sqlname);
+		getparentidfromemployee.setParam("baseId", baseId);
 		getparentidfromemployee.setParam("id", id);
-		
+		getparentidfromemployee.setParam("parentId", parents);
+
 		Entity parentidEntity = SQLRunner.getEntity(getparentidfromemployee);
 		
-		if((parentidEntity == null || Util.isEmptyStr(parentidEntity.getString(parents))) && sqlname.equalsIgnoreCase("getgrandparentidfromemployee")){
-			return null;
-		}
-		
-		if ((parentidEntity == null || Util.isEmptyStr(parentidEntity.getString(parents))) && sqlname.equalsIgnoreCase("getparentidfromemployee")) {
+		if ((parentidEntity == null || Util.isEmptyStr(parentidEntity.getString(parents))) && sqlname.equalsIgnoreCase("getparentidfromorganization")) {
 			field++;
 			
 			//String childid = addparentid(entity, id, "getgrandparentidfromemployee");
@@ -762,7 +852,21 @@ public class Util {
 		}
 		if (parentidEntity != null) {
 			String parentId = parentidEntity.getString(parents);
-			entity.set("parentid" + field, parentId);
+
+
+
+			NamedSQL getUserByOrganization = NamedSQL.getInstance("getUserByOrganization");
+			getUserByOrganization.setParam("loginName", parentId);
+            Entity parentEntity = SQLRunner.getEntity(getUserByOrganization);
+
+            if (Util.isNull(parentEntity)) {
+                return null;
+            }
+            String englishName = parentEntity.getString("EnglishName");
+            String type = parentEntity.getString("type");
+
+			entity.set(type, parentId);
+			entity.set(type+"name", englishName);
 			return parentId;
 		} else {
 			return null;

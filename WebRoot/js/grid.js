@@ -482,8 +482,12 @@
 			if (!array || !array.length){
 				return;
 			}
-			
-			$('#grid-bar_message', this.canvas).html("总共 " + array.length + " 条记录");
+			if(page.total) {
+                $('#grid-bar_message', this.canvas).html("总共 " + page.total + " 条记录");
+			}else {
+                $('#grid-bar_message', this.canvas).html("总共 " + array.length + " 条记录");
+			}
+
         	
         	for (var m = 0; m < array.length; m++) {
         		var data = array[m];

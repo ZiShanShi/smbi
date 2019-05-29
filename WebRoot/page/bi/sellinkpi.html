@@ -23,6 +23,7 @@
     <script type="text/javascript">
         var mainTool, chartTool, chartToolItems, reportPanel, gridPanel;
         var chart, grid;
+
         var option = {
                 "tooltip": {
                     "trigger": "axis",
@@ -296,21 +297,23 @@
                 report: report,
                 groupIcon: "icon-liebiao",
                 onChangeFilterSetting: function (fieldOption, checked) {
+                    console.info(fieldOption);
                     if (checked) {
-                        FilterArea.addFilter(fieldOption);
+                        FilterArea.addFilter(fieldOption.group.code, fieldOption);
                     }
                     else {
                         FilterArea.deleteFilter(fieldOption);
                     }
+                    resetGrid();
                 }
             });
 
             FilterArea.init({
                 element: "#olap-filters",
-                items: FieldArea.items,
+                items: FieldArea.checkItems,
                 groupIcon: "icon-liebiao",
-                onChangeFilter: function () {
-
+                onFilterChange : function () {
+                    resetGrid();
                 }
             });
 
@@ -324,6 +327,7 @@
             if (gridOption != null) {
                 grid = new $.fm.Grid({
                     element: "grid",
+                    showPage:true,
                     limit: gridOption.page.pageSize,
                     hasSubTitle: gridOption.hasTitle,
                     columns:[
@@ -358,6 +362,53 @@
             chart.setOption(option);
         }
 
+        function resetGrid() {
+            var aggcode = "";
+            var reShowColumns = [];
+            Object.keys(FieldArea.checkItems).forEach( function(key) {
+                var item = FieldArea.checkItems[key];
+                var option = item.option;
+
+                var field =  {field: option.showField.toLowerCase(), caption: option.caption, width: 120};
+                reShowColumns.push(field);
+                var group = item.group;
+
+                if(group && "peroid" != group.code && "area" != group.code) {
+                    var groupcode = group.code;
+                    aggcode += groupcode + "." + key + ";";
+                }else {
+                    aggcode += key +";";
+                }
+
+            });
+
+            var filter = FilterArea.getFilterUrl(true);
+            var paramsObj = {
+                code: report.topic,
+                fields:aggcode,
+                userType:"superAdmin",
+                isTable:true
+            }
+            Loading.show("重组报表中。。。");
+            $("#grid").empty();
+
+            grid = new $.fm.Grid({
+                element: "grid",
+                limit: 20,
+                showPage:true,
+                hasSubTitle: true,
+                columns:reShowColumns
+            });
+
+            var params = $.fm.objectToURI(paramsObj) + "&" + filter;
+            var gridurl = "root/bi/data?"+ params;
+            grid.url = gridurl;
+            Server.getData(gridurl, function(row, page) {
+                Loading.hide();
+                grid.loadData(row, page);
+            });
+        }
+
         $(document).ready(function () {
             reportPanel = $("#reportPanel");
             gridPanel = $("#gridPanel");
@@ -370,6 +421,7 @@
 
             resetPanelData(staticdatas.widget);
             //$( ".selector" ).draggable( "option", "scope", "tasks" );
+
         });
 
     </script>

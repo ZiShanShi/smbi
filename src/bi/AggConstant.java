@@ -144,6 +144,7 @@ public class AggConstant {
     public static String Total = "total";
     public static String Roxolid = "Roxolid";
     public static String lastDataTimeSql = "getLastDataTime";
+    public static String lastDataTimeByPersonSql = "getLastDataTimeByPerson";
     public static String DDITable = "DDITable";
     public static String BizDate = "BizDate";
     public static String dataName = "dataName";
@@ -176,6 +177,10 @@ public class AggConstant {
     public static String GroupBy = "GroupBy";
     public static String Brand = "brand";
     public static String userId = "userId";
+    public static String Territory = "territory";
+    public static String Name = "name";
+    public static String Product = "Product";
+    public static String ProductCode = "ProductCode";
 
 
     static {

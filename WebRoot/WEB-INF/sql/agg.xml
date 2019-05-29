@@ -37,5 +37,34 @@
 			WHERE aggcode = '@{aggcode}' and @{filter}
 
 		</sql>
+
+
+		<!-- territory -->
+
+		<sql name="createCommonTableTemplate">
+			CREATE TABLE [dbo].[@{tableName}] (
+			@{fields}
+			)
+		</sql>
+
+		<sql name="getOrganizationType">
+			SELECT DISTINCT type from organization WHERE type not in ('admin', 'Commercial');
+		</sql>
+
+		<sql name="getUserByOrganization">
+			SELECT * from organization WHERE loginName = '@{loginName}';
+		</sql>
+
+		<sql name="getparentidfromorganization">
+			SELECT @{parentId},  type from organization WHERE  @{baseId} = '@{id}'
+		</sql>
+
+		<sql name="getBaseUserByOrganization">
+			SELECT Parent@{baseId}, @{baseId} from organization WHERE type = '@{baseType}' and @{baseId} is not null
+		</sql>
+
+		<sql name="dropTable">
+			drop table  @{table}
+		</sql>
 	</dataSpace>
 </sqls>

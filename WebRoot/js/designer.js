@@ -192,6 +192,7 @@
 	
 	FieldArea = {
 		items: {},
+		checkItems:{},
 		element: null,
 		
 		init: function(options) {
@@ -206,6 +207,7 @@
 			
 			var values = options.report.theme.value;
 			this.appendValues(values);
+
 		},
 		
 		appendDimensions: function(dimensions) {
@@ -256,6 +258,7 @@
 		},
 		
 		appendOneField: function(parent, fieldOption) {
+			var me = this;
 			var item = $([
 				"<div class='fields-item'>",
 					"<label id='text'></label>",
@@ -266,18 +269,36 @@
 			].join(""));
 			
 			item.option = fieldOption;
-			
+			if (!item.option.showField) {
+                item.option.showField = item.option.field;
+            }
+
 			item.text = $("#text", item);
 			item.text.html(fieldOption.caption);
-			
-			item.checkbox = $("#checkBox", item);
+			item.checked = false;
+			item.checkboxDiv = $("#checkBox", item);
+			item.checkbox = $("input", item.checkboxDiv);
 			item.checkbox.change(function() {
-				var checked = item.checkbox.val();
-				if (this.onChangeFilterSetting) {
-					this.onChangeFilterSetting(fieldOption, checked);
+                item.checked = !item.checked;
+                if (item.checked) {
+                	me.checkItems[item.option.field] = item;
+				}
+				else {
+                    delete me.checkItems[item.option.field];
+				}
+
+
+				if (me.options.onChangeFilterSetting) {
+					me.options.onChangeFilterSetting(fieldOption, item.checked);
 				}
 			});
-			
+
+            if(item.option.defaultadded) {
+                item.checked = true;
+                item.checkbox.prop('checked', true);
+                this.checkItems[fieldOption.field] = item;
+            }
+
 			parent.append(item);
 			this.items[fieldOption.field] = item;
 			
@@ -294,8 +315,9 @@
 			return item;
 		}
 	};
-	
-	
+
+
+
 //3.FiltersArea                                        =========
 		
 	FilterArea = {
@@ -320,10 +342,12 @@
 				}
 				
 				var group = this.addGroup(option.group);
+
 				if (!group) {
 					continue;
 				}
-				this.addFilter(group, option);
+
+				this.addFilter(group.code, option);
 			}
 		},
 		
@@ -333,7 +357,7 @@
 			}
 			
 			var code = option.code;
-			
+
 			if (this.groups[code]) {
 				return this.groups[code];
 			}
@@ -346,7 +370,8 @@
 					"<div>",				  		
 				"</div>"
 			].join(""));
-			
+
+			group.code = code;
 			group.icon = $("#icon", group);
 			group.icon.addClass(this.options.groupIcon);
 			
@@ -357,9 +382,14 @@
 			this.groups[code] = group;
 			return group;
 		},
-		
-		addFilter: function(group, itemOption) {
+
+        addFilter: function(groupCode, itemOption) {
 			var me = this;
+			var group = this.groups[groupCode];
+			if (!group) {
+				group = me.addGroup(itemOption.group);
+			}
+
 			if ("select" == itemOption.type) {
 				var item = $([
 					"<div class='filter-line'>",
@@ -394,7 +424,7 @@
 								var option = $("<option ></option>");
 								
 								option.val(line[(itemOption.field).toLowerCase()]);
-								option.html(line[(itemOption.field).toLowerCase()]);
+								option.html(line[(itemOption.filterField).toLowerCase()]);
 								
 								input.append(option);
 							}
@@ -413,11 +443,12 @@
 				}
 				
 				input.on('change',function() {
-					var value = $("#select_  option:selected").val();
+					var value = input.find("option:selected").val();
 					me.onFilterChange(itemOption.field, value, this);
 				});
 				this.items[itemOption.field] = item;
 				group.append(item);
+                item.group = group;
 			} 
 			else if ("date" == itemOption.type) {
 				var item = $([
@@ -436,7 +467,23 @@
 				
 				item.editorContainer = $("#editorContainer", item);
 				item.input = $("#date_", item);
-				
+
+                var dataurl = itemOption.url;
+                if(dataurl) {
+                    Server.getData(dataurl, function(data) {
+                        if (data && data.length == 1) {
+                            var line = data[0];
+							var date = line[itemOption.field.toLowerCase()];
+                            item.input.val(date);
+                        }
+                    });
+                }else {
+                    var datetime = new DateTime();
+                    var endtime = datetime.str;
+                    item.input.val(endtime);
+				}
+
+
 				item.input.on('change',function() {
 					var value = item.input.val();
 					me.onFilterChange(itemOption.field, value, this);
@@ -444,7 +491,7 @@
 				
 				this.items[itemOption.field] = item;
 				group.append(item);
-				
+                item.group = group;
 			}
 			else{
 				var item = $([
@@ -490,6 +537,7 @@
 				
 				this.items[itemOption.field] = item;
 				group.append(item);
+				item.group = group;
 			}
 
 
@@ -536,28 +584,43 @@
 			}
 			return filter.substring(4,filter.length) == "" ? "1=1" : filter.substring(4,filter.length);
 		},
-		getFilterUrl: function() {
+		getFilterUrl: function(raw) {
+			if (!raw) {
+				raw = false;
+			}
 			var url = "";
 			var filter = "";
 			for(var one in this.items) {
 				var val = this.getValue(one);
+				var group = this.items[one].group;
+
+				var oneFilterName ="";
+                var groupCode = group.code;
+
+				 if(raw && "peroid" != groupCode && "area" != groupCode){
+					oneFilterName = groupCode + "." + one;
+				}else{
+                    oneFilterName = one;
+                }
+
 				if(typeof(val) == "undefined" || val == "" || val.toLowerCase() == "all") {
 					continue;
 				}
 				
 				if(this.items[one].must  && this.items[one].must == true) {
-					url += "&" + one + "=" +  val;
+					url += "&" + oneFilterName + "=" +  val;
 				}else {
-					var dateType = this.items[one].type;
-					if("select" == dateType || "date" == dateType || this.items[one].equal == false) {
-						filter += "and " + one + " like '%" + val + "%'";
-					}else {
-						filter += "and " + one + "='" + val + "'";
+					var dataType = this.items[one].type;
+					if(!dataType) {
+						filter += " and " + oneFilterName + " like '%" + val + "%'";
 					}
-					
-					
+					else if ("select" == dataType || "date" == dataType){
+                        filter += " and " + oneFilterName + "='" + val + "'";
+					}else {
+                        filter += " and " + oneFilterName + " like '%" + val + "%'";
+					}
+
 				}
-				
 			}
 			
 			if(filter == "") {

@@ -7,8 +7,22 @@
 		<sql name="getAdminTarget">
 
 		</sql>
+
+
 		<sql name="getLastDataTime">
 			SELECT top 1 BizDate from @{DDITable} ORDER BY BizDate desc
+
+		</sql>
+		<sql name="getrsm">
+			SELECT region, LoginName as rsm, EnglishName as name FROM [dbo].[RSMRegion] r
+			LEFT JOIN organization on r.UserID = organization.id
+		</sql>
+
+		<sql name="getLastDataTimeByPerson">
+			SELECT top 1 BizDate from @{DDITable}
+			where aggcode = '@{aggcode}'
+			@{user}
+			ORDER BY BizDate desc
 
 		</sql>
 
@@ -35,6 +49,7 @@
 			LEFT JOIN VIEW_@{dataType}_Month_@{brandType} m ON m.peroid = p.id
 			WHERE
 			YEAR = @{year}
+            @{brandfilter}
 			@{targetuser}
 			GROUP BY
 			p.[month]
@@ -137,7 +152,6 @@
 			GROUP BY brand, [year]
 			) a02
 			on a01.Brand = a02.Brand  and a01.year = a02.year + 1
-
 
 		</sql>
 
@@ -316,18 +330,18 @@
 			Region,  SUM(Quantity) AS Quantity
 			FROM (
 			SELECT
-			Region, peroid,SUM(Quantity) AS Quantity,pr.brand
-			FROM agg_@{dataType}_d_o_pe_pr agg
+			agg.Region, peroid,SUM(Quantity) AS Quantity,pr.brand
+			FROM agg_@{dataType}_d_o_pe_pr_r agg
 			LEFT JOIN DistributorHierarchy h ON h.DistributorCode = agg.DistributorCode
 			LEFT JOIN Product pr ON agg.ProductCode = pr.ProductCode
 			WHERE aggcode = '@{aggcode}' @{user}
 			AND pr.ProductType LIKE '%Abutment%'
-			AND Region IS NOT NULL
-			GROUP BY Region, peroid, pr.brand
+			AND agg.Region IS NOT NULL
+			GROUP BY agg.Region, peroid, pr.brand
 			) a0
 			LEFT JOIN md_peroid p ON p.id = a0.peroid
 			where @{filter}
-			GROUP BY Region,brand
+			GROUP BY a0.Region,brand
 			)a01
 			LEFT JOIN
 			(
@@ -335,18 +349,18 @@
 			Region,  SUM(Quantity) AS preQuantity
 			FROM (
 			SELECT
-			Region, peroid,SUM(Quantity) AS Quantity,pr.brand
-			FROM agg_@{dataType}_d_o_pe_pr agg
+			agg.Region, peroid,SUM(Quantity) AS Quantity,pr.brand
+			FROM agg_@{dataType}_d_o_pe_pr_r agg
 			LEFT JOIN DistributorHierarchy h ON h.DistributorCode = agg.DistributorCode
 			LEFT JOIN Product pr ON agg.ProductCode = pr.ProductCode
 			WHERE aggcode = '@{aggcode}' @{user}
 			AND pr.ProductType LIKE '%implant%'
-			AND Region IS NOT NULL
-			GROUP BY Region, peroid, pr.brand
+			AND agg.Region IS NOT NULL
+			GROUP BY agg.Region, peroid, pr.brand
 			) a0
 			LEFT JOIN md_peroid p ON p.id = a0.peroid
 			where @{filter}
-			GROUP BY Region,brand
+			GROUP BY a0.Region,brand
 			)
 			a02 ON a01.Region = a02.Region
 
@@ -466,7 +480,7 @@
 			(
 			SELECT [year],DistributorCode, CompanyCode,SUM(Amount) as totalAmount from agg_Sale_c_d_o_pe agg
 			LEFT JOIN md_peroid p on p.id = agg.peroid
-			WHERE aggcode = '@{aggcode}'
+			WHERE aggcode = '@{aggcode}'  @{user}
 			GROUP BY [year],DistributorCode, CompanyCode
 			)a0 on a0.[Year] = p.[year] and a0.CompanyCode = agg.CompanyCode and a0.DistributorCode = agg.DistributorCode
 
@@ -477,7 +491,7 @@
 			GROUP BY a01.[year], a01.DistributorCode
 			) a11
 
-			WHERE a11.year = '@{year}' @{user}
+			WHERE a11.year = '@{year}'
 			GROUP BY a11.[year];
 
 			]]>
@@ -501,18 +515,18 @@
 			(
 			SELECT [year],DistributorCode, CompanyCode,SUM(Amount) as totalAmount from agg_Sale_c_d_o_pe agg
 			LEFT JOIN md_peroid p on p.id = agg.peroid
-			WHERE aggcode = '@{aggcode}'
+			WHERE aggcode = '@{aggcode}'  @{user}
 			GROUP BY [year],DistributorCode, CompanyCode
 			)a0 on a0.[Year] = p.[year] and a0.CompanyCode = agg.CompanyCode and a0.DistributorCode = agg.DistributorCode
 
-			WHERE agg.aggcode = '@{aggcode}' @{user}
+			WHERE agg.aggcode = '@{aggcode}'  @{user}
 			and AccountTargets.Target is not null
 			and a0.totalAmount is not null and a0.totalAmount <> 0
 			)a01
 			GROUP BY a01.[year], a01.DistributorCode
 			) a11
 			LEFT JOIN Distributor d on d.DistributorCode = a11.DistributorCode
-			WHERE a11.year = '@{year}' @{user}
+			WHERE a11.year = '@{year}'
 			GROUP BY a11.[year], DistributorName;
 
 			]]>
@@ -522,7 +536,7 @@
 		<sql name="getinventoryday">
 
 			SELECT sum(Amount) / sum(averageAmount) * count(1) as averageinventoryday from
-			agg_Inventory_d_o_pe_pr  i
+			agg_Inventory_d_o_pe_pr  agg
 			LEFT JOIN
 			(
 			SELECT DistributorCode, brand, sum(Amount)/90 as averageAmount  from VIEW_DataSales
@@ -530,16 +544,16 @@
 			GROUP BY DistributorCode, brand
 			)a1
 			on
-			i.DistributorCode = a1.DistributorCode and i.brand = a1.brand
-			LEFT JOIN Distributor d on i.DistributorCode = d.DistributorCode
-			WHERE i.aggcode = '@{aggcode}'  and i.BizDate = '@{lastinventorydate}' @{user}
+			agg.DistributorCode = a1.DistributorCode and agg.brand = a1.brand
+			LEFT JOIN Distributor d on agg.DistributorCode = d.DistributorCode
+			WHERE agg.aggcode = '@{aggcode}'  and agg.BizDate = '@{lastinventorydate}' @{user}
 
 		</sql>
 
 		<sql name="getinventorydaydetail">
 
 			SELECT DistributorName, sum(Amount) / sum(averageAmount) as inventoryday from
-			agg_Inventory_d_o_pe_pr  i
+			agg_Inventory_d_o_pe_pr  agg
 			LEFT JOIN
 			(
 			SELECT DistributorCode, brand, sum(Amount)/90 as averageAmount  from VIEW_DataSales
@@ -547,9 +561,9 @@
 			GROUP BY DistributorCode, brand
 			)a1
 			on
-			i.DistributorCode = a1.DistributorCode and i.brand = a1.brand
-			LEFT JOIN Distributor d on i.DistributorCode = d.DistributorCode
-			WHERE i.aggcode = '@{aggcode}'  and i.BizDate = '@{lastinventorydate}' @{user}
+			agg.DistributorCode = a1.DistributorCode and agg.brand = a1.brand
+			LEFT JOIN Distributor d on agg.DistributorCode = d.DistributorCode
+			WHERE agg.aggcode = '@{aggcode}'  and agg.BizDate = '@{lastinventorydate}' @{user}
 
 			GROUP BY d.DistributorName
 			ORDER BY inventoryday desc
@@ -607,7 +621,7 @@
 			sum(monthsum) * 100/ SUM(monthTarget) as achieve
 			from(
 			SELECT * from
-			organization o WHERE ParentLoginName = '@{userid}'
+			organization o WHERE @{orgchildren}
 			)a0
 
 			LEFT JOIN VIEW_@{dataType}_Month_Total m on (@{dataTypeSegment})

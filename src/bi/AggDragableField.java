@@ -21,21 +21,30 @@ public class AggDragableField {
 
 
     public AggDragableField(String field, boolean isDimension) {
-        this.field = field;
+
+        int index = field.indexOf(Util.Dot);
+        String subField;
+        if (index != -1) {
+            subField = field.substring(index + 1, field.length());
+        } else {
+            subField = field;
+        }
+
+        this.field = subField;
 
         if (!isDimension) {
-            checkIsMainField(field);
+            checkIsMainField(field, index);
             type = EDragableFieldType.filter;
             return;
         }
 
-        Dimension dimension = AggDimensionsContainer.getDimensionByCode(field);
+        Dimension dimension = AggDimensionsContainer.getDimensionByCode(subField);
 
         if (!Util.isNull(dimension)) {
             type = EDragableFieldType.agg;
             this.dimension = dimension;
         } else {
-            checkIsMainField(field);
+            checkIsMainField(field, index);
             /*if (!checkIsPeroid(field)) {
 
             }*/
@@ -52,8 +61,17 @@ public class AggDragableField {
         return true;
     }
 
-    private void checkIsMainField(String field) {
+    private void checkIsMainField(String field, int index) {
         String tableName = AggMainFieldContainer.getTableName(field);
+
+        if (index != -1) {
+            String preTableName = field.substring(0, index);
+            if (!preTableName.equalsIgnoreCase(tableName)) {
+                type = EDragableFieldType.unknown;
+                return;
+            }
+        }
+
         if (Util.isNull(tableName)) {
             Measurment measurmentByCode = AggDimensionsContainer.getMeasurmentByCode(field);
             if (Util.isNull(measurmentByCode)) {

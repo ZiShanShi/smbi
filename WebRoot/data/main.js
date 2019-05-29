@@ -21,7 +21,7 @@ var menutree = {
    	        {name: "1", text: "终端销售汇总", img: "../../image/report.png", url: "../bi/totalsales.html"}, 
   	        {name: "2", text: "一级经销商进销存", img: "../../image/report.png", url: "../bi/invoicingcomparisontotal.html"},
   	        {name: "3", text: "经销商库存汇总", img: "../../image/report.png", url: "../bi/inventorysum.html"},       
-  	        {name: "4", text: "经销商账期", img: "../../image/report.png", url: "../bi/distributoraccount.html"}, 
+  	        {name: "4", text: "经销商账期", img: "../../image/report.png", url: "../bi/distributoraccount.html"},
   	        {name: "5", text: "非活跃客户统计", img: "../../image/report.png", url: "../bi/totalterminal.html"}, 
   	    ]},
          
