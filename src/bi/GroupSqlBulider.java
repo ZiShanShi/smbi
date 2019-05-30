@@ -128,7 +128,8 @@ public class GroupSqlBulider {
             }
         }
 
-        long brandCount = Arrays.stream(fieldsArray).filter(s -> s.equalsIgnoreCase(AggConstant.Brand)).count();
+        long brandCount = dragableFieldList.stream().filter(aggDragableField -> aggDragableField.getField().equalsIgnoreCase(AggConstant.Brand)).count();
+
         if (brandCount == 0) {
             long productCount =dragableFieldList.stream().filter(aggDragableField ->aggDragableField.getType().equals(EDragableFieldType.main))
                     .filter(aggDragableField -> aggDragableField.getTableName().equalsIgnoreCase(AggConstant.Product)).count();
@@ -146,6 +147,10 @@ public class GroupSqlBulider {
 
             for (String filterField : filterFieldList) {
                 filterField = filterField.trim();
+                if (filterField.equalsIgnoreCase("year") || filterField.equalsIgnoreCase("quarter") || filterField.equalsIgnoreCase("month")) {
+                    filterField = MessageFormat.format(AggConstant.Select_Field_Template, "md_peroid", filterField);
+                }
+
                 AggDragableField aggDragableField = new AggDragableField(filterField, false);
 
                 if (aggDragableField.getType().equals(EDragableFieldType.unknown)) {
@@ -329,10 +334,16 @@ public class GroupSqlBulider {
                     continue;
                 }
                 String filterName = oneSegment.substring(0, index).trim();
-                MainField mainField = new MainField(filterName, EMainFieldType.filter);
+                String subFilterName;
+                if (filterName.indexOf(Util.Dot) != -1) {
+                    subFilterName = filterName.substring(filterName.indexOf(Util.Dot) + 1, filterName.length());
+                }else {
+                    subFilterName = filterName;
+                }
+                MainField mainField = new MainField(subFilterName, EMainFieldType.filter);
                 LeftSegment leftSegment = mainSegmentMap.get(mainField);
                 if (Util.isNull(leftSegment)) {
-                    mainField = new MainField(filterName, EMainFieldType.main);
+                    mainField = new MainField(subFilterName, EMainFieldType.main);
                     leftSegment = mainSegmentMap.get(mainField);
                 }
 
@@ -340,6 +351,7 @@ public class GroupSqlBulider {
 
                     builder.append(MessageFormat.format("({0})", oneSegment));
                 } else {
+                    oneSegment = oneSegment.replace(filterName, subFilterName);
                     builder.append(MessageFormat.format("({0})", MessageFormat.format(AggConstant.Select_Field_Template, leftSegment.getLeftTableAcronym(), oneSegment)));
                 }
             }
@@ -373,10 +385,12 @@ public class GroupSqlBulider {
         for (String groupId : groupIdSet) {
             Dimension dimension = dimensionLevelMap.get(groupId);
             String code = dimension.getCode().trim();
-            if (addMainRSM && code.equalsIgnoreCase(AggConstant.RSM)) {
-                continue;
-            }
             String field = null;
+            if (addMainRSM && !addRSM && code.equalsIgnoreCase(AggConstant.RSM)) {
+                field = code;
+                finalFieldSet.add(field.trim() + "name");
+            }
+
             if (AggConstant.Raw.equalsIgnoreCase(type)) {
                 field = MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.agg, code);
             } else if(AggConstant.Real.equalsIgnoreCase(type)){
@@ -428,6 +442,9 @@ public class GroupSqlBulider {
             EMainFieldType fieldType = mainFieldBean.getType();
 
             LeftSegment leftSegment = mainSegmentMap.get(mainFieldBean);
+            if (addMainRSM && leftSegment.getLeftTable().equalsIgnoreCase(AggConstant.Territory)) {
+                continue;
+            }
             String leftTableAcronym = leftSegment.getLeftTableAcronym();
             String field = null;
             if (AggConstant.Raw.equalsIgnoreCase(type)) {

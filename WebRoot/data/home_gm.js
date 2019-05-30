@@ -11,7 +11,7 @@ var historyOption = {
                 if (params[i].seriesType === 'line') {
                     res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
                 } else {
-                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
                 }
             }
             return res;

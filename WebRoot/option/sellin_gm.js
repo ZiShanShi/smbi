@@ -25,13 +25,13 @@
 			endAngle: 0,
 			min: 0,
 			max: 200,
-			radius: "100%",
+			radius: "120%",
 			center: ["50%", "70%"],
 
 			axisLine: {
 				show: true,
 				lineStyle: {
-					width: 20,
+					width: 15,
 					shadowBlur: 0,
 					color: [ [0.6, '#fd666d'],[0.8, '#37a2da'],[1, '#67e0e3']]
 				}
@@ -85,7 +85,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
 	                    }
 	                }
 	                return res;
@@ -112,7 +112,6 @@
 	
 	        "calculable": true,
 	        "xAxis": [{
-	        	name:"大区",
 	            "type": "category",
 	            "axisLine": {
 	                lineStyle: {
@@ -135,7 +134,7 @@
 	            "data": ['east','south','west','north','northeast'],
 	        }],
 	        "yAxis": [{
-	        	name:"采购数额(k)",
+	        	name:"采购额(k)",
 	            "type": "value",
 	            "splitLine": {
 	                "show": false
@@ -156,7 +155,7 @@
 	                "show": false
 	            },
 	            axisLabel: {
-                    formatter: '{value}k',
+                    formatter: '{value}',
                     textStyle: {
                         color: '#000',
                     },
@@ -298,7 +297,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
 	                    }
 	                }
 	                return res;
@@ -307,7 +306,7 @@
 	        },
 	        "grid": {
 	        	containLabel :true,
-	        	top:"24%",
+	        	top:"28%",
 	        	bottom:"8%",
 	        	left:"5%",
 	        	right:"12%",
@@ -482,7 +481,7 @@
     		                if (params[i].seriesType === 'line') {
     		                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
     		                } else {
-    		                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+    		                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
     		                }
     		            }
     		            return res;
@@ -636,7 +635,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + '';
 	                    }
 	                }
 	                return res;
@@ -748,11 +747,11 @@
 	                }
 	            },
 	            "data": [
-	                306770,
-	                196960,
-	                127980,
-	                242750,
-	                42780
+	                0,
+	                0,
+	                0,
+	                0,
+	                0
 	            ],
 	        },
 	
@@ -765,11 +764,11 @@
 	                    }
 	                },
 	                "data": [
-	                    310220,
-	                    108320,
-	                    88330,
-	                    91750,
-	                    56560
+	                    0,
+	                    0,
+	                    0,
+	                    0,
+	                    0
 	                ]
 	            }, {
 	                "name": "A/i",
@@ -784,66 +783,74 @@
 	                    }
 	                },
 	                "data": [
-	                    0.89,
-	                    1.83,
-						1.90,
-						2.57,
-						0.76
+	                    0,
+	                    0,
+						0,
+						0,
+						0
 	                ]
 	            },
 	        ]
 	    };
 var pieclick = false;
 var growthdata = [{
-		    value: 9315,
-		    name: 'east'
+		    value: 0,
+		    name: 'East'
 		},
 		{
-		    value: 3110,
-		    name: 'south'
+		    value: 0,
+		    name: 'South'
 		},
 		{
-		    value: 2314,
-		    name: 'west'
+		    value: 0,
+		    name: 'West'
 		},
 		{
-		    value: 1315,
-		    name: 'north'
+		    value: 0,
+		    name: 'North'
 		},
 		{
-		    value: 3815,
-		    name: 'northeast'
+		    value: 0,
+		    name: 'Northeast'
 		}];
 var purchasedata = [{
-    value: 335,
-    name: 'east'
+    value: 0,
+    name: 'East'
 },
 {
-    value: 310,
-    name: 'south'
+    value: 0,
+    name: 'South'
 },
 {
-    value: 234,
+    value: 0,
     name: 'west'
 },
 {
-    value: 135,
-    name: 'north'
+    value: 0,
+    name: 'North'
 },
 {
-    value: 135,
-    name: 'northeast'
+    value: 0,
+    name: 'Northeast'
 }
 ];
 
 var pieoption = {
 	    tooltip: {
 	        trigger: 'item',
-	        formatter: "{b}: <br/>  采购额：{c}k ({d}%)"
+	        formatter: function (params) {
+                var data = params.data.value;
+                var percent = params.percent;
+                var name = params.name;
+                return name + ":\n" + formatterOneMoney(data) + "k (" + percent+")";
+            }
 	    },
 	    color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
 	    legend: {
-	        data: ['east', 'south', 'west', 'north', 'northeast'],
+	        data: ['East', 'South', 'west', 'North', 'Northeast'],
+			formatter: function (name) {
+				return name[0].toUpperCase() + name.substring(1, name.length);
+            }
 	    },
 	   toolbox: {        show: true,        feature: {    myDownload: {
                    show: true,
@@ -869,7 +876,11 @@ var pieoption = {
 	                label: {
 	                    show: true,
 	                    //	                            position:'inside',
-	                    formatter: '{b}: \n({d}%)'
+	                    formatter: function (params) {
+	                    	var data = params.data.value;
+	                    	var percent = params.percent;
+							return  formatterOneMoney(data) + "\n" + percent + "%";
+                        }
 	                }
 	            },
 	            labelLine: {

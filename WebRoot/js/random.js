@@ -1,4 +1,3 @@
-
 function randomData(length, multiple, fixed) {
     if (!length) {
         length = 1;
@@ -65,19 +64,25 @@ function changeOption(option, key, value) {
                 if (!one) {
                     one = {};
                 }
-                one[endkey] = value[i];
+                var val = value[i];
+
+                one[endkey] = val;
             }
         }
 
     }else {
+        var val;
         if("formatter" == endkey && value instanceof Array) {
-            option[endkey] = value[0];
+            val = value[0];
+
         }else {
-            option[endkey] = value;
+           val = value;
         }
-
+        if (checkNumber(val)) {
+            val = formatterOneMoney(val);
+        }
+        option[endkey] = val;
     }
-
 }
 
 function clone(obj) {
@@ -175,7 +180,7 @@ function resizeChart() {
 
 
 function formatterOneMoney(money) {
-	  if(money && money!=null){
+	  if(money && money!=null && "''" != money){
 	        money = String(money);
 	        if("" == money.trim()) {
                 return "";
@@ -187,7 +192,7 @@ function formatterOneMoney(money) {
 	    }else if(money===0){   //注意===在这里的使用，如果传入的money为0,if中会将其判定为boolean类型，故而要另外做===判断
 	        return '0.00';
 	    }else{
-	        return "";
+	        return "0";
 	    }
 
 }
@@ -568,7 +573,7 @@ function resetChartData(one) {
     var onefilter = one.filter;
     var aggcode = one.aggcode;
     var chartInstance = echarts.getInstanceByDom(document.getElementById(eleId));
-    var option = chartInstance.getOption();
+
     var params = "code=" + topicCode + "&userType="+user.type + "&userId=" + user.name;
 
     if (fields) {
@@ -599,6 +604,7 @@ function resetChartData(one) {
         if(!result) {
             return;
         }
+        var option = chartInstance.getOption();
         for (var one in map){
             var val = map[one];
             var top = one.substring(0, 1);

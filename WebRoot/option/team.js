@@ -147,8 +147,8 @@ var salerank = {
 	        trigger: 'axis',
 		        formatter: function(params) {
 		            var index = params[0].dataIndex;
-		        	var value = salesdataset[0][index] + "<br/>指标："+ salesdataset[1][index] + "k<br/>销售额："+ 
-		        	salesdataset[2][index]
+		        	var value = salesdataset[0][index] + "<br/>指标："+ formatterOneMoney(salesdataset[1][index]) + "k<br/>销售额："+
+		        	formatterOneMoney(salesdataset[2][index])
 		        	 + "k<br/>达成率："+ salesdataset[3][index] + "%";
 		        	return value;
 		        },
@@ -270,8 +270,8 @@ var businessrank = {
 	        trigger: 'axis',
 		        formatter: function(params) {
 		            var index = params[0].dataIndex;
-		        	var value = purchasedataset[0][index] + "<br/>指标："+ purchasedataset[1][index] + "k<br/>销售额："+ 
-		        	purchasedataset[2][index]
+		        	var value = purchasedataset[0][index] + "<br/>指标："+ formatterOneMoney(purchasedataset[1][index]) + "k<br/>销售额："+
+		        	formatterOneMoney(purchasedataset[2][index]);
 		        	 + "k<br/>达成率："+ purchasedataset[3][index] + "%";
 		        	return value;
 		        },

@@ -249,7 +249,12 @@ var salesAcountOption = {
 
     tooltip: {
         trigger: 'item',
-        formatter: "{b}: <br/>  销量:{c}k ({d}%)"
+        formatter: function (params) {
+            var data = params.data.value;
+            var percent = params.percent;
+            var name = params.name;
+            return name + ":\n" + formatterOneMoney(data) + "k (" + percent+")";
+        }
     },
     color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00', '#37a2da'],
     legend: {
@@ -283,7 +288,12 @@ var salesAcountOption = {
                 label: {
                     show: true,
                     //	                            position:'inside',
-                    formatter: '{b}: \n{c}({d}%)'
+                    formatter: function (params) {
+                        var data = params.data.value;
+                        var percent = params.percent;
+                        var name = params.name;
+                        return name + ":\n" + formatterOneMoney(data) + "k (" + percent+")";
+                    }
                 }
             },
             labelLine: {
@@ -842,7 +852,7 @@ var accountOption = {
 };
 
 var inventorysOption = {
-
+    color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
     grid: {
         containLabel: true,
         bottom: '0',
@@ -920,6 +930,7 @@ var barData1 = [7062.98, 5162.85, 7077.31, 8128.29, 8160.30, 7069.38, 9369.64, 8
 var barData2 = [7646.61, 3676.97, 3676.97, 7102.17, 7861.35, 8374.55, 7696.98, 7798.31, 7653.95, 8287.94, 7514.01, 9116.28, 8998.56];
 
 var compareoption = {
+    color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
     tooltip: {
         trigger: 'axis',
         formatter: function (params, ticket, callback) {
@@ -930,7 +941,7 @@ var compareoption = {
                 if (params[i].seriesType === 'line') {
                     res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
                 } else {
-                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
                 }
             }
             return res;
@@ -1027,35 +1038,13 @@ var compareoption = {
         name: 'sellin',
         type: 'bar',
         barWidth: 10,
-        itemStyle: {
-            normal: {
-                barBorderRadius: 50,
-                color: new echarts.graphic.LinearGradient(
-                    0, 0, 0, 1,
-                    [
-                        {offset: 0, color: '#BC34BC'},
-                        {offset: 1, color: '#7F3594'}
-                    ]
-                )
-            }
-        },
+
         data: barData1
     }, {
         name: 'sellout',
         type: 'bar',
         barWidth: 10,
-        itemStyle: {
-            normal: {
-                barBorderRadius: 50,
-                color: new echarts.graphic.LinearGradient(
-                    0, 0, 0, 1,
-                    [
-                        {offset: 0, color: '#4740C8'},
-                        {offset: 1, color: '#EF71FF'}
-                    ]
-                )
-            }
-        },
+
         data: barData2
     },
         {
@@ -1063,18 +1052,7 @@ var compareoption = {
             type: 'line',
             yAxisIndex:1,
             barWidth: 10,
-            itemStyle: {
-                normal: {
-                    barBorderRadius: 50,
-                    color: new echarts.graphic.LinearGradient(
-                        0, 0, 0, 1,
-                        [
-                            {offset: 0, color: '#4740C8'},
-                            {offset: 1, color: '#EF71FF'}
-                        ]
-                    )
-                }
-            },
+
             data: barData2
         }
     ]
@@ -1155,9 +1133,9 @@ var inventoryOption = {
 
             for (var i = 0, l = params.length; i < l; i++) {
                 if (params[i].seriesName === '库存') {
-                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '天';
+                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + '天';
                 } else {
-                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '月';
+                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + '月';
                 }
             }
             return res;
@@ -1329,7 +1307,7 @@ var topicMap = [
         filter:" and CompanyType <> '一级经销商'"
     }
     ,
-    {
+    /*{
         id: "inventory",
         topicCode: "achieve",
         //fields: "Amount",
@@ -1343,7 +1321,10 @@ var topicMap = [
             //"#saletarget": "target",
             //"#salereal": "sumdata"
         },
-    },{
+    },
+
+    */
+    {
         id: "inventory",
         topicCode: "achieve",
         //fields: "Amount",

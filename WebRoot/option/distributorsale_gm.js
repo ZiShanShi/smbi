@@ -24,7 +24,7 @@
 			endAngle: 0,
 			min: 0,
 			max: 200,
-			radius: "100%",
+			radius: "120%",
 			center: ["50%", "70%"],
 
 			axisLine: {
@@ -77,7 +77,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
 	                    }
 	                }
 	                return res;
@@ -88,7 +88,7 @@
 	        	containLabel: true,
 	        	top:"25%",
 	        	bottom:"12%",
-	        	left:"3%",
+	        	left:"8%",
 	        	right:"2%",
 	            textStyle: {
 	                color: "#222"
@@ -272,7 +272,7 @@
 			                if (params[i].seriesType === 'line') {
 			                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
 			                } else {
-			                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+			                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
 			                }
 			            }
 			            return res;
@@ -465,7 +465,7 @@
     		                if (params[i].seriesType === 'line') {
     		                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
     		                } else {
-    		                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+    		                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
     		                }
     		            }
     		            return res;

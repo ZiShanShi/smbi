@@ -7,9 +7,9 @@ var mapoption = {
             var name = params.seriesName;
             var data = params.data;
             if ("终端个数" == name) {
-                return data.name + ":<br/>" + data.value + "个";
+                return data.name + ":<br/>" + formatterOneMoney(data.value) + "个";
             } else if ("终端销售额" == name) {
-                return data.name + ":<br/>" + data.value + "k";
+                return data.name + ":<br/>" + formatterOneMoney(data.value) + "k";
             }
         }
     },
@@ -175,7 +175,7 @@ var constituteoption = {
     series: [
         // 主要展示层的
         {
-            radius: ['40%', '80%'],
+            radius: ['40%', '70%'],
             center: ['50%', '60%'],
             type: 'pie',
             label: {
@@ -286,7 +286,7 @@ var accountOption = {
                 if (params[i].seriesType === 'line') {
                     res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
                 } else {
-                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
+                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + '';
                 }
             }
             return res;
@@ -378,9 +378,9 @@ var accountsoption = {
             var option = chartInstance.getOption();
             var overlap = option.series[0].data[2].value;
             if ('Straumann' == params.name || 'Anthogyr' == params.name) {
-                return params.name + "<br/> 仅:" + parseInt(params.value) + "家<br/> 总:" + (parseInt(params.value) + parseInt(overlap)) + "家";
+                return params.name + "<br/> 仅:" + formatterOneMoney(params.value) + "家<br/> 总:" + formatterOneMoney(parseInt(params.value) + parseInt(overlap)) + "家";
             } else {
-                return params.name + "<br/> :" + parseInt(params.value) + "家";
+                return params.name + "<br/> :" + formatterOneMoney(params.value) + "家";
             }
         }
     },
@@ -402,7 +402,7 @@ var accountsoption = {
     series: [
         {
             type: 'pie',
-            radius: '90%',
+            radius: '70%',
             center: ['50%', '50%'],
             data: [
                 {value: 4926, name: '士卓曼'},
@@ -421,7 +421,12 @@ var accountsoption = {
                     label: {
                         show: true,
 //	                            position:'inside',
-                        formatter: '{b} : {c} ({d}%)'
+                        formatter: function (params) {
+                            var data = params.data.value;
+                            var percent = params.percent;
+                            var name = params.name;
+                            return name + ":\n" + formatterOneMoney(data) + " (" + percent+"%)";
+                        }
                     }
                 },
                 labelLine: {show: true}

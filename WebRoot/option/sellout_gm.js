@@ -25,13 +25,13 @@
 			endAngle: 0,
 			min: 0,
 			max: 200,
-			radius: "100%",
+			radius: "120%",
 			center: ["50%", "70%"],
 
 			axisLine: {
 				show: true,
 				lineStyle: {
-					width: 20,
+					width: 15,
 					shadowBlur: 0,
 					color: [ [0.6, '#fd666d'],[0.8, '#37a2da'],[1, '#67e0e3']]
 				}
@@ -83,7 +83,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
 	                    }
 	                }
 	                return res;
@@ -94,6 +94,7 @@
 	        	bottom:'15%',
 	        	top:'15%',
 	        	right:'12%',
+				left:'20%',
 	            textStyle: {
 	                color: "#222"
 	            }
@@ -152,13 +153,12 @@
 	            },
 	            axisLabel: {
                     margin: 20,
-                    formatter: '{value}k',
+                    formatter: '{value}',
                     textStyle: {
                         color: '#000',
                     },
                 },
 	        },{
-	        		name:"达成率(%)",
                     type: 'value',
                     // max: 140,
                     splitNumber: 7,
@@ -287,7 +287,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
 	                    }
 	                }
 	                return res;
@@ -298,7 +298,7 @@
 	        	containLabel :true,
 	        	left:'3%',
 	        	bottom:'5%',
-	        	top:'15%',
+	        	top:'28%',
 	            textStyle: {
 	                color: "#222"
 	            }
@@ -360,7 +360,6 @@
                     },
                 },
 	        },{
-	        	 	name:"达成率(%)",
                     type: 'value',
                     // max: 140,
                     splitNumber: 7,
@@ -469,7 +468,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + 'k';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
 	                    }
 	                }
 	                return res;
@@ -482,7 +481,7 @@
 
             },
             grid:{
-            	left:'12%',
+            	left:'22%',
             	bottom:'20%',
 	        	top:'15%',
 	        	right:'5%',
@@ -527,7 +526,7 @@
                     show: true,
                 },
                 axisLabel: {
-                    formatter: '{value}k',
+                    formatter: '{value}',
                     textStyle: {
                         color: '#222',
                     },
@@ -595,7 +594,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + '';
 	                    }
 	                }
 	                return res;
@@ -606,6 +605,7 @@
 	        	bottom:'15%',
 	        	top:'15%',
 	        	right:'12%',
+				left:'15%',
 	            textStyle: {
 	                color: "#222"
 	            }
@@ -614,7 +614,7 @@
 	            textStyle: {
 	                color: '#222',
 	            },
-	            "data": ['Abutment', 'implant', 'A/i']
+	            "data": ['Abutment', 'Implant', 'A/i']
 	        },
 	
 	
@@ -715,7 +715,7 @@
 	        },
 	
 	            {
-	                "name": "implant",
+	                "name": "Implant",
 	                "type": "bar",
 	                "itemStyle": {
 	                    "normal": {
@@ -772,7 +772,7 @@
 	                    if (params[i].seriesType === 'line') {
 	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '') + '%';
 	                    } else {
-	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '') + 'k';
+	                        res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '') + 'k';
 	                    }
 	                }
 	                return res;
@@ -780,7 +780,7 @@
 	            }
 	        },
     grid:{
-    	left:'12%',
+    	left:'24%',
     	bottom:'20%',
     	top:'15%',
     	right:'5%',
@@ -827,7 +827,7 @@
             show: true,
         },
         axisLabel: {
-            formatter: '{value}k',
+            formatter: '{value}',
             textStyle: {
                 color: '#222',
             },
