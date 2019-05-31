@@ -237,11 +237,11 @@
 			SELECT
 			top 10
 
-			 a01.CompanyName, a01.Amount, preAmount from (
+			 a01.Family, a01.Amount, preAmount from (
 					SELECT
 					YEAR,
 				agg.CompanyCode,
-				b.CompanyName,
+				b.Family,
 				SUM (Amount) AS Amount
 					FROM
 					agg_Sale_c_o_pe_pr agg
@@ -254,7 +254,7 @@
 			GROUP BY
 				YEAR,
 				agg.CompanyCode,
-			b.CompanyName
+			b.Family
 			)a01
 			LEFT JOIN(
 			SELECT
@@ -269,7 +269,7 @@
 						aggcode = '@{aggcode}'
 			GROUP BY
 				YEAR,
-			b.CompanyName,
+			b.Family,
 				agg.CompanyCode
 			) a02  on a01.CompanyCode = a02.CompanyCode and a01.year = a02.year + 1
 			ORDER BY Amount desc

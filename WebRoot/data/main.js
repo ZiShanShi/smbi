@@ -11,8 +11,8 @@ var menutree = {
         ]},
         
         {name: "detailReport", text: "绩效分析", img: "../../image/file.png", children: [
-  	        {name: "1", text: "sellin分析", img: "../../image/report.png", url: "../bi/sellinkpi.html"},
-  	        {name: "1", text: "sellout分析", img: "../../image/report.png", url: "../bi/selloutkpi.html"},
+  	        {name: "1", text: "经销商库存数据", img: "../../image/report.png", url: "../bi/sellinkpi.html"},
+  	        //{name: "1", text: "sellout分析", img: "../../image/report.png", url: "../bi/selloutkpi.html"},
  	        // {name: "3", text: "经销商库存分析", img: "../../image/report.png", url: "../bi/distributor.html"},
  	        // {name: "4", text: "终端分析", img: "../../image/report.png", url: "../bi/customer.html"}
          ]},

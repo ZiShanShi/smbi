@@ -19,10 +19,40 @@
     <script src="../../js/echarts.min.js"></script>
     <script src="../../js/grid.js"></script>
     <script src="../../js/staticpaneldata.js"></script>
+    <style>
+        .reportBand {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            bottom: 0px;
+            border-bottom: 1px #c0c0df solid;
+        }
 
+        .title-text {
+            position: absolute;
+            left: 45px;
+            top: 0px;
+            width: 400px;
+            height: 24px;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 24px;
+            color: #003273;
+        }
+        .report-title {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: 0px;
+            height: 30px;
+            border-top: 1px solid rgb(192, 192, 223);
+            border-bottom: 1px solid rgb(192, 192, 223);
+        }
+    </style>
     <script type="text/javascript">
         var mainTool, chartTool, chartToolItems, reportPanel, gridPanel;
-        var chart, grid;
+        var grid;
 
         var option = {
                 "tooltip": {
@@ -226,7 +256,7 @@
                 {code: "olap-fields", header: "olap-fields-header", body: "olap-fields"}
             ]);
 
-            chartToolItems = getReportChartTypes(report);
+            //chartToolItems = getReportChartTypes(report);
 
             mainTool = new Toolbar({
                 element: "#mainTool",
@@ -267,7 +297,7 @@
                 ]
             });
 
-            chartTool = new Toolbar({
+            /*chartTool = new Toolbar({
                 element: "#chartTool",
                 showText: false,
                 autoSize: true,
@@ -282,7 +312,7 @@
 
                     chart.setOption(option);
                 }
-            });
+            });*/
 
             AxisArea.init({
                 element: "#area-axis",
@@ -359,7 +389,7 @@
             }
 
 
-            chart.setOption(option);
+            //chart.setOption(option);
         }
 
         function resetGrid() {
@@ -389,7 +419,7 @@
                 userType:"superAdmin",
                 isTable:true
             }
-            Loading.show("重组报表中。。。");
+            Loading.show("生成报表中...");
             $("#grid").empty();
 
             grid = new $.fm.Grid({
@@ -413,7 +443,7 @@
             reportPanel = $("#reportPanel");
             gridPanel = $("#gridPanel");
 
-            chart = echarts.init(document.getElementById('reportPanel'));
+            //chart = echarts.init(document.getElementById('reportPanel'));
 
             /*Server.getData("root/report/getWidget?id=001", function (widget) {
                 resetPanelData(widget);
@@ -428,8 +458,15 @@
 </head>
 
 <body>
-<div id="mainTool" class="area-tool" style="position: fixed;"></div>
-
+<div class="report-title">
+    <div class="title-icon">
+        <img src="../../image/report-color.png" width="24">
+    </div>
+    <div class="title-text">
+        <label>《经销商库存》&nbsp;&nbsp;</label>
+        <label>数据日期：2019-01-05: 13:45:00</label>
+    </div>
+</div>
 <div id="area-olap" class="area-olap">
     <div class="area-olap-header">
         <div id="olap-filters-header" class="tab-header" onclick="OlapTab.changeActive('olap-filters')">
@@ -458,7 +495,7 @@
 <div id="spliterbar" class="spliterbar"></div>
 
 <div id="area-content" class="area-content">
-    <div id="area-axis" class="area-axis">
+    <!--<div id="area-axis" class="area-axis">
         <div class="axis-lines">
             <div class="axis-line">
                 <div id="y-segment1" class="axis-line-segment" style="width: 50%">
@@ -512,16 +549,16 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="area-report">
-        <div class="reportBand">
+    </div>-->
+    <div id="mainTool" class="area-tool"></div>
+    <div class="area-report" style="top: 35px;">
+       <!-- <div class="reportBand">
             <div id="reportPanel" class="reportPanel">
 
             </div>
             <div id="chartTool" class="chartTool" align="center"></div>
-        </div>
-        <div class="gridPanel">
+        </div>-->
+        <div class="reportBand">
             <div id="grid"></div>
         </div>
     </div>

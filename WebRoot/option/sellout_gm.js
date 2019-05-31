@@ -929,7 +929,7 @@ var topicMap = [
         dataname:"getCompanySum",
         aggcode:'brand;CompanyCode;peroid',
         elementMap:{
-            "xAxis[0];data":"CompanyName",
+            "xAxis[0];data":"Family",
             "series[0];data":"Amount",
             "series[1];data":"preAmount",
 
