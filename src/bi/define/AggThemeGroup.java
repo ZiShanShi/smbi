@@ -3,6 +3,7 @@ package bi.define;
 import bi.AggConstant;
 import bi.AggUtil;
 import bi.exception.AggDBlLoadException;
+import foundation.config.Configer;
 import foundation.data.Entity;
 import foundation.data.EntitySet;
 import foundation.persist.DataHandler;
@@ -14,15 +15,9 @@ import foundation.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.sql.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AggThemeGroup {
@@ -54,6 +49,7 @@ public class AggThemeGroup {
             EntitySet themeGroupMapEntitySet = DataHandler.getDataSet(AggConstant.BI_TABLE_THEMEGROUPMAP, groupId);
 
             EntitySet dataSet = DataHandler.getDataSet(AggConstant.BI_TABLE_THEMEG, AggConstant.BI_Filter_Active + " and groupid = " + Util.quotedStr(id));
+
             if (dataSet.size() == 0) {
                 if (themeGroupMapEntitySet.size() == 0) {
                     return;
@@ -80,7 +76,6 @@ public class AggThemeGroup {
     }
 
     private void addOneTable(Entity themeGroupMapEntity, EntitySet dataSet) throws Exception {
-
         TableMeta tableMeta = dataSet.getTableMeta();
         String measurmentGroups = themeGroupMapEntity.getString(AggConstant.BI_Field_Measurmentgroups);
         String dimensionGroupStr = themeGroupMapEntity.getString(AggConstant.BI_Field_DimensionGroups);
@@ -115,7 +110,16 @@ public class AggThemeGroup {
         ArrayList<ArrayList<String>> dimensionGroups = new ArrayList<>();
         Util.combine(dimensionGroupArray, dimensionGroups);
 
+        String topicType = topicTableName.substring(AggConstant.BI_Default_TopicView.length());
+
+        boolean successCreateParition = addPartition(dimensionGroups, topicType);
+        //boolean successCreateParition = addPartitionByPeroid(topicType);
+        if (!successCreateParition) {
+            throw new AggDBlLoadException("创建分区失败");
+        }
+
         ArrayList<String> maxSizeDimensionList = dimensionGroups.get(0);
+
         for (ArrayList<String> oneDimensionGroups : dimensionGroups) {
             Entity entity = new Entity(tableMeta);
             entity.set(0, Util.newShortGUID());
@@ -132,10 +136,10 @@ public class AggThemeGroup {
             entity.set(6, topicTableName);
 
             String subAggName = AggUtil.calculateTableName(oneDimensionGroups, maxSizeDimensionList);
-            String topicType = topicTableName.substring(AggConstant.BI_Default_TopicView.length());
+
             String aggTableName = MessageFormat.format("agg_{0}_{1}", topicType, subAggName);
             if (!AggUtil.checkTableExists(aggTableName)) {
-                EAggCreateCode createCode = AggUtil.createAggTable(aggTableName, groupId, oneDimensionGroups, measurmentList);
+                EAggCreateCode createCode = AggUtil.createAggTable(aggTableName, groupId, oneDimensionGroups, measurmentList, topicType);
                 if (EAggCreateCode.uncreated.equals(createCode)) {
                     throw new AggDBlLoadException("{0} 创建失败", aggTableName);
                 }
@@ -150,6 +154,223 @@ public class AggThemeGroup {
 
             dataSet.append(entity);
         }
+    }
+
+    private boolean addPartitionByPeroid(String topicType) {
+        Connection connection = null;
+        boolean success = true;
+        try {
+            connection = SqlSession.createConnection();
+            String dbName = connection.getCatalog();
+            EntitySet md_peroid = DataHandler.getDataSet("md_peroid");
+            ArrayList<String> peroidList = new ArrayList<>();
+            ArrayList<String> fileGroupNameList = new ArrayList<>();
+
+            String defaultgroupName = Util.stringJoin("aggGroup", Util.SubSeparator, topicType, Util.SubSeparator, "0");
+            String createFileGroupSql = MessageFormat.format(AggConstant.Create_FILEGROUP_Template, dbName, defaultgroupName);
+            SQLRunner.execSQL(connection, createFileGroupSql);
+
+            //2 为文件组分别创建文件
+            String fileName = Util.stringJoin("aggfile", Util.SubSeparator, topicType, Util.SubSeparator, "0");
+            String dbFilePath = Configer.getParam("DbFilePath");
+            String filePath = Util.stringJoin(dbFilePath, fileName, Util.Dot, AggConstant.MDF);
+            String createFileSql = MessageFormat.format(AggConstant.Create_FILE_Template, dbName, Util.quotedStr(fileName), Util.quotedStr(filePath), defaultgroupName);
+            SQLRunner.execSQL(connection, createFileSql);
+
+            fileGroupNameList.add(defaultgroupName);
+
+            for (Entity entity : md_peroid) {
+                String id = entity.getId();
+                String monthno = entity.getString("monthno");
+                //1 文件组
+                String groupName = Util.stringJoin("aggGroup", Util.SubSeparator, topicType, Util.SubSeparator, monthno);
+                createFileGroupSql = MessageFormat.format(AggConstant.Create_FILEGROUP_Template, dbName, groupName);
+                SQLRunner.execSQL(connection, createFileGroupSql);
+
+                //2 为文件组分别创建文件
+                fileName = Util.stringJoin("aggfile", Util.SubSeparator, topicType, Util.SubSeparator, monthno);
+                dbFilePath = Configer.getParam("DbFilePath");
+                filePath = Util.stringJoin(dbFilePath, fileName, Util.Dot, AggConstant.MDF);
+                createFileSql = MessageFormat.format(AggConstant.Create_FILE_Template, dbName, Util.quotedStr(fileName), Util.quotedStr(filePath), groupName);
+                SQLRunner.execSQL(connection, createFileSql);
+
+                peroidList.add(id);
+                fileGroupNameList.add(groupName);
+            }
+
+            //3 创建分区函数
+            String values = peroidList.stream().map(aggCode -> Util.quotedStr(aggCode)).collect(Collectors.joining(Util.comma));
+            String partitionFuncSql  = MessageFormat.format(AggConstant.Create_PartitionFunc_Template, topicType, values);
+            SQLRunner.execSQL(connection, partitionFuncSql);
+
+            //4创建分区方案
+            String fileGroupValue = fileGroupNameList.stream().collect(Collectors.joining(Util.comma));
+            String partitionSchemeSql  = MessageFormat.format(AggConstant.Create_PartitionScheme_Template, topicType, fileGroupValue);
+            SQLRunner.execSQL(connection, partitionSchemeSql);
+
+        }catch (Exception e) {
+            success = false;
+            if (connection != null) {
+                try {
+                    connection.close();
+                    connection = null;
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        }
+        return success;
+    }
+
+    private boolean addPartition(ArrayList<ArrayList<String>> dimensionGroups, String topicType) {
+        Connection connection = null;
+        boolean success = true;
+        try {
+            connection = SqlSession.createConnection();
+            String dbName = connection.getCatalog();
+            ArrayList<String> fileGroupNameList = new ArrayList<>();
+            ArrayList<String> aggCodeList = new ArrayList<>();
+            //0.1 文件组
+            String groupName = Util.stringJoin("aggGroup", Util.SubSeparator, topicType, Util.SubSeparator, AggConstant.agg);
+            String createFileGroupSql = MessageFormat.format(AggConstant.Create_FILEGROUP_Template, dbName, groupName);
+            SQLRunner.execSQL(connection, createFileGroupSql);
+
+            //0.2 为文件组添加默认文件
+            String fileName =Util.stringJoin("aggfile", Util.SubSeparator, topicType, Util.SubSeparator, AggConstant.agg);
+            String dbFilePath = Configer.getParam("DbFilePath");
+            String filePath = Util.stringJoin(dbFilePath, fileName, Util.Dot, AggConstant.MDF);
+            String createFileSql = MessageFormat.format(AggConstant.Create_FILE_Template, dbName, Util.quotedStr(fileName), Util.quotedStr(filePath), groupName);
+            SQLRunner.execSQL(connection, createFileSql);
+
+            fileGroupNameList.add(groupName);
+
+            HashSet<String> maxDimensionSet = new HashSet<>();
+            for (ArrayList<String> dimensionGroup : dimensionGroups) {
+                for (String dimensionGroupCode : dimensionGroup) {
+                    Map<String, ArrayList<Dimension>> dimensionMapByGroupCode = AggDimensionsContainer.getInstance().getDimensionMapByGroupCode(dimensionGroupCode);
+
+                    Collection<ArrayList<Dimension>> values = dimensionMapByGroupCode.values();
+                    for (ArrayList<Dimension> value : values) {
+                        maxDimensionSet.addAll(value.stream().map(dimension -> dimension.getCode()).collect(Collectors.toList()));
+                    }
+                }
+            }
+
+            ArrayList<String> maxSizeDimensionList = new ArrayList<>(maxDimensionSet);
+
+            for (ArrayList<String> dimensionGroup : dimensionGroups) {
+
+                if (!(dimensionGroup.contains(AggConstant.peroid))) {
+                    //剔除不含期间维度的表
+                    continue;
+                }
+
+                if (!(dimensionGroup.contains(AggConstant.organization) || dimensionGroup.contains(AggConstant.distributor))) {
+                    continue;
+                }
+
+                ArrayList<ArrayList<String>> dikaerList = getDikaerDimensionList(dimensionGroup);
+
+
+                for (ArrayList<String> dimensions : dikaerList) {
+
+                    Collections.sort(dimensions, new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            int compare = o1.toLowerCase().compareTo(o2.toLowerCase());
+                            if (compare < 0) {
+                                return  -1;
+                            }else if (compare == 0) {
+                                return 0;
+                            }
+                            else {
+                                return 1;
+                            }
+                        }
+                    });
+
+                    String aggCode = dimensions.stream().collect(Collectors.joining(Util.Separator));
+                    logger.info(aggCode);
+                    //1 文件组
+                    groupName = getCombinePrefixName(Util.stringJoin("aggGroup", Util.SubSeparator, topicType, Util.SubSeparator), dimensions, maxSizeDimensionList);
+                    createFileGroupSql = MessageFormat.format(AggConstant.Create_FILEGROUP_Template, dbName, groupName);
+                    SQLRunner.execSQL(connection, createFileGroupSql);
+
+                    //2 为文件组分别创建文件
+                    fileName = getCombinePrefixName(Util.stringJoin("aggfile", Util.SubSeparator, topicType, Util.SubSeparator), dimensions, maxSizeDimensionList);
+                    dbFilePath = Configer.getParam("DbFilePath");
+                    filePath = Util.stringJoin(dbFilePath, fileName, Util.Dot, AggConstant.MDF);
+
+                    createFileSql = MessageFormat.format(AggConstant.Create_FILE_Template, dbName, Util.quotedStr(fileName), Util.quotedStr(filePath), groupName);
+                    SQLRunner.execSQL(connection, createFileSql);
+
+                    fileGroupNameList.add(groupName);
+                    aggCodeList.add(aggCode);
+                }
+            }
+            //3 创建分区函数
+            String values = aggCodeList.stream().map(aggCode -> Util.quotedStr(aggCode)).collect(Collectors.joining(Util.comma));
+            String partitionFuncSql  = MessageFormat.format(AggConstant.Create_PartitionFunc_Template, topicType,values);
+            SQLRunner.execSQL(connection, partitionFuncSql);
+
+            //4创建分区方案
+            String fileGroupValue = fileGroupNameList.stream().collect(Collectors.joining(Util.comma));
+            String partitionSchemeSql  = MessageFormat.format(AggConstant.Create_PartitionScheme_Template, topicType, fileGroupValue);
+            SQLRunner.execSQL(connection, partitionSchemeSql);
+
+
+        } catch (Exception e) {
+            success = false;
+            if (connection != null) {
+                try {
+                    connection.close();
+                    connection = null;
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        }
+        return success;
+    }
+
+    private ArrayList<ArrayList<String>> getDikaerDimensionList(ArrayList<String> dimensionGroup) {
+        ArrayList<ArrayList<String>> dimensionListLists = new ArrayList<ArrayList<String>>();
+        for (String oneDimensionGroup : dimensionGroup) {
+            Map<String, ArrayList<Dimension>> dimensionRootMap = new HashMap<>();
+            Map<String, ArrayList<Dimension>> dimensionGroupMap = AggDimensionsContainer.getInstance().getDimensionMapByGroupCode(oneDimensionGroup);
+            dimensionRootMap.putAll(dimensionGroupMap);
+
+            if (!dimensionRootMap.isEmpty()) {
+                Collection<ArrayList<Dimension>> values = dimensionRootMap.values();
+                for (ArrayList<Dimension> value : values) {
+                    List<String> collect = value.stream().map(dimension -> dimension.getCode()).collect(Collectors.toList());
+                    dimensionListLists.add(new ArrayList<>(collect));
+                }
+            }
+        }
+
+        ArrayList<ArrayList<String>> dikaerList;
+        if (dimensionListLists.size() == 1) {
+            dikaerList = new ArrayList<>();
+            ArrayList<String> DimensionalList = dimensionListLists.get(0);
+            for (String dimensionCode : DimensionalList) {
+                ArrayList<String> arrayList = new ArrayList<>();
+                arrayList.add(dimensionCode);
+                dikaerList.add(arrayList);
+            }
+        } else {
+            dikaerList = Util.Dikaerji0(dimensionListLists);
+        }
+        return dikaerList;
+    }
+
+    private String getCombinePrefixName(String fileGroupPrefix, ArrayList<String> oneDimensionGroups, ArrayList<String> maxSizeDimensionList) {
+
+        String subAggName = AggUtil.calculateTableName(oneDimensionGroups, maxSizeDimensionList);
+
+        return Util.stringJoin(fileGroupPrefix, subAggName);
     }
 
     private Map<AggDirection, ArrayList<String>> getRealFieldTypeList(String topicTableName) throws Exception {

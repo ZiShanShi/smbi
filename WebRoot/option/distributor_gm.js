@@ -1,3 +1,117 @@
+
+var achieveOption = {
+    backgroundColor:"#fff",
+    tooltip : {
+        formatter: "{a} <br/>{b} = {c}%"
+    }, toolbox: {
+        show: true,
+        feature: {
+            myDownload: {
+                show: true,
+                title: '数据导出',
+                icon: 'image://http://localhost:8080/smbi/image/excel.svg',
+                onclick: function (){
+                    alert('暂不支持');
+                }
+            },
+            saveAsImage: {}
+        }
+    },
+    series: [{
+        name: '总达成',
+        type: "gauge",
+        startAngle: 180,
+        endAngle: 0,
+        min: 0,
+        max: 200,
+        radius: "90%",
+        center: ["50%", "50%"],
+
+        axisLine: {
+            show: true,
+            lineStyle: {
+                width: 15,
+                shadowBlur: 0,
+                color: [ [0.6, '#fd666d'],[0.8, '#37a2da'],[1, '#67e0e3']]
+            }
+        },
+
+        splitLine:{
+            length:'20%'
+        },
+        axisTick:{
+            length:'6'
+        },
+        pointer:{
+            width:'5'
+        },
+        axisLabel:{
+            distance:'2'
+        },
+        itemStyle: {
+            normal: {
+                shadowBlur: 10
+            }
+        },
+        detail: {
+            fontSize: 18,
+            offsetCenter:[0, '40%'],
+            formatter:'{value}%'
+        },
+        data: [{value:50}]
+    }]
+};
+
+var totalOption =  {
+    toolbox: {
+        show: true,
+        feature: {
+            myDownload: {
+                show: true,
+                title: '数据导出',
+                icon: 'image://http://localhost:8080/smbi/image/excel.svg',
+                onclick: function (){
+                    alert('暂不支持');
+                }
+            },
+            saveAsImage: {}
+        }
+    },
+        series: [
+            {
+                type: 'gauge',
+                radius: '75%',
+                startAngle: 245,
+                endAngle: -65,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: [[0, '#eee'], [1, '#7b999f']],
+                    }
+                },
+                splitLine: {show: false},
+                axisTick: {show: false},
+                axisLabel: {show: false},
+                splitLabel: {show: false},
+                pointer: {show: false},
+                itemStyle: {
+                    color: '#000',
+                },
+                title: {
+                    offsetCenter: [0, 0],
+                    fontSize:24,
+                    fontWeight: 700
+                },
+                detail: {
+                    show:false
+
+                },
+                data: [{value: '0', name: '账期'}]
+            }
+        ],
+    };
+
+
 //---------------左上
 var piesoption = {
 
@@ -1145,7 +1259,7 @@ var inventoryOption = {
     legend: {
         show: true,
         selectedMode: 'single',
-        data: ['库存', '账期']
+        data: ['账期', '库存']
     },
     grid: {
         left: '12%',
@@ -1214,7 +1328,7 @@ var inventoryOption = {
         }
     }, series: [{
         type: 'bar',
-        name: '账期',
+        name: '库存',
         barGap: "10%",
         itemStyle: {
             normal: {
@@ -1230,7 +1344,7 @@ var inventoryOption = {
         ,
         {
             type: 'bar',
-            name: '库存',
+            name: '账期',
             barGap: "10%",
             itemStyle: {
                 normal: {
@@ -1245,49 +1359,21 @@ var inventoryOption = {
 
 var topicMap = [
 
-    {
-        id: "scatter",
-        topicCode: "Sale",
-        fields: "Amount",
-        //dataname:"getGaugeAchieve",
-        //dataType:'sellout',
-        elementMap: {
-            "series[0];data[1];label;normal;formatter": "Amount",
-            //"#saletarget": "target",
-            //"#salereal": "sumdata"
 
-        },
-    },
-
-    {
-        id: "scatter",
+   /* {
+        id: "achieve",
         topicCode: "achieve",
         //fields: "Amount",
-        dataname:"getAverageAccount",
+        dataname:"getTotalDistributorSaleAchieve",
         //dataType:'sellout',
-        aggcode:"CompanyCode;DistributorCode;peroid",
+        aggcode:"brand;DistributorCode;peroid;",
         elementMap: {
-            "series[1];data[1];label;normal;formatter": "averageAccount",
+            "series[0];data[0];value": "achieve",
+
             //"#saletarget": "target",
             //"#salereal": "sumdata"
-
         },
-    },
-
-    {
-        id: "scatter",
-        topicCode: "achieve",
-        //fields: "Amount",
-        dataname:"getinventoryday",
-        //dataType:'sellout',
-        aggcode:"BizDate;brand;DistributorCode",
-        elementMap: {
-            "series[2];data[1];label;normal;formatter": "averageinventoryday",
-            //"#saletarget": "target",
-            //"#salereal": "sumdata"
-
-        },
-    },
+    },*/
 
 
     {
@@ -1296,6 +1382,7 @@ var topicMap = [
         fields: "Amount;CompanyType",
         //dataname:"getGaugeAchieve",
         //dataType:'sellout',
+        k:"Amount",
         elementMap: {
             "legend[0];data":'CompanyType',
             "series[0];data.name": "CompanyType",
@@ -1307,39 +1394,21 @@ var topicMap = [
         filter:" and CompanyType <> '一级经销商'"
     }
     ,
-    /*{
-        id: "inventory",
-        topicCode: "achieve",
-        //fields: "Amount",
-        dataname:"getinventorydaydetail",
-        //dataType:'sellout',
-        aggcode:"BizDate;brand;DistributorCode",
-        elementMap: {
-            "$inventoryDistributorNames": "DistributorName",
-            "series[0];data": "inventoryday",
-            //"series[2];data": "rate",
-            //"#saletarget": "target",
-            //"#salereal": "sumdata"
-        },
-    },
-
-    */
     {
-        id: "inventory",
+        id: "topsales",
         topicCode: "achieve",
         //fields: "Amount",
-        dataname:"getAverageAccountDetail",
+        dataname:"getsellinout",
         //dataType:'sellout',
-        aggcode:"CompanyCode;DistributorCode;peroid",
+        aggcode:"peroid;brand",
+        k:"sellin;sellout",
         elementMap: {
-            "$accountDistributorNames": "DistributorName",
-            "series[1];data": "account",
-            //"series[2];data": "rate",
+            "series[0];data": "sellin",
+            "series[1];data": "sellout",
+            "series[2];data": "rate",
             //"#saletarget": "target",
             //"#salereal": "sumdata"
-
         },
     },
-
 
 ];

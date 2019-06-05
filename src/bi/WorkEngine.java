@@ -456,12 +456,9 @@ public class WorkEngine extends Engine {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			progressor.endPhase();
 		}
+		//刷新库存天数表
 
-		//aggAchieve(operator);
-
-		progressor.endPhase();
 		instance.setState(State.Idle);
 	}
 

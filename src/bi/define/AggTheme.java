@@ -104,7 +104,12 @@ public class AggTheme {
             try {
                 List<String> dimensionGroups = Arrays.stream(this.dimensionCodes.split(Util.semicolon)).map(s -> s.substring(0, s.indexOf(Util.Dot))).collect(Collectors.toList());
                 List<String> measurments = Arrays.asList(measurementIds.split(Util.semicolon));
-                EAggCreateCode createCode = AggUtil.createAggTable(targetTable, aggType.name(), dimensionGroups, measurments);
+                String[] split = targetTable.split(Util.SubSeparator);
+                String topicType = "";
+                if (split.length >= 2) {
+                    topicType = split[1];
+                }
+                EAggCreateCode createCode = AggUtil.createAggTable(targetTable, aggType.name(), dimensionGroups, measurments, topicType);
                 if (EAggCreateCode.uncreated.equals(createCode)) {
                     throw new AggDBlLoadException("{0} 创建失败", targetTable);
                 }
@@ -229,7 +234,7 @@ public class AggTheme {
 	 * @return ArrayList<ArrayList<String>>
 	 * @throws Exception
 	 */
-	private ArrayList<ArrayList<Dimension>> init2DimensionalList(String[] dimensionTypes) throws Exception {
+	private ArrayList<ArrayList<Dimension>> init2DimensionalList(String[] dimensionTypes) {
 		ArrayList<ArrayList<Dimension>> dimensionListLists = new ArrayList<ArrayList<Dimension>>();
 
 		for (String dimensionsType : dimensionTypes) {

@@ -312,6 +312,7 @@ var topicMap = [
         fields: "",
         dataname:"getGaugeAchieve",
         dataType:'sellout',
+        k:"target;sumdata",
         elementMap:{
             "series[0];data[0];value":"achieve",
             "#saletarget":"target",
@@ -326,6 +327,7 @@ var topicMap = [
         fields: "",
         dataname:"getGaugeAchieve",
         dataType:'sellin',
+        k:"target;sumdata",
         elementMap:{
             "series[0];data":"achieve",
             "#businesstarget":"target",
@@ -341,6 +343,7 @@ var topicMap = [
         dataname:"getMonthAchieve",
         type:"total",
         dataType:"sellout",
+        k:"target;sumdata",
         elementMap:{
             "series[0];data":"sumdata",
             "series[1];data":"target",
@@ -357,6 +360,7 @@ var topicMap = [
         dataname:"getMonthAchieve",
         type:"total",
         dataType:"sellin",
+        k:"target;sumdata",
         elementMap:{
             "series[0];data":"sumdata",
             "series[1];data":"target",

@@ -26,11 +26,64 @@
 	    var areaOption = clone(barlineoption);
 	    var productlineOption = clone(productlineoption);
 
+        function resetGrowthData() {
+            var filter = getHeaderFilter();
+            var user = getLocalData("user");
+            var topicCode = "achieve";
+
+            var dataType = "Purchase";
+            var dataname = "getsellinGrowthByRegion";
+            var aggcode = "brand;peroid;region";
+
+            var chartInstance = echarts.getInstanceByDom(document.getElementById("distributor"));
+
+            var params = "code=" + topicCode + "&userType="+user.type + "&userId=" + user.name;
+
+            if (aggcode) {
+                params += "&aggcode=" + aggcode;
+            }
+
+            if(dataType) {
+                params += "&dataType=" + dataType;
+            }
+            if(dataname) {
+                params += "&dataName=" + dataname;
+            }
+
+            if(filter) {
+                params += "&filter=" + filter;
+            }
+
+            chartInstance.showLoading('default', {text:'获取中..'});
+            Server.call("root/bi/data", params, function (result) {
+                if(!result) {
+                    return;
+                }
+                var option = chartInstance.getOption();
+                var region = result.region;
+                var growthdata = result.growth;
+                option.xAxis[0].data[0] =  "total";
+                var totalgrowth = parseInt(0);
+                for (var i = 0; i < region.length; i++) {
+                    totalgrowth += parseInt(growthdata[i]);
+                    option.xAxis[0].data[i+1] = region[i];
+                    option.series[0].data[i+1] = growthdata[i];
+				}
+
+                option.series[0].data[0] = totalgrowth;
+
+				chartInstance.setOption(option);
+                chartInstance.hideLoading();
+            });
+        }
+
         function chartRefresh() {
             for(var i = 0; i <topicMap.length; i++) {
                 var one = topicMap[i];
                 resetChartData(one);
             }
+
+            resetGrowthData();
         }
 
         function resetProductLinesOption(type) {
@@ -96,9 +149,9 @@
         	var halfrightbottomChart = echarts.init(document.getElementById("productlineSale"));
         	halfrightbottomChart.setOption(productlineOption);
         	
-        	pieoption.series[0].data = growthdata;
+
         	var piechart = echarts.init(document.getElementById("distributor"));
-        	piechart.setOption(pieoption);
+        	piechart.setOption(growthoption);
        	 	
        	 /*	var distributorChart = echarts.init(document.getElementById("distributorRank"));
        	 	distributorChart.setOption(distributorOption);*/
@@ -126,8 +179,8 @@
 					<img src="../../image/report-color.png" width="24">
 				</div>
 				<div class="title">sellin达成</div>
-				<div class="subtitle" style="">总指标金额：<b id="saletarget">74332.00</b>k</div>
-				<div class="subtitle" style="top: 22%;">当前采购金额：<b id="salereal">98591.86</b>k</div>
+				<div class="subtitle" style="">Target：<b id="saletarget">74332.00</b>k</div>
+				<div class="subtitle" style="top: 22%;">YTD：<b id="salereal">98591.86</b>k</div>
 				<div class="middle-cricle" >
 					<div id="saleachieve" style="height: 100%;width: 100%;"></div>
 				</div>			

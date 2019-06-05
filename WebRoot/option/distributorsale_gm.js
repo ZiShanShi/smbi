@@ -579,13 +579,13 @@
             {
                 type: 'line',
                 name:'达成',
-
+                yAxisIndex: 1,
                 data: []
             },
             {
                 type: 'line',
                 name:'增长',
-
+                yAxisIndex: 1,
                 data: []
             }
 
@@ -603,6 +603,7 @@ var topicMap = [
         dataname:"getGaugeAchieve",
         type:"total",
         dataType:"Distributor",
+		k:"target;sumdata",
         elementMap:{
             "series[0];data[0];value":"achieve",
             "#saletarget":"target",
@@ -619,6 +620,7 @@ var topicMap = [
         dataname:"getAreaAchieve",
         type:"total",
         dataType:"Distributor",
+        k:"target;sumdata",
         elementMap:{
             "xAxis[0];data":"Region",
             "series[0];data":"sumdata",
@@ -635,6 +637,7 @@ var topicMap = [
         dataname:"getBrandAchieve",
         type:"total",
         dataType:"Distributor",
+        k:"target;sumdata",
         elementMap:{
             "xAxis[0];data":"Brand",
             "series[0];data":"sumdata",
@@ -652,6 +655,7 @@ var topicMap = [
         dataname:"getDistributorAchieve",
         type:"total",
         dataType:"Distributor",
+        k:"presumdata;sumdata;target",
         elementMap:{
             "xAxis[0];data":"DistributorName",
             "series[0];data":"presumdata",
@@ -659,7 +663,6 @@ var topicMap = [
             "series[2];data":"target",
             "series[3];data":"achieve",
             "series[4];data":"growth"
-
         },
 
     }

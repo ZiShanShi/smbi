@@ -207,7 +207,7 @@ public class Console extends Callable {
         ArrayList<String> resultList = new ArrayList<>();
         for (String field : fieldList) {
             if (Util.isNull(field)) {
-                field = Util.Sql_Empty;
+                field = Util.String_Empty;
             }
             resultList.add(combineOneData(field));
         }

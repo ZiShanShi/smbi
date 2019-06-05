@@ -884,6 +884,7 @@ var topicMap = [
         //fields: "",
         dataname:"getGaugeAchieve",
         dataType:'sellout',
+        k:"target;sumdata",
         elementMap:{
             "series[0];data[0];value":"achieve",
             "#saletarget":"target",
@@ -899,6 +900,7 @@ var topicMap = [
         //fields: "",
         dataname:"getAreaAchieve",
         dataType:'sellout',
+        k:"target;sumdata",
         elementMap:{
             "xAxis[0];data":"Region",
             "series[0];data":"sumdata",
@@ -913,6 +915,7 @@ var topicMap = [
         //fields: "",
         dataname:"getBrandAchieve",
         dataType:'sellout',
+        k:"target;sumdata",
         elementMap:{
             "xAxis[0];data":"Brand",
             "series[0];data":"sumdata",
@@ -928,6 +931,7 @@ var topicMap = [
         topicCode: "achieve",
         dataname:"getCompanySum",
         aggcode:'brand;CompanyCode;peroid',
+        k:"Amount;preAmount",
         elementMap:{
             "xAxis[0];data":"Family",
             "series[0];data":"Amount",
@@ -942,6 +946,7 @@ var topicMap = [
         topicCode: "achieve",
         dataname:"getDsoAmount",
 		aggcode:'brand;CompanyCode;peroid',
+        k:"Amount;preAmount",
         elementMap:{
             "xAxis[0];data":"terminalname",
             "series[0];data":"Amount",

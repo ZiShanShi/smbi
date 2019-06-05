@@ -324,7 +324,6 @@
 	
 	        "calculable": true,
 	        "xAxis": [{
-	        	name:"产品线",
 	            "type": "category",
 	            "axisLine": {
 	                lineStyle: {
@@ -835,6 +834,126 @@ var purchasedata = [{
 }
 ];
 
+
+var growthoption = {
+    backgroundColor: "#fff",
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "shadow",
+            textStyle: {
+                color: "#fff"
+            }
+
+        },
+        formatter: function(params, ticket, callback) {
+
+            var res = params[0].name;
+
+            for (var i = 0, l = params.length; i < l; i++) {
+                if (params[i].seriesType === 'line') {
+                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? params[i].value : '-') + '%';
+                } else {
+                    res += '<br/>' + params[i].seriesName + ' : ' + (params[i].value ? formatterOneMoney(params[i].value) : '-') + 'k';
+                }
+            }
+            return res;
+
+        }
+    },
+    "grid": {
+        containLabel: true,
+        top:"25%",
+        bottom:"12%",
+        left:"3%",
+        right:"2%",
+        textStyle: {
+            color: "#222"
+        }
+    },
+    "legend": {
+        textStyle: {
+            color: '#222',
+        },
+        "data": ['增长额']
+    },
+
+
+    "calculable": true,
+    "xAxis": [{
+        "type": "category",
+        "axisLine": {
+            lineStyle: {
+                color: '#222'
+            }
+        },
+        "splitLine": {
+            "show": false
+        },
+        "axisTick": {
+            "show": false
+        },
+        "splitArea": {
+            "show": false
+        },
+        "axisLabel": {
+            "interval": 0,
+
+        },
+        "data": [],
+    }],
+    "yAxis": [{
+        name:"增长额(k)",
+        "type": "value",
+        "splitLine": {
+            "show": false
+        },
+        "axisLine": {
+            lineStyle: {
+                color: '#222'
+            }
+        },
+        "axisTick": {
+            "show": true
+        },
+        "axisLabel": {
+            "interval": 0,
+
+        },
+        "splitArea": {
+            "show": false
+        },
+        axisLabel: {
+            formatter: '{value}',
+            textStyle: {
+                color: '#000',
+            },
+        },
+    }
+    ],
+
+    toolbox: {        show: true,        feature: {   myDownload: {
+                show: true,
+                title: '数据导出',
+                icon: 'image://http://localhost:8080/smbi/image/excel.svg',
+                onclick: function (){
+                    alert('暂不支持');
+                }
+            },         saveAsImage: {}        }    },series: [{
+        "name": "增长额",
+        "type": "bar",
+        "barGap": "10%",
+        "itemStyle": {
+            "normal": {
+                "color": "rgba(255,144,128,1)",
+            }
+        },
+        "data": [],
+    },
+
+    ]
+};
+
 var pieoption = {
 	    tooltip: {
 	        trigger: 'item',
@@ -902,6 +1021,7 @@ var topicMap = [
         dataname:"getGaugeAchieve",
         type:"total",
         dataType:"sellin",
+       k:"target;sumdata",
         elementMap:{
             "series[0];data[0];value":"achieve",
             "#saletarget":"target",
@@ -917,6 +1037,7 @@ var topicMap = [
         dataname:"getAreaAchieve",
         type:"total",
         dataType:"sellin",
+        k:"target;sumdata",
         elementMap:{
             "xAxis[0];data":"Region",
             "series[0];data":"sumdata",
@@ -933,6 +1054,7 @@ var topicMap = [
         dataname:"getBrandAchieve",
         type:"total",
         dataType:"sellin",
+        k:"target;sumdata",
         elementMap:{
             "xAxis[0];data":"Brand",
             "series[0];data":"sumdata",
@@ -968,7 +1090,7 @@ var topicMap = [
             "series[2];data":"rate",
         },
     },
-    {
+    /*{
         id:"distributor",
         topicCode: "achieve",
         dataname:"getRegionGrowrthAmount",
@@ -978,7 +1100,7 @@ var topicMap = [
             "series[0];data.name":"region",
             "series[0];data.value":"added",
         },
-    }
+    }*/
 
 
 ];

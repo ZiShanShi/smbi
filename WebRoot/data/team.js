@@ -22,6 +22,7 @@ var topicMap = [
         dataname:"getTeamAchieve",
         //type:"total",
         dataType:"sellout",
+        k:"target;sumdata",
         elementMap:{
             "series[0];data[0];value":"achieve",
             "#saletarget":"target",
@@ -37,9 +38,10 @@ var topicMap = [
         dataname:"getTeamAchieveDetail",
         //type:"total",
         dataType:"sellin",
+        k:"ytd;target",
         elementMap:{
             "xAxis[0];data":"name",
-            "series[0];data":"sumdata",
+            "series[0];data":"ytd",
             "series[1];data":"target",
             "series[2];data":"achieve",
 
@@ -53,9 +55,10 @@ var topicMap = [
         dataname:"getTeamAchieveDetail",
         //type:"total",
         dataType:"sellout",
+        k:"ytd;target",
         elementMap:{
             "xAxis[0];data":"name",
-            "series[0];data":"sumdata",
+            "series[0];data":"ytd",
             "series[1];data":"target",
             "series[2];data":"achieve",
 

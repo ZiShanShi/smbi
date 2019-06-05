@@ -23,11 +23,58 @@
 	<script>
 		//changeOption(middleOption, "series[0];data[0];value", 140);
 
+        function resetScatter() {
+            var filter = getHeaderFilter();
+            var user = getLocalData("user");
+            var topicCode = "achieve";
+
+            var dataname = "getTeamAchieveDetail";
+
+            var chartInstance = echarts.getInstanceByDom(document.getElementById("scatter"));
+
+            var params = "code=" + topicCode + "&userType="+user.type + "&userId=" + user.name;
+
+            if(dataname) {
+                params += "&dataName=" + dataname;
+            }
+            var dataType = "sellin";
+
+            if (dataType) {
+                params += "&dataType=" + dataType;
+			}
+            if(filter) {
+                params += "&filter=" + filter;
+            }
+
+            chartInstance.showLoading('default', {text:'获取中..'});
+            Server.call("root/bi/data", params, function (result) {
+                if(!result) {
+                    return;
+                }
+                var option = chartInstance.getOption();
+                var optionData =new Array();
+
+                for(var i = 0; i < result.name.length; i++) {
+                    var oneData = new Array();
+                    oneData[0] = result.achieve[i];
+                    oneData[1] = result.growth[i];
+                    oneData[2] = parseInt(result.ytd[i])/1000;
+                    oneData[3] = result.name[i];
+                    optionData[i] = oneData;
+				}
+				option.series[0].data = optionData;
+                var opt = JSON.stringify(option);
+                chartInstance.setOption(option);
+                chartInstance.hideLoading();
+            });
+        }
+
         function chartRefresh() {
             for(var i = 0; i <topicMap.length; i++) {
                 var one = topicMap[i];
                 resetChartData(one);
             }
+            resetScatter();
         }
 
 		var teamachieveOption = clone(middleOption);
@@ -96,9 +143,7 @@
 			 $("#brand").multiselect("uncheckAll"); 
 
 			 $("#superv").multiselect("uncheckAll"); 
-	        
-	        $("#saletarget").html(formatterOneMoney(65648.49));
-			$("#salereal").html(formatterOneMoney(91727.68));
+
 
             initCommonMutiSelect();
 
@@ -129,8 +174,8 @@
 					<img src="../../image/report-color.png" width="24">
 				</div>
 				<div class="title">团队销售达成</div>
-				<div class="subtitle" style="">总指标金额：<b id="saletarget">65648.49</b>k</div>
-				<div class="subtitle" style="top: 22%;">当前销售金额：<b id="salereal">91727.68</b>k</div>
+				<div class="subtitle" style="">Target：<b id="saletarget">65648.49</b>k</div>
+				<div class="subtitle" style="top: 22%;">YTD：<b id="salereal">91727.68</b>k</div>
 				<div class="middle-cricle" >
 					<div id="teamachieve" style="height: 100%;width: 100%;"></div>
 				</div>			

@@ -18,7 +18,14 @@
 			@{fields}
 			)
 		</sql>
-
+		<sql name="createAggPartitionTableTemplate">
+			CREATE TABLE [dbo].[@{tableName}] (
+			[id] nvarchar(32) NOT null,
+			[aggcode] nvarchar(254) NOT NULL ,
+			@{fields}
+			CONSTRAINT PK_@{tableName}_ID_aggcode PRIMARY KEY(id, aggcode)
+			) on @{partitionName}
+		</sql>
 		<sql name="aggGroupByTemplate">
 			SELECT @{selectfield} from (
 			SELECT  @{selectinfield} FROM @{aggtable} agg

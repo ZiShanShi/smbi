@@ -64,6 +64,7 @@ public class AggConstant {
 
 
     public static final String Sql_createTableTemplate = "createTableTemplate";
+    public static final String Sql_createAggPartitionTableTemplate = "createAggPartitionTableTemplate";
     public static final String Sql_Field_tableName = "tableName";
     public static final String Sql_Field_fields = "fields";
     public static final String Sql_getDimensionByCodeGroupId = "getDimensionByCodeGroupId";
@@ -111,6 +112,7 @@ public class AggConstant {
     public static final String AGG_IS_NULL = " is  null";
     public static final String AGG_IS_NOT_NULL = " is not null";
     public static final String AGG_IS_NOT_Empty = "  <> ''";
+    public static final String MDF = "mdf";
 
     public static ArrayList<String> filedUnCatchList = new ArrayList<>();
     public static ArrayList<String> DDTTableList = new ArrayList<>();
@@ -181,6 +183,31 @@ public class AggConstant {
     public static String Name = "name";
     public static String Product = "Product";
     public static String ProductCode = "ProductCode";
+    public static String partitionName = "partitionName";
+    public static String DefaultAggPartitionName = "ps_aggCode(aggcode)";
+    public static String SqlServer_TextSql = "SELECT 'x'";
+
+
+
+
+
+    public static String Create_FILEGROUP_Template = "ALTER DATABASE {0} ADD FILEGROUP {1}";
+
+
+    public static String Create_PartitionFunc_Template = "CREATE PARTITION FUNCTION pf_{0}_aggcode(nvarchar(254)) " +
+            "AS RANGE right " +
+            "FOR VALUES ({1})";
+
+    public static String Create_PartitionScheme_Template = "create partition scheme ps_{0}_aggcode " +
+            "as partition pf_{0}_aggcode " +
+            "to({1})";
+
+    public static String Create_FILE_Template = "ALTER DATABASE {0} " +
+            "ADD FILE(  " +
+            "NAME=N{1},FILENAME={2},SIZE=3MB " +
+            ",FILEGROWTH=5MB " +
+            ") TO FILEGROUP {3}";
+
 
 
     static {

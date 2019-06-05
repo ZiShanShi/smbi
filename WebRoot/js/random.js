@@ -28,7 +28,7 @@ function changeDivtext(ele, text) {
     $("#" + ele).text(text);
 }
 
-function changeOption(option, key, value) {
+function changeOption(option, key, value, shouldK) {
 
     var keys = key.split(";");
     for (var i = 0; i < keys.length - 1; i++) {
@@ -56,7 +56,15 @@ function changeOption(option, key, value) {
 
         if (value instanceof Array) {
             if (!isNaN(endkey)) {
-                option[prekey] = value[endkey];
+                var val = value[endkey];
+                if(checkNumber(val)) {
+                    if (shouldK) {
+                        val = parseInt(val)/ 1000;
+                    }
+
+                }
+
+                option[prekey] = val;
             }
 
             for(var i = 0; i <value.length; i++) {
@@ -65,7 +73,11 @@ function changeOption(option, key, value) {
                     one = {};
                 }
                 var val = value[i];
-
+                if(checkNumber(val)) {
+                    if (shouldK) {
+                        val = parseInt(val)/ 1000;
+                    }
+                }
                 one[endkey] = val;
             }
         }
@@ -78,9 +90,24 @@ function changeOption(option, key, value) {
         }else {
            val = value;
         }
-        if (checkNumber(val)) {
-            val = formatterOneMoney(val);
+        if (val instanceof Array) {
+            for(var i = 0; i <val.length; i++) {
+
+                var oneval = val[i];
+                if(checkNumber(oneval)) {
+                    if (shouldK) {
+                        val[i] = parseInt(oneval)/ 1000;
+                    }
+                }
+            }
+        }else {
+            if(checkNumber(val)) {
+                if (shouldK) {
+                    val = parseInt(val)/ 1000;
+                }
+            }
         }
+
         option[endkey] = val;
     }
 }
@@ -572,6 +599,13 @@ function resetChartData(one) {
     var dataname = one.dataname;
     var onefilter = one.filter;
     var aggcode = one.aggcode;
+
+    var k = one.k;
+    var mayK = [];
+    if (k) {
+        mayK = k.split(";");
+    }
+
     var chartInstance = echarts.getInstanceByDom(document.getElementById(eleId));
 
     var params = "code=" + topicCode + "&userType="+user.type + "&userId=" + user.name;
@@ -607,16 +641,33 @@ function resetChartData(one) {
         var option = chartInstance.getOption();
         for (var one in map){
             var val = map[one];
+            var shouldK = false;
+            if (mayK) {
+               mayK.map(function (mayVal, index) {
+                   if (val == mayVal) {
+                       shouldK = true;
+                   }
+               })
+            }
             var top = one.substring(0, 1);
 
             if("#" == top) {
-                $(one).html(formatterOneMoney(result[val]));
+                if(shouldK) {
+                    $(one).html(formatterOneMoney(parseInt(result[val])/1000));
+                }else {
+                    $(one).html(formatterOneMoney(result[val]));
+                }
             }else if ("$" == top) {
                 var variable = one.substring(1, one.length);
-                setLocalData(variable,result[val]);
+                if (shouldK) {
+                    setLocalData(variable,parseInt(result[val])/1000);
+                }else {
+                    setLocalData(variable,result[val]);
+                }
+
             }
             else {
-                changeOption(option, one, result[val]);
+                changeOption(option, one, result[val], shouldK);
             }
 
         }

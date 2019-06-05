@@ -667,6 +667,7 @@ public class GroupSqlBulider {
             paramsMap.put("user", user);
             paramsMap.put("onlyuser", onlyuser);
             paramsMap.put("orgchildren", MessageFormat.format("ParentLoginName = {0}", Util.quotedStr(userId)));
+
             if (!Util.isNull(achieveDataType)) {
                 String dataTableType = AggConstant.DataTypeMap.get(achieveDataType);
                 String targetuser = Util.stringJoin(Util.And, Util.quotedEqualStr(MessageFormat.format(AggConstant.Select_Field_Template, "m", dataTableType), userId));
@@ -701,7 +702,7 @@ public class GroupSqlBulider {
                             inventoryDateSql.setParam(AggConstant.BI_Field_Aggcode,"BizDate-" + AggConstant.RSM);
                             inventoryDateSql.setParam("user", Util.String_Empty);
                         } else {
-                            inventoryDateSql.setParam("user", Util.stringJoin(Util.And, Util.quotedEqualStr(userType, userId)));;
+                            inventoryDateSql.setParam("user", Util.stringJoin(Util.And, Util.quotedEqualStr(userType, userId)));
                             inventoryDateSql.setParam(AggConstant.BI_Field_Aggcode,"BizDate-" + userType);
                         }
 
@@ -714,7 +715,15 @@ public class GroupSqlBulider {
 
                         //value = "2018-08-17";
 
-                    }else if ("dataTypeSegment".equalsIgnoreCase(name)){
+                    }
+                    else if ("subType".equalsIgnoreCase(name)) {
+                        String subPosition = AggUtil.getSubPosition(userId);
+                        if (Util.isNull(subPosition)) {
+                            throw new AggCalculateException(MessageFormat.format("{0}找不到下级", userId));
+                        }
+                        value = subPosition;
+                    }
+                    /*else if ("dataTypeSegment".equalsIgnoreCase(name)){
                         if (!Util.isNull(achieveDataType)) {
                             if (achieveDataType.equals(EAchieveDataType.sellin)) {
                                 value = "a0.LoginName = m.Supervisor or a0.LoginName = m.RSM";
@@ -724,7 +733,7 @@ public class GroupSqlBulider {
                         } else {
                             throw new AggCalculateException(MessageFormat.format("{0}有字段未匹配==={1}", sqlName, name));
                         }
-                    }
+                    }*/
                     else if ("brandfilter".equalsIgnoreCase(name)) {
                         String brand = paramsMap.get("brand");
                         if (!Util.isNull(brand)) {

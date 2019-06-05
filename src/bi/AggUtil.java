@@ -55,7 +55,7 @@ public class AggUtil {
         return false;
     }
 
-    public static EAggCreateCode createAggTable(String aggTableName, String groupId, List<String> oneDimensionGroups, List<String> measurmentList) throws Exception {
+    public static EAggCreateCode createAggTable(String aggTableName, String groupId, List<String> oneDimensionGroups, List<String> measurmentList, String topicType) throws Exception {
         AggOperator aggOperator = AggOperator.valueOf(groupId);
         if (aggOperator == null) {
             return EAggCreateCode.uncreated;
@@ -108,9 +108,10 @@ public class AggUtil {
         fields += Util.stringJoin(Util.comma, roxolidyGrowth);
 */
 
-        NamedSQL createSql = NamedSQL.getInstance(AggConstant.Sql_createTableTemplate);
+        NamedSQL createSql = NamedSQL.getInstance(AggConstant.Sql_createAggPartitionTableTemplate);
         createSql.setParam(AggConstant.Sql_Field_tableName, aggTableName);
         createSql.setParam(AggConstant.Sql_Field_fields, fields);
+        createSql.setParam(AggConstant.partitionName, MessageFormat.format("ps_{0}_aggcode(aggcode)", topicType));
         int i = SQLRunner.execSQL(createSql);
         if (i == 0) {
             return EAggCreateCode.created;
@@ -196,9 +197,11 @@ public class AggUtil {
         int index = 1;
 
         while (index < dimension.length()) {
+            dimension = dimension.toLowerCase();
             String subDimension = dimension.substring(0, index);
             boolean sameSub = true;
             for (String oneDimension : dimensionList) {
+                oneDimension = oneDimension.toLowerCase();
                 if (oneDimension.equalsIgnoreCase(dimension)) {
                     continue;
                 }
@@ -214,5 +217,18 @@ public class AggUtil {
             index++;
         }
         return dimension;
+    }
+
+    public static String getSubPosition(String loginName) {
+        try {
+            NamedSQL getSubPositionById = NamedSQL.getInstance("getSubPositionById");
+            getSubPositionById.setParam("id", loginName);
+            Entity entity = SQLRunner.getEntity(getSubPositionById);
+            String type = entity.getString("type");
+            return type;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

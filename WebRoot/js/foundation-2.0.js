@@ -73,12 +73,12 @@ function stopIt(ev) {
 	return false;
 }
 
-function checkNumber(theObj) {
-	var reg = /^[0-9]+.?[0-9]*$/;
-	if (reg.test(theObj)) {
-		return true;
-	}
-	return false;
+function checkNumber(inputData) {
+    if (parseFloat(inputData).toString() == "NaN") {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 $(function() {
