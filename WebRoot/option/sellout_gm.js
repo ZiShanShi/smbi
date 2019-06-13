@@ -902,11 +902,11 @@ var topicMap = [
         dataType:'sellout',
         k:"target;sumdata",
         elementMap:{
-            "xAxis[0];data":"Region",
+            "xAxis[0];data":"region",
             "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",
-            "series[3];data":"ygrowth"
+            "series[3];data":"growth"
         },
     }
     ,{

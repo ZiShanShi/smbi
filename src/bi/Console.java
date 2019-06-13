@@ -141,7 +141,7 @@ public class Console extends Callable {
             filter = Util.defaultFilter ;
         }
         String resultSql = null;
-        GroupSqlBulider bulider = new GroupSqlBulider();
+        GroupSqlBulider bulider = new GroupSqlBulider(isTable);
 		if (code.equalsIgnoreCase(AggConstant.achieve)) {
             String type = request.getParameter(AggConstant.BI_Field_Type);
             resultSql = bulider.getAchieveRegroupedSql(userId, userType, aggCode, type, fields, dataType, filter);

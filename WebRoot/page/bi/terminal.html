@@ -22,12 +22,59 @@
 </head>
 
 <script>
+    var companyType,region;
+    var numMax = 0,saleMax = 0;
+
+    function resetMapMax() {
+        var mapTopic = topicMap[1];
+
+        var mapChartInstance = echarts.getInstanceByDom(document.getElementById(mapTopic.id));
+        var option = mapChartInstance.getOption();
+
+        option.series[0].data.forEach(function (one, index) {
+            if(one.value > numMax) {
+                numMax = one.value;
+            }
+        });
+        option.series[1].data.forEach(function (one, index) {
+            if(one.value > saleMax) {
+                saleMax = one.value;
+            }
+        });
+
+        mapChartInstance.on('legendselectchanged', function(params) {
+            var option = mapChartInstance.getOption();
+            if(params.name == "终端个数") {
+                option.visualMap[0].max = numMax;
+            }else {
+                option.visualMap[0].max = saleMax;
+            }
+            mapChartInstance.setOption(option);
+
+            if(params.name == "终端个数") {
+                mapChartInstance.dispatchAction({
+                    type: 'selectDataRange',
+                    selected: [0, numMax]
+                })
+            }else {
+                mapChartInstance.dispatchAction({
+                    type: 'selectDataRange',
+                    selected: [0, saleMax]
+                })
+            }
+
+
+        });
+
+    }
 
     function chartRefresh() {
         for(var i = 0; i <topicMap.length; i++) {
             var one = topicMap[i];
             resetChartData(one);
         }
+
+        //resetMapMax();
     }
 
 
@@ -63,15 +110,45 @@
 
             initCommonMutiSelect();
 
-            $("#customertype").multiselect({minWidth: 80});
-            $("#area").multiselect({minWidth: 80});
+            $("#customertype").multiselect({
+                minWidth: 80,
+                click:function (event, ui) {
+                    var type = ui.value;
+                    var one = topicMap[0];
+                    if (type.trim().toLowerCase() == "all") {
+                        one.filter = undefined;
+                    }else {
+                        companyType = type;
+                        one.filter = " and  companyTypefilter =  c.CompanyType = '" + type + "'";
+                        if (region) {
+                            one.filter += " and regionfilter = region = '" + region + "'"
+                        }
+                    }
+                    resetChartData(one);
+                }
+            });
+            $("#area").multiselect({minWidth: 80,
+                click:function (event, ui) {
+                    var area = ui.value;
+                    var one = topicMap[0];
+                    if (area.trim().toLowerCase() == "all") {
+                        one.filter = undefined;
+                    }else {
+                        region = area;
+                        one.filter = " and  companyTypefilter = region = '" + area + "'";
+                        if (companyType) {
+                            one.filter += " and regionfilter = c.CompanyType = '" + companyType + "'";
+                        }
+                    }
+                    resetChartData(one);
+                }
+            });
 
             $(window).bind('resize', resizeChart);
 
             initCommonMutiSelect();
 
             initPeroidMonth();
-
         });
 </script>
 

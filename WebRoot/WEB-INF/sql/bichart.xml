@@ -32,7 +32,7 @@
 			from VIEW_@{dataType}_Month_@{brandType} m
 			LEFT JOIN md_peroid p on m.peroid = p.id
 			WHERE @{filter}
-			@{targetuser}
+			and m.@{userType} = '@{userid}'
 
 		</sql>
 
@@ -48,9 +48,8 @@
 			md_peroid p
 			LEFT JOIN VIEW_@{dataType}_Month_@{brandType} m ON m.peroid = p.id
 			WHERE
-			YEAR = @{year}
+			YEAR = @{year} and m.@{userType} = '@{userid}'
             @{brandfilter}
-			@{targetuser}
 			GROUP BY
 			p.[month]
 			ORDER BY
@@ -154,8 +153,44 @@
 			on a01.Brand = a02.Brand  and a01.year = a02.year + 1
 
 		</sql>
-
 		<sql name="getAreaAchieve">
+			SELECT
+			a0.region, a0.sumdata, a1.presumdata, a0.target, a0.achieve,
+			(sumdata - presumdata) * 100/ CASE WHEN presumdata = 0 THEN 1 ELSE presumdata END as growth
+			FROM(
+			SELECT  region, year, agg.@{userType}, sum(monthsum) as sumdata, sum(monthTarget) as target,
+			( ISNULL(SUM(monthsum), 0) * 100 / ISNULL(SUM(monthTarget), 1) ) AS achieve
+			from
+			VIEW_@{dataType}_Month_@{brandType} agg
+			LEFT JOIN territory t on t.@{userType} = agg.@{userType}
+			LEFT JOIN usr on usr.LoginName = t.RSM
+			LEFT JOIN RSMRegion r on r.UserID = usr.UserID
+			LEFT JOIN md_peroid p on p.id = agg.peroid
+
+			WHERE agg.@{userType} = '@{userid}'
+			and Region is not null and @{filter}
+			GROUP BY region,year, agg.@{userType}
+			)
+			a0
+			LEFT JOIN
+			(
+			SELECT region,year, agg.@{userType}, sum(monthsum) as presumdata
+			from
+			VIEW_Salesperson_Month_Total agg
+			LEFT JOIN territory t on t.@{userType} = agg.@{userType}
+			LEFT JOIN usr on usr.LoginName = t.RSM
+			LEFT JOIN RSMRegion r on r.UserID = usr.UserID
+			LEFT JOIN md_peroid p on p.id = agg.peroid
+
+			WHERE agg.@{userType} = '@{userid}'
+			and Region is not null
+			GROUP BY region, year, agg.@{userType}
+			)
+			a1 on a0.region = a1.region and a0.@{userType} = a1.@{userType} and a0.year = a1.year + 1;
+
+		</sql>
+		<sql name="getAreaAchievebak">
+
 			SELECT a01.Region, sumdata,presumdata, target,achieve,
 			(sumdata - presumdata) * 100/ CASE WHEN presumdata = 0 THEN 1 ELSE presumdata END  as growth
 			from (
@@ -809,7 +844,7 @@ ORDER BY Account desc
 			WHERE aggcode = 'brand-CompanyCode-peroid-region-RSM'
 			and [year] = @{year}
 			@{onlyuser}
-			@{countfilter}
+			and @{companyTypefilter} and @{regionfilter}
 			and ag.brand = 'Anthogyr'
 			INTERSECT
 			SELECT ag.CompanyCode from agg_Sale_c_o_pe_pr_r ag
@@ -818,7 +853,7 @@ ORDER BY Account desc
 			WHERE aggcode = 'brand-CompanyCode-peroid-region-RSM'
 			and [year] = @{year}
 			@{onlyuser}
-			@{countfilter}
+			and @{companyTypefilter} and @{regionfilter}
 			and ag.brand = 'Straumann'
 			) a22
 			)
@@ -833,7 +868,7 @@ ORDER BY Account desc
 			WHERE aggcode = 'brand-CompanyCode-peroid-region-RSM'
 			and [year] = @{year}
 			@{onlyuser}
-			@{countfilter}
+			and @{companyTypefilter} and @{regionfilter}
 
 			GROUP BY brand,agg.CompanyCode
 			)a01
@@ -849,7 +884,7 @@ ORDER BY Account desc
 			WHERE aggcode = 'brand-CompanyCode-peroid-region-RSM'
 			and [year] = @{year} - 1
 			@{onlyuser}
-			@{countfilter}
+			and @{companyTypefilter} and @{regionfilter}
 
 			GROUP BY brand, agg.CompanyCode
 			) a02
@@ -943,6 +978,7 @@ ORDER BY Account desc
 			GROUP BY region, agg.CompanyCode
 			) a02
 			on a01.region = a02.region and a02.CompanyCode = a01.CompanyCode
+			WHERE a01.region is not null
 			GROUP BY a01.region
 
 		</sql>
@@ -958,6 +994,9 @@ ORDER BY Account desc
 			GROUP BY shortname
 
 
+		</sql>
+		<sql name="getSubUser">
+			SELECT DISTINCT @{subposition}, @{subposition}name from territory WHERE @{userType} = '@{userId}' and @{subposition} is not null
 		</sql>
 
 		<!--  agg  -->

@@ -21,7 +21,6 @@
 	</head>
 	
 	<script>
-		//changeOption(middleOption, "series[0];data[0];value", 140);
 
         function resetScatter() {
             var filter = getHeaderFilter();
@@ -77,93 +76,81 @@
             resetScatter();
         }
 
-		var teamachieveOption = clone(middleOption);
+        function getSupervData() {
+			var user = getLocalData("user");
+			var userType = user.type;
+			var supervSelect = $("#superv");
+			if (userType == "Supervisor") {
+                var opt = $('<option />', {
+                    value: user.id,
+                    text: user.name
+                });
+                opt.appendTo(supervSelect);
+
+			}else {
+			    var params = "userType=" +userType +"&userId=" + user.name + "&subposition=Supervisor";
+				Server.call("root/data/procedure/getSubUser/getDataSet?" + params, function (result) {
+					if (result.success) {
+					    var data = result.rows;
+						if (!data){
+						    return;
+						}
+                        var opt = $('<option />', {
+                            value: "ALL",
+                            text: "ALL"
+                        });
+                        opt.appendTo(supervSelect);
+					    data.forEach(function (one) {
+                            var opt = $('<option />', {
+                                value: one.supervisor,
+                                text: one.supervisorname
+                            });
+                            opt.appendTo(supervSelect);
+                        })
+                        supervSelect.multiselect('refresh');
+					}
+                })
+			}
+        }
 
         $(document).ready(function(){
-		var teamachieveChart = echarts.init(document.getElementById("teamachieve"));
-        teamachieveChart.setOption(teamachieveOption);
+			var teamachieveChart = echarts.init(document.getElementById("teamachieve"));
+			teamachieveChart.setOption(middleOption);
 
-		var scatterChart = echarts.init(document.getElementById("scatter"));
-        scatterChart.setOption(scatterOption);
+			var scatterChart = echarts.init(document.getElementById("scatter"));
+			scatterChart.setOption(scatterOption);
 
-		var businessrankChart = echarts.init(document.getElementById("businessrank"));
-        businessrankChart.setOption(businessrank);
-        
-        var salerankChart = echarts.init(document.getElementById("salerank"));
-        salerankChart.setOption(salerank);
-        
-			
-		$("#brand").multiselect({
-					selectedList: 4,
-					multiple:true,
-					header:true,
-			 	  close:function(event, ui){
-			 	  	var selects = $("#brand").multiselect("getChecked");
-			 	  		for(var i = 0; i < selects.length; i++) {
-			 	  			var one = selects[i];
-			 	  			var vale = $(one).val();
-			 	  		}
-			 	  } 
-			 });
+			var businessrankChart = echarts.init(document.getElementById("businessrank"));
+			businessrankChart.setOption(businessrank);
 
-			 $("#year").multiselect({});
-			 $("#quarter").multiselect({
-			 	close:function(event, ui){
-			 	  	var selects = $("#quarter").multiselect("getChecked")[0];
-			 	  	var quarter = $(selects).val();
-			 	  	if("all" == quarter) {
-			 	  		//todo
-			 	  	}else {
-				 	  	monthselect.empty();
-				 	  	 var allopt = $('<option />', {
-							value: 'All',
-							text: 'All'
-						 });
-				 	  	allopt.appendTo(monthselect);
-				 	  	var start = (quarter - 1) <0? 0 : (quarter - 1);
-						for(var i = start*3; i < quarter*3; i++) {
-						 
-						 var opt = $('<option />', {
-							value: i + 1,
-							text: i + 1
-						 });
-							opt.appendTo(monthselect);
-							
-						}
-						monthselect.multiselect('refresh');
-			 	  	}
-			 	  				 	  	
-			 	  } 
-			 });
-			 monthselect = $("#month").multiselect({});
-			 
-			 var superv = $("#superv").multiselect({
-			 minWidth:120});
-			 
-			 $("#brand").multiselect("uncheckAll"); 
+			var salerankChart = echarts.init(document.getElementById("salerank"));
+			salerankChart.setOption(salerank);
+            $("#superv").multiselect({
+                minWidth:120,
+                click:function (event, ui) {
+                    var superv = ui.value;
+                    var one = topicMap[2];
+                    var user = getLocalData("user");
+                    if (superv.trim().toLowerCase()  == "all") {
 
-			 $("#superv").multiselect("uncheckAll"); 
+					}else {
+                        user.type = "Supervisor";
+                        user.name = superv;
+					}
+                    resetChartData(one, user);
+
+                }
+            });
+
+			getSupervData();
 
 
+            $("#superv").multiselect("uncheckAll");
             initCommonMutiSelect();
 
         	$(window).bind('resize',resizeChart);
             initPeroidMonth();
 
-            /*$("#product").multiselect({
-                selectedList: 4,
-                multiple:true,
-                header:true,
-                close:function(event, ui){
-                    var selects = $("#brand").multiselect("getChecked");
-                    for(var i = 0; i < selects.length; i++) {
-                        var one = selects[i];
-                        var vale = $(one).val();
-                    }
-                }
-            });
-
-            $("#product").multiselect("uncheckAll");*/
         });
 	</script>
 	
@@ -215,11 +202,7 @@
 		
 					<div style="float: left;">主管：</div>
 					<select id="superv" class="periodselect" style="width:80px;">
-						<option>east</option>
-						<option>south</option>
-						<option>west</option>
-						<option>north</option>
-						<option>northeast</option>
+
 					</select>
 				</div>
 				<div class="title">sellout</div>

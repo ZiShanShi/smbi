@@ -45,6 +45,8 @@ var data2 = [
          //fields: "Amount;target;achieve",
          dataname:"getCompanyProvince",
          aggcode:"CompanyCode;peroid;brand",
+         func:"resetMapMax",
+         k:"Amount",
          //dataType:"sellout",
          elementMap:{
              "series[0];data.value":"num",

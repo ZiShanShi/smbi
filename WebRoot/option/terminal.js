@@ -22,7 +22,10 @@ var mapoption = {
         left: 'left',
         top: 'bottom',
         text: ['高', '低'],           // 文本，默认为数值文本
-        calculable: true
+        calculable: true,
+        inRange: {
+            color: ['#fff',  '#e0f3f8', '#abd9e9',  '#74add1', '#4575b4', '#313695', ]
+        },
     },
     legend: {
         orient: 'vertical',
@@ -89,7 +92,13 @@ var mapoption = {
                     show: true
                 }
             },
-            data: data1
+            data: data1,
+            /*itemStyle:{
+                normal:{
+                    areaColor:'#3367d6'
+                }
+
+            },*/
         },
         {
             zlevel: 1,
@@ -108,6 +117,11 @@ var mapoption = {
                     show: true
                 }
             },
+           /* itemStyle:{
+                normal:{
+                    areaColor:'#3367d6'
+                }
+            },*/
             data: data2
         }
     ]

@@ -395,12 +395,14 @@
         function resetGrid() {
             var aggcode = "";
             var reShowColumns = [];
-            Object.keys(FieldArea.checkItems).forEach( function(key) {
-                var item = FieldArea.checkItems[key];
-                var option = item.option;
 
-                var field =  {field: option.showField.toLowerCase(), caption: option.caption, width: 120};
-                reShowColumns.push(field);
+            var items = FieldArea.checkItems;
+
+            var fields = [];
+            Object.keys(items).forEach( function(key) {
+                var item = FieldArea.checkItems[key];
+
+                fields.push(item);
                 var group = item.group;
 
                 if(group && "peroid" != group.code && "area" != group.code) {
@@ -411,6 +413,34 @@
                 }
 
             });
+
+            for (var i = 0; i < FieldArea.groups.length; i++) {
+                var group = FieldArea.groups[i];
+                fields.forEach(function (one) {
+                    if(!one.option.group) {
+                        return;
+                    }
+                    if(one.option.group.code == group.code) {
+                        var field =  {field: one.option.showField.toLowerCase(), caption: one.option.caption, width: 120};
+                        reShowColumns.push(field);
+                    }
+                });
+            }
+
+            fields.forEach(function (one) {
+                if(!one.option.group) {
+                    var field =  {field: one.option.showField.toLowerCase(), caption: one.option.caption, width: 120};
+                    reShowColumns.push(field);
+                }
+
+            });
+
+
+           /* fields.forEach(function (item) {
+                var option = item.option;
+                var field =  {field: option.showField.toLowerCase(), caption: option.caption, width: 120};
+                reShowColumns.push(field);
+            })*/
 
             var filter = FilterArea.getFilterUrl(true);
             var paramsObj = {

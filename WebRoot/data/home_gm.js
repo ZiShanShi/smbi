@@ -146,7 +146,7 @@ var historyOption = {
                     label: {
                         show: true,
                         formatter:function(params){
-                            return parseInt(params.data);
+                            return parseInt(params.data/1000);
                         }
                     },
                     color: "#9bbff2",
@@ -175,7 +175,7 @@ var historyOption = {
                     label: {
                         show: true,
                         formatter:function(params){
-                            return parseInt(params.data);
+                            return parseInt(params.data/1000);
                         }
                     },
                     color: "#339ddf"
@@ -289,18 +289,11 @@ changeOption(middleOption, "series[0];data[0];value", 140);
 
 var saleachieveOption = clone(middleOption);
 
-changeOption(middleOption, "series[0];data[0];value", 133);
+
 
 var businessachieveOption = clone(middleOption);
 
-changeOption(historyOption, "series[2];data", salesData.overview.achieve);
-changeOption(historyOption, "series[0];data", salesData.overview.amt);
-changeOption(historyOption, "series[1];data", salesData.overview.target);
 var salehistoryOption = clone(historyOption);
-
-changeOption(historyOption, "series[2];data", bizData.overview.achieve);
-changeOption(historyOption, "series[0];data", bizData.overview.amt);
-changeOption(historyOption, "series[1];data", bizData.overview.target);
 
 var businesshistoryOption = clone(historyOption);
 
@@ -343,7 +336,7 @@ var topicMap = [
         dataname:"getMonthAchieve",
         type:"total",
         dataType:"sellout",
-        k:"target;sumdata",
+        //k:"target;sumdata",
         elementMap:{
             "series[0];data":"sumdata",
             "series[1];data":"target",
@@ -360,7 +353,7 @@ var topicMap = [
         dataname:"getMonthAchieve",
         type:"total",
         dataType:"sellin",
-        k:"target;sumdata",
+        //k:"target;sumdata",
         elementMap:{
             "series[0];data":"sumdata",
             "series[1];data":"target",

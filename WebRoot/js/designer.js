@@ -193,6 +193,7 @@
 	FieldArea = {
 		items: {},
 		checkItems:{},
+		groups: [],
 		element: null,
 		
 		init: function(options) {
@@ -211,9 +212,11 @@
 		},
 		
 		appendDimensions: function(dimensions) {
+
 			for (var i = 0; i < dimensions.length; i++) {
 				var group = dimensions[i];
-				
+				group.level = i;
+                this.groups.push(group);
 				var groupElement = $([
 				  	"<div class='fields-group'>",
 						"<div class='fields-group-header'>",
@@ -240,6 +243,7 @@
 					var item = this.appendOneField(groupElement, fieldOption);
 					item.group = group;
 					item.type = "dimension";
+					item.level = j;
 				}
 				
 				this.dimensionArea.append(groupElement);
@@ -251,7 +255,7 @@
 				var valueOption = values[i];
 				var item = this.appendOneField(this.element, valueOption);
 				item.type = "value";
-				
+				item.level = i;
 				this.valueArea.append(item);
 				this.items[valueOption.field] = item;
 			}			

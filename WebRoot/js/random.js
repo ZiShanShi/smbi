@@ -565,10 +565,14 @@ function getMutiFilter(field, rawdata, type) {
     return result;
 }
 
-function resetChartData(one) {
+function resetChartData(one, user) {
 
     var filter = getHeaderFilter();
-    var user = getLocalData("user");
+    var user;
+    if(!user) {
+        user = getLocalData("user");
+    }
+
     if(!user) {
         return;
     }
@@ -599,12 +603,13 @@ function resetChartData(one) {
     var dataname = one.dataname;
     var onefilter = one.filter;
     var aggcode = one.aggcode;
-
+    var func = one.func;
     var k = one.k;
     var mayK = [];
     if (k) {
         mayK = k.split(";");
     }
+
 
     var chartInstance = echarts.getInstanceByDom(document.getElementById(eleId));
 
@@ -632,6 +637,8 @@ function resetChartData(one) {
     if(filter) {
         params += "&filter=" + filter;
     }
+
+
 
     chartInstance.showLoading('default', {text:'获取中..'});
     Server.call("root/bi/data", params, function (result) {
@@ -674,6 +681,9 @@ function resetChartData(one) {
         var opt = JSON.stringify(option);
         chartInstance.setOption(option);
         chartInstance.hideLoading();
+        if (func) {
+            eval(func+"();");
+        }
     });
 }
 

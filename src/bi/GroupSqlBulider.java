@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class GroupSqlBulider {
+    private boolean isTable = false;
     private Logger logger;
     private List<String> measurmentList;
     private Map<MainField, LeftSegment> mainSegmentMap;
@@ -47,6 +48,11 @@ public class GroupSqlBulider {
     public GroupSqlBulider() {
         logger = Logger.getLogger(this.getClass());
     }
+
+    public GroupSqlBulider(boolean isTable) {
+        this.isTable = isTable;
+    }
+
     private void clearPreData() {
         this.aggTableName = null;
         this.aggCode = null;
@@ -139,6 +145,16 @@ public class GroupSqlBulider {
             }else {
                 addProductCode = true;
                 dragableFieldList.add(new AggDragableField(AggConstant.ProductCode, true));
+            }
+        }else {
+            long productCount =dragableFieldList.stream().filter(aggDragableField ->aggDragableField.getType().equals(EDragableFieldType.main))
+                    .filter(aggDragableField -> aggDragableField.getTableName().equalsIgnoreCase(AggConstant.Product)).count();
+            if (productCount != 0) {
+                long productCodeCount = dragableFieldList.stream().filter(aggDragableField -> aggDragableField.getField().equalsIgnoreCase(AggConstant.ProductCode)).count();
+                if(productCodeCount == 0) {
+                    addProductCode = true;
+                    dragableFieldList.add(new AggDragableField(AggConstant.ProductCode, true));
+                }
             }
         }
 
@@ -358,13 +374,18 @@ public class GroupSqlBulider {
             variantString = builder.toString();
         }
         else if(name.toLowerCase().equalsIgnoreCase("notnull")) {
-            builder = getFieldByDimenisonFilter(AggConstant.Raw);
-            String notnullString = builder.toString();
-            String[] split = notnullString.split(Util.comma);
-            String notnullFilter = Arrays.stream(split)
-                    .map(s -> Util.bracketStr(Util.stringJoin(s, AggConstant.AGG_IS_NOT_NULL )))
-                    .collect(Collectors.joining(Util.And));
-            variantString = notnullFilter;
+            if (isTable) {
+                variantString = Util.defaultFilter;
+
+            } else {
+                builder = getFieldByDimenisonFilter(AggConstant.Raw);
+                String notnullString = builder.toString();
+                String[] split = notnullString.split(Util.comma);
+                String notnullFilter = Arrays.stream(split)
+                        .map(s -> Util.bracketStr(Util.stringJoin(s, AggConstant.AGG_IS_NOT_NULL )))
+                        .collect(Collectors.joining(Util.And));
+                variantString = notnullFilter;
+            }
         }else if (name.toLowerCase().equalsIgnoreCase("user")) {
             if (userType.equalsIgnoreCase(AggConstant.SuperAdmin)) {
                 variantString = Util.String_Empty;
@@ -742,12 +763,20 @@ public class GroupSqlBulider {
                             value = Util.String_Empty;
                         }
 
-                    }else if ("countfilter".equalsIgnoreCase(name)) {
-                        String brand = paramsMap.get("countfilter");
+                    }else if ("companyTypefilter".equalsIgnoreCase(name)) {
+                        String brand = paramsMap.get("companyTypefilter");
                         if (!Util.isNull(brand)) {
-                            value = MessageFormat.format(" and {0}", Util.quotedStr(brand));
+                            value = Util.quotedStr(brand);
                         } else {
-                            value = Util.String_Empty;
+                            value = Util.defaultFilter;
+                        }
+
+                    }else if ("regionfilter".equalsIgnoreCase(name)) {
+                        String brand = paramsMap.get("regionfilter");
+                        if (!Util.isNull(brand)) {
+                            value = Util.quotedStr(brand);
+                        } else {
+                            value = Util.defaultFilter;
                         }
 
                     }
@@ -821,6 +850,7 @@ public class GroupSqlBulider {
         if (Util.isNull(filter)) {
             return paramsMap;
         }
+
         String[] filterSegment = filter.split(Util.And);
         int montno = 12;
         ContentBuilder builder = new ContentBuilder(Util.And);
