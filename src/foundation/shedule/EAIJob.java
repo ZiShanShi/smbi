@@ -1,8 +1,8 @@
 package foundation.shedule;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
+
+import java.util.Date;
 
 
 public class EAIJob extends Job {
@@ -17,7 +17,7 @@ public class EAIJob extends Job {
 	protected void doExecute() throws Exception {
 		logger.debug("开始自动执行");
 		Engine engine = Engine.getInstance();
-		engine.exec("createTransflow");
+		//engine.exec("createTransflow");
 	}
 	
 	@Override

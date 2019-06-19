@@ -718,6 +718,6 @@ function getMutiInputData(id) {
 function downloadExcel(id, url) {
     var chartInstance = echarts.getInstanceByDom(document.getElementById(id));
     chartInstance.showLoading('default', {text:'正在生成excel..'});
-    //TODO
+    //TODO  webman 支持
 
 }

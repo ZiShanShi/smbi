@@ -29,7 +29,6 @@ public class GroupSqlBulider {
     static {
         peroidNameMap.put(AggConstant.month,AggConstant.peroid);
         adminCode = Configer.getParam("adminCode");
-
     }
 
     private boolean addBrand = false;

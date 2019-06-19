@@ -97,7 +97,7 @@ var salesDetailFields = [
      {code: "company", text: "经销商", fields: [
          {caption: "经销商编码", field: "DistributorCode", },
 	    {caption: "经销商名称", field: "distributorname", },
-	    {caption: "经销商级别", field: "DistributorLevel", type:'select', url:'root/data/procedure/getSelectDistributorLevel/getDataSet?filter=1=1'},
+	    {caption: "经销商级别", field: "DistributorLevel",  type:'select', url:'root/data/procedure/getSelectDistributorLevel/getDataSet?filter=1=1'},
  	 ]},
 	 {code: "customer", text: "客户", fields: [
 		    {caption: "客户编码", field: "customercode", filterField: "customerid"},
@@ -117,7 +117,7 @@ var salesDetailFields = [
 	    {caption: "单位", field: "unitname", filterField: "unit"},
 	    {caption: "生产厂家", field: "manufacturer", filterField: "vendor"},
 	    {caption: "原始产品规格", field: "rawspecification", filterField: "rowspec"},
-	    {caption: "PRH4", field: "PRH4", filterField: "PRH4",type:'select', url:'root/data/procedure/getSelectPRH4/getDataSet?filter=1=1'},
+	    {caption: "PRH4", field: "PRH4", filterField: "PRH4",},
 	    {caption: "PRH5", field: "PRH5", filterField: "PRH5"},
 	 ]}
 ];
@@ -149,7 +149,7 @@ var purchaseDetailFields = [
 	{caption: "单位", field: "unitname", filterField: "unit"},
 	{caption: "供应商", field: "vendorname", filterField: "unit"},
 	{caption: "生产厂家", field: "manufacturer", filterField: "vendor"},
-	{caption: "PRH4", field: "PRH4", filterField: "PRH4",type:'select', url: "root/data/procedure/getSelectPRH4/getDataSet?filter=1=1"},
+	{caption: "PRH4", field: "PRH4", filterField: "PRH4" },
 	{caption: "PRH5", field: "PRH5", filterField: "PRH5"},
                      	 ]}
                      ];
@@ -301,7 +301,7 @@ var distributorAccountFields = [
                           {caption: "年份", field: "year", must:true, filterField: "year", type: "select", defaultvalue:[{code:"2017",name:"2017"},{code:"2018",name:"2018"},{code:"2019",name:"2019"}]},
                          ]},
                     	 {code: "area", text: "区域", fields: [
-							{caption: "大区", field: "region", filterField: "regionid", type: "select", defaultvalue:[ {code:"east",name:"east"},{code:"west",name:"west"},{code:"south",name:"south"},{code:"southeast",name:"southeast"},{code:"northeast",name:"northeast"},{code:"north",name:"north"}]},
+							{caption: "大区", field: "region", filterField: "region", type: "select", defaultvalue:[ {code:"east",name:"east"},{code:"west",name:"west"},{code:"south",name:"south"},{code:"southeast",name:"southeast"},{code:"northeast",name:"northeast"},{code:"north",name:"north"}]},
 						 ]},
                     	 {code: "distributor", text: "经销商", fields: [
                     	    {caption: "经销商代码", field: "distributorcode", filterField: "productid"},
@@ -318,10 +318,10 @@ var totalTerminalFields = [
                                     {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},]},
                          ]},
                     	 {code: "hierarchy", text: "架构", fields: [
-                    	    {caption: "RSM", field: "rsm", type: "select", defaultvalue:[{code:"FredZheng",name:"FredZheng"},{code:"EileenFeng",name:"EileenFeng"}]},
-                            {caption: "主管", field: "Supervisor", type: "select", defaultvalue:[{code:"RichardYang",name:"RichardYang"},{code:"EvenLiu",name:"EvenLiu"}]},
-                            {caption: "负责销售", field: "Salesperson", type: "select", defaultvalue:[{code:"CocoMao",name:"CocoMao"},{code:"MessiMei",name:"MessiMei"}]},
-                    	 ]},
+                                 {caption: "大区经理", field: "RSM", filterField: "name",showField: "RSMname",type:'select',defaultadded:true, url:"root/bi/getPosition?userType=RSM"},
+                                 {caption: "主管", field: "Supervisor", filterField: "name",showField: "Supervisorname", type:'select', parentField:"RSM", url:"root/bi/getPosition?userType=Supervisor"},
+                                 {caption: "销售", field: "Salesperson",filterField: "name", showField: "Salespersonname", type:'select', parentField:"Supervisor", url:"root/bi/getPosition?userType=Salesperson"}
+                             ]},
                     	 {code: "area", text: "区域", fields: [
                     	   {caption: "大区", field: "region", filterField: "region", type: "select", defaultvalue:[ {code:"east",name:"east"},{code:"west",name:"west"},{code:"south",name:"south"},{code:"southeast",name:"southeast"},{code:"northeast",name:"northeast"},{code:"north",name:"north"}]},
                     	 ]},

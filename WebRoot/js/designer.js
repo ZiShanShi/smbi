@@ -435,7 +435,9 @@
 							for (var i = 0; i < data.length; i++) {
 								var line = data[i];
 								var option = $("<option ></option>");
-								
+								if (!itemOption.showField) {
+                                    itemOption.showField = itemOption.field;
+								}
 								option.val(line[(itemOption.field.toLowerCase())]);
 								option.html(line[(itemOption.showField.toLowerCase())]);
 								
