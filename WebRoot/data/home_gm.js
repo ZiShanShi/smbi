@@ -1,6 +1,7 @@
 var historyOption = {
     backgroundColor:"#fff",
-    color :['#0ec1ff', '#10cdff', '#12daff', '#15ebff', '#17f8ff', '#1cfffb', '#1dfff1'],
+    //color :['#0ec1ff', '#10cdff', '#12daff', '#15ebff', '#17f8ff', '#1cfffb', '#1dfff1'],
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     tooltip: {
         trigger: 'axis',
         formatter: function(params, ticket, callback) {
@@ -149,7 +150,7 @@ var historyOption = {
                             return parseInt(params.data/1000);
                         }
                     },
-                    color: "#9bbff2",
+
                 }
             },
             data: [70620.99, 51620.86, 70770.32, 81280.29, 81600.30, 70690.38, 93690.66,81970.22,99150.02,73280.66,891129030,1220890930.8]
@@ -178,7 +179,7 @@ var historyOption = {
                             return parseInt(params.data/1000);
                         }
                     },
-                    color: "#339ddf"
+
                 }
             },
             data: [52510.88, 52510.88, 52510.88, 52510.88, 52510.88, 52510.88, 56890.54, 56890.54, 56890.54, 56890.54, 56890.54, 56890.54]
@@ -212,7 +213,6 @@ var historyOption = {
             },
             itemStyle: {
                 normal: {
-                    color: "#4356e6",
 
                 }
             },
@@ -255,7 +255,7 @@ var middleOption = {
             show: false,
             lineStyle: {
                 width: 16,
-                color: [ [0.6, '#67e0e3'],[0.8, '#37a2da'],[1, '#fd666d']]
+                color: [ [0.6, '#fd666d'],[0.8, '#37a2da'],[1, '#67e0e3']]
             }
         },
         splitLine:{

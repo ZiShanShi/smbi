@@ -68,10 +68,20 @@
 
 		<sql name="getBaseUserByOrganization">
 			SELECT Parent@{baseId}, @{baseId} from organization WHERE type = '@{baseType}' and @{baseId} is not null
+			and NOT EXISTS
+			(
+			SELECT o.ParentID, o.id from territory
+			LEFT JOIN organization o on o.LoginName = territory.@{baseType}
+			WHERE type = '@{baseType}' and o.id = organization.id
+
+			);
 		</sql>
 
 		<sql name="dropTable">
 			drop table  @{table}
 		</sql>
+
+
+
 	</dataSpace>
 </sqls>

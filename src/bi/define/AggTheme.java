@@ -251,7 +251,7 @@ public class AggTheme {
 			}
 			else {
 				for (String oneDimensionType : dimensions) {
-					String[] oneDimensionSplit = oneDimensionType.split(Util.Dot);
+					String[] oneDimensionSplit = oneDimensionType.split(Util.Spilt_Dot);
 					
 					String oneDimensionCode = oneDimensionSplit[1];
                     Dimension dimensionByCode = AggDimensionsContainer.getDimensionByCode(oneDimensionCode);

@@ -44,6 +44,7 @@ public class GroupSqlBulider {
     private boolean addRSM;
     private boolean addProductCode;
     private boolean addMainRSM;
+    private List<String> BizPeroidDimensionCode;
 
     public GroupSqlBulider() {
         logger = Logger.getLogger(this.getClass());
@@ -105,6 +106,7 @@ public class GroupSqlBulider {
 
             AggDragableField aggDragableField = new AggDragableField(field, true);
             if (aggDragableField.getType().equals(EDragableFieldType.unknown)) {
+
                 logger.error(MessageFormat.format("fields中存在不能识别的字段:{0}", field));
                 return null;
             } else if (aggDragableField.getType().equals(EDragableFieldType.agg) && aggDragableField.getDimension().getGroupId().equalsIgnoreCase(AggConstant.peroid)) {
@@ -219,6 +221,7 @@ public class GroupSqlBulider {
 
                         add2MainMap(preField, preGroupId, rawField);
                     } else {
+
                         add2MainMap(rawField, groupId, preField);
                     }
                 }
@@ -240,6 +243,10 @@ public class GroupSqlBulider {
             }
 
             }
+
+            // 添加 bizdate 之上的期间
+        checkBizPeroid(dragableFieldList);
+
         this.aggTableName = combineAggTableName(topicCode, dimensionLevelMap);
 
         this.aggCode = combineAggCode(dimensionLevelMap);
@@ -247,7 +254,7 @@ public class GroupSqlBulider {
         Dimension orgnationDimension = checkOrgnation();
         boolean hasTerritory = checkTerritory();
         //TODO  不会存在多个
-        if (!Util.isNull(orgnationDimension) && !hasTerritory) {
+        if (!Util.isNull(orgnationDimension) && !hasTerritory && isTable) {
             String dimensionCode = orgnationDimension.getCode();
             add2MainMap(dimensionCode, AggConstant.organization, dimensionCode);
             addMainRSM = true;
@@ -264,6 +271,18 @@ public class GroupSqlBulider {
 
 
         return sql;
+    }
+
+    private void checkBizPeroid(ArrayList<AggDragableField> dragableFieldList) {
+        Dimension dimension = dimensionLevelMap.get(AggConstant.peroid);
+        if (!dimension.getCode().equalsIgnoreCase(AggConstant.BizDate)) {
+            return;
+        }
+        BizPeroidDimensionCode = dragableFieldList.stream().filter(aggDragableField -> aggDragableField.getType().equals(EDragableFieldType.main))
+                .filter(aggDragableField -> aggDragableField.getTableName().equalsIgnoreCase("md_peroid"))
+                .filter(aggDragableField -> !aggDragableField.getField().equalsIgnoreCase(AggConstant.BizDate))
+                .map(aggDragableField -> aggDragableField.getField())
+                .collect(Collectors.toList());
     }
 
     private void add2MainMap(String rawField, String groupId, String subField) {
@@ -364,8 +383,16 @@ public class GroupSqlBulider {
                 }
 
                 if (Util.isNull(leftSegment)) {
+                    Dimension dimensionByCode = AggDimensionsContainer.getDimensionByCode(subFilterName);
+                    if (!Util.isNull(dimensionByCode)) {
+                        if (oneSegment.indexOf(Util.Dot) != -1) {
+                            String preName = oneSegment.split(Util.Spilt_Dot)[0];
+                            oneSegment = oneSegment.replace(preName, AggConstant.agg);
+                        }
 
+                    }
                     builder.append(MessageFormat.format("({0})", oneSegment));
+
                 } else {
                     oneSegment = oneSegment.replace(filterName, subFilterName);
                     builder.append(MessageFormat.format("({0})", MessageFormat.format(AggConstant.Select_Field_Template, leftSegment.getLeftTableAcronym(), oneSegment)));
@@ -411,7 +438,10 @@ public class GroupSqlBulider {
                 field = code;
                 finalFieldSet.add(field.trim() + "name");
             }
-
+            else if (groupId.equalsIgnoreCase(AggConstant.organization) && checkTerritory()) {
+                field = code;
+                finalFieldSet.add(field.trim() + "name");
+            }
             if (AggConstant.Raw.equalsIgnoreCase(type)) {
                 field = MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.agg, code);
             } else if(AggConstant.Real.equalsIgnoreCase(type)){
@@ -477,7 +507,13 @@ public class GroupSqlBulider {
                 if (leftSegment.getLeftTable().equalsIgnoreCase(AggConstant.Territory)) {
                     finalFieldSet.add(mainField + AggConstant.Name);
                 }
-                field = mainField;
+
+                if (!Util.isNull(BizPeroidDimensionCode) && BizPeroidDimensionCode.contains(mainField)) {
+                    field = MessageFormat.format("DATENAME({0},{1}) as {2}", mainField.toUpperCase(), AggConstant.BizDate, mainField);
+                } else {
+                    field = mainField;
+                }
+
             }else if (AggConstant.GroupBy.equalsIgnoreCase(type)) {
                 field = MessageFormat.format(AggConstant.Select_Field_Template, AggConstant.A01, mainField);
                 if (leftSegment.getLeftTable().equalsIgnoreCase(AggConstant.Territory)) {

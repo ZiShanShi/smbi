@@ -49,6 +49,9 @@ public class Console extends Callable {
 			    aggAchieve();
             } else if ("refreshterritory".equalsIgnoreCase(operator)) {
 			    refreshTerrtory();
+            }else if ("getposition".equalsIgnoreCase(operator)) {
+                getPosition();
+
             }
 
 
@@ -57,6 +60,26 @@ public class Console extends Callable {
             writer.ReplyError("bad bi console message path:" + fullPath);
         }
 	}
+
+    private void getPosition() {
+        String userType = request.getParameter("userType");
+        String parent = request.getParameter("parentField");
+        String parentId = request.getParameter("parentId");
+        String parentFilter = " 1 = 1";
+        if (!Util.isNull(parent) && !Util.isNull(parentId)) {
+            parentFilter = Util.quotedEqualStr(parent, parentId);
+        }
+        try {
+            NamedSQL getPosition = NamedSQL.getInstance("getPosition");
+            getPosition.setParam("userType", userType);
+            getPosition.setParam("parentFilter", parentFilter);
+            EntitySet entitySet = SQLRunner.getEntitySet(getPosition);
+            resultPool.addValue("rows",entitySet);
+            resultPool.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void refreshTerrtory() {
         try {
@@ -260,6 +283,7 @@ public class Console extends Callable {
 	private void createBaseAggregation() throws Exception {
 		ThemeContext context = new ThemeContext(request, onlineUser);
 		Operator operator = new Operator(context);
+
 		try {
 			engine.exec(operator, "createbaseaggregation");
 

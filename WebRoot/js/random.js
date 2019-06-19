@@ -246,7 +246,7 @@ function hideMask() {
 }
 
 
-function initDateime(type) {
+function initDateime(type, func) {
 	if('start' == type) {
 		//1. set begin date, default this month begin
 		var starttime = FilterArea.getItem('startDate').input.val();
@@ -288,7 +288,9 @@ function initDateime(type) {
             select.val(endtime);
         }
     }
-			
+    if (func) {
+        eval(func + "();");
+    }
 }
 
 function statusToText(status) {
@@ -356,18 +358,26 @@ function initPeroidOther() {
     var quarter = getLocalData("quarter");
     var monthselect = $("#month");
     monthselect.empty();
+    if (quarter) {
+        var quarters = quarter.split(";");
+        quarters.forEach(function (one) {
+            var start = (one - 1) <0? 0 : (one - 1);
+            for(var i = start*3; i < one*3; i++) {
 
-    var start = (quarter - 1) <0? 0 : (quarter - 1);
-    for(var i = start*3; i < quarter*3; i++) {
+                var opt = $('<option />', {
+                    value: i + 1,
+                    text: i + 1
+                });
+                opt.appendTo(monthselect);
 
-        var opt = $('<option />', {
-            value: i + 1,
-            text: i + 1
+            }
         });
-        opt.appendTo(monthselect);
 
+
+        monthselect.multiselect('refresh');
+        monthselect.multiselect('uncheckAll');
     }
-    monthselect.multiselect('refresh');
+
     existAdd("month");
     refreshChart(chartRefresh);
 
@@ -679,6 +689,7 @@ function resetChartData(one, user) {
 
         }
         var opt = JSON.stringify(option);
+        option.toolbox[0].feature.myDownload.onclick = downloadExcel(eleId, "root/bi/data?" + params);
         chartInstance.setOption(option);
         chartInstance.hideLoading();
         if (func) {
@@ -704,3 +715,9 @@ function getMutiInputData(id) {
     return result;
 }
 
+function downloadExcel(id, url) {
+    var chartInstance = echarts.getInstanceByDom(document.getElementById(id));
+    chartInstance.showLoading('default', {text:'正在生成excel..'});
+    //TODO
+
+}

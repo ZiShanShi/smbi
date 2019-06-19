@@ -132,7 +132,8 @@ var mapoption = {
 var constituteoption = {
 
     backgroundColor: '#fff',
-    color: ['#585247', '#31C5C0', '#009D85', '#265cc5d1'],
+    //color: ['#585247', '#31C5C0', '#009D85', '#265cc5d1'],
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     title: {
         text: '终端总数',
         subtext: 2843,
@@ -289,7 +290,7 @@ var constituteoption = {
 
 
 var accountOption = {
-
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     tooltip: {
         trigger: 'axis',
         formatter: function (params, ticket, callback) {
@@ -398,7 +399,8 @@ var accountsoption = {
             }
         }
     },
-    color: ['#8fc31f', '#f35833', '#00ccff', '#ffcc00'],
+    //color: ['#8fc31f', '#f35833', '#00ccff', '#ffcc00'],
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     toolbox: {
         show: true,
         feature: {

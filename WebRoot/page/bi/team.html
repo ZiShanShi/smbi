@@ -55,10 +55,10 @@
 
                 for(var i = 0; i < result.name.length; i++) {
                     var oneData = new Array();
-                    oneData[0] = result.achieve[i];
-                    oneData[1] = result.growth[i];
-                    oneData[2] = parseInt(result.ytd[i])/1000;
-                    oneData[3] = result.name[i];
+                    oneData[0] = typeof result.achieve[i] == "undefined" ?  0 : result.achieve[i];
+                    oneData[1] = typeof result.growth[i] == "undefined" ?  0 : result.growth[i];
+                    oneData[2] = typeof result.ytd[i] == "undefined" ?  0 : parseInt(result.ytd[i])/1000;
+                    oneData[3] = typeof result.name[i] == "undefined" ?  0 : result.name[i];
                     optionData[i] = oneData;
 				}
 				option.series[0].data = optionData;

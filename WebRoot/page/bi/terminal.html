@@ -78,6 +78,32 @@
     }
 
 
+    function initRegionData() {
+        var user = getLocalData("user");
+        var params = "userType="+user.type + "&userId=" + user.name;
+        Server.getData("root/data/procedure/getRegionByPosition/getDataSet", params, function (regions) {
+            if (regions) {
+                var area = $("#area");
+                area.empty();
+                var opt = $('<option />', {
+                    value: "ALL",
+                    text: "ALL"
+                });
+                opt.appendTo(area);
+
+                regions.forEach(function (one) {
+                    var region = one.region;
+                    var opt = $('<option />', {
+                        value: region,
+                        text: region
+                    });
+                    opt.appendTo(area);
+                });
+                area.multiselect("refresh");
+            }
+        });
+    }
+
     $(document).ready(
         function () {
             var middleChart = echarts.init(document.getElementById("map"));
@@ -149,6 +175,11 @@
             initCommonMutiSelect();
 
             initPeroidMonth();
+
+            var user = getLocalData("user");
+            if (user && user.type.toLowerCase() != "superadmin") {
+                initRegionData();
+            }
         });
 </script>
 

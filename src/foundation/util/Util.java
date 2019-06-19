@@ -737,80 +737,98 @@ public class Util {
 	}
 
 	public static void changeData(String basePosition, String baseId, String adminStr) throws Exception {
-	    if (Util.isNull(baseId)) {
-	        baseId = "id";
-        }
-        if (Util.isNull(baseId)) {
-	        baseId = "admin";
-        }
- 		//1 根据岗位 重建 territory 表
-        NamedSQL getOrganizationType = NamedSQL.getInstance("getOrganizationType");
-        EntitySet typeSet = SQLRunner.getEntitySet(getOrganizationType);
-        List<String> typeList = typeSet.getFieldList("type");
-        if (!typeList.contains(basePosition)) {
-            throw new Exception("未包含最基础岗位");
-        }
-        boolean exists = checkTableExists("territory");
-        if (exists) {
-            NamedSQL dropTable = NamedSQL.getInstance("dropTable");
-            dropTable.setParam("table", "territory");
-            SQLRunner.execSQL(dropTable);
-        }
-
-        if (!typeList.contains(adminStr)) {
-            typeList.add(adminStr);
-        }
-        ContentBuilder builder = new ContentBuilder(Util.comma);
-        for (String type : typeList) {
-            builder.append(MessageFormat.format("[{0}] nvarchar({1}) NULL", type, 32));
-            builder.append(MessageFormat.format("[{0}] nvarchar({1}) NULL", Util.stringJoin(type, "name"), 32));
-        }
-        String fields = builder.toString();
-
-        NamedSQL createSql = NamedSQL.getInstance("createCommonTableTemplate");
-        createSql.setParam(AggConstant.Sql_Field_tableName, "territory");
-        createSql.setParam(AggConstant.Sql_Field_fields, fields);
-        SQLRunner.execSQL(createSql);
+		if (Util.isNull(baseId)) {
+			baseId = "id";
+		}
+		if (Util.isNull(baseId)) {
+			baseId = "admin";
+		}
 
 
-        //2 刷新数据
+		try {
+
+			//1 根据岗位 重建 territory 表
+			NamedSQL getOrganizationType = NamedSQL.getInstance("getOrganizationType");
+			EntitySet typeSet = SQLRunner.getEntitySet(getOrganizationType);
+			List<String> typeList = typeSet.getFieldList("type");
+			if (!typeList.contains(basePosition)) {
+				throw new Exception("未包含最基础岗位");
+			}
+			boolean exists = checkTableExists("territory");
+			if (exists) {
+				NamedSQL dropTable = NamedSQL.getInstance("dropTable");
+				dropTable.setParam("table", "territory");
+				SQLRunner.execSQL(dropTable);
+			}
+
+			if (!typeList.contains(adminStr)) {
+				typeList.add(adminStr);
+			}
+			ContentBuilder builder = new ContentBuilder(Util.comma);
+			for (String type : typeList) {
+				builder.append(MessageFormat.format("[{0}] nvarchar({1}) NULL", type, 32));
+				builder.append(MessageFormat.format("[{0}] nvarchar({1}) NULL", Util.stringJoin(type, "name"), 32));
+			}
+			String fields = builder.toString();
+
+			NamedSQL createSql = NamedSQL.getInstance("createCommonTableTemplate");
+			createSql.setParam(AggConstant.Sql_Field_tableName, "territory");
+			createSql.setParam(AggConstant.Sql_Field_fields, fields);
+			SQLRunner.execSQL(createSql);
+
+			//测试中有 同岗位上下级情况  线上应无此中数据
+			for (String position : typeList) {
+				createTerritoryEntity(position, baseId, adminStr);
+			}
+
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	private static void createTerritoryEntity(String basePosition, String baseId, String adminStr) throws Exception {
+		if (basePosition.equalsIgnoreCase(adminStr)) {
+			return;
+		}
+		//2 刷新数据
 		NamedSQL getemployeeidSql = NamedSQL.getInstance("getBaseUserByOrganization");
-        getemployeeidSql.setParam("baseId", baseId);
-        getemployeeidSql.setParam("baseType", basePosition);
+		getemployeeidSql.setParam("baseId", baseId);
+		getemployeeidSql.setParam("baseType", basePosition);
 		EntitySet employeeSet = SQLRunner.getEntitySet(getemployeeidSql);
 		List<String> idList = new ArrayList<String>();
 		List<String> parentIdList = new ArrayList<String>();
 		//1所有一级岗位
 		for (Entity entity : employeeSet) {
-			String id = entity.getString(baseId);
-			idList.add(id);
-			String parentid = entity.getString("Parent" + baseId);
-			parentIdList.add(parentid);
-		}
-		
+            String id = entity.getString(baseId);
+            idList.add(id);
+            String parentid = entity.getString("Parent" + baseId);
+            parentIdList.add(parentid);
+        }
+
 		for (String id : parentIdList) {
-			if (idList.contains(id)) {
-				idList.remove(id);
-			}
-		}
-		
+            if (idList.contains(id)) {
+                idList.remove(id);
+            }
+        }
+
 		//2格式新架构
 		for (String id : idList) {
-			Entity entity = new Entity("territory");
+            Entity entity = new Entity("territory");
             NamedSQL getAdminByOrganization = NamedSQL.getInstance("getUserByOrganization");
             getAdminByOrganization.setParam("loginName", id);
             Entity userEntity = SQLRunner.getEntity(getAdminByOrganization);
             String englishName = userEntity.getString("EnglishName");
             entity.set(basePosition, id);
             entity.set(basePosition + "name", englishName);
-			String childId = id;
-			field = 1;
-			
-			while (field <= entity.getFieldCount()) {
-				String childid = addparentid(entity, childId, "getparentidfromorganization", baseId);
-				
-				if (childid == null) {
-				    //中间断层 或者RSM
+            String childId = id;
+            field = 1;
+
+            while (field <= entity.getFieldCount()) {
+                String childid = addparentid(entity, childId, "getparentidfromorganization", baseId);
+
+                if (childid == null) {
+                    //中间断层 或者RSM
                     String adminCode = Configer.getParam("adminCode");
                     //strumann 特殊
                     getAdminByOrganization.setParam("loginName", adminCode);
@@ -820,14 +838,13 @@ public class Util {
                     entity.set(adminStr, adminId);
                     entity.set(adminStr+"name", adminname);
                     break;
-				}
-				childId = childid;
-				field++;
+                }
+                childId = childid;
+                field++;
 
-			}
-			DataHandler.addLine(entity);
-		}
-		
+            }
+            DataHandler.addLine(entity);
+        }
 	}
 
 	protected static String addparentid(Entity entity, String id, String sqlname, String baseId) throws Exception {
@@ -1180,6 +1197,13 @@ public class Util {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		return calendar.get(Calendar.MONTH) + 1;
+	}
+
+	public static int getYear(String value) throws ParseException {
+		Date date = StringToDate(value);
+        Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		return calendar.get(Calendar.YEAR);
 	}
 
 	public static void getFile(byte[] bfile, String filePath, String fileName) {

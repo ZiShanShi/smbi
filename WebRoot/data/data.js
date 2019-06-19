@@ -88,9 +88,9 @@ var salesDetailFields = [
  		{caption: "销售日期", field: "bizdate",type:'date'},
  		{caption: "月", field: "month",type:'select',
  			defaultvalue:[
- 			              {code:"1",name:"1"},{code:"2",name:"2"},{code:"3",name:"3"},
- 			              {code:"4",name:"4"},{code:"5",name:"5"},{code:"6",name:"6"},{code:"7",name:"7"},
- 			              {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
+ 			              {code:"01",name:"1"},{code:"02",name:"2"},{code:"03",name:"3"},
+ 			              {code:"04",name:"4"},{code:"05",name:"5"},{code:"06",name:"6"},{code:"07",name:"7"},
+ 			              {code:"08",name:"8"},{code:"09",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
  			              ]
  		},
      ]},
@@ -129,9 +129,9 @@ var purchaseDetailFields = [
 	{caption: "采购日期", field: "bizDate",type:'date'},
 	{caption: "月", field: "month",type:'select',
 		defaultvalue:[
-		              {code:"1",name:"1"},{code:"2",name:"2"},{code:"3",name:"3"},
-		              {code:"4",name:"4"},{code:"5",name:"5"},{code:"6",name:"6"},{code:"7",name:"7"},
-		              {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
+		              {code:"01",name:"1"},{code:"02",name:"2"},{code:"03",name:"3"},
+		              {code:"04",name:"4"},{code:"05",name:"5"},{code:"06",name:"6"},{code:"07",name:"7"},
+		              {code:"08",name:"8"},{code:"09",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
 			              ]
 		},
 	   ]},
@@ -159,9 +159,9 @@ var inventoryDetailFields = [
               	{caption: "库存日期", field: "endDate",type:'date',must:true},
               	{caption: "月", field: "month",type:'select',
               		defaultvalue:[
-              		            {code:"1",name:"1"},{code:"2",name:"2"},{code:"3",name:"3"},
-              		            {code:"4",name:"4"},{code:"5",name:"5"},{code:"6",name:"6"},{code:"7",name:"7"},
-              		            {code:"8",name:"8"},{code:"9",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
+              		            {code:"01",name:"1"},{code:"02",name:"2"},{code:"03",name:"3"},
+              		            {code:"04",name:"4"},{code:"05",name:"5"},{code:"06",name:"6"},{code:"07",name:"7"},
+              		            {code:"08",name:"8"},{code:"09",name:"9"},{code:"10",name:"10"},{code:"11",name:"11"},{code:"12",name:"12",selected:true},
               		            ]
               		},
               	   ]},

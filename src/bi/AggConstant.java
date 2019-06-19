@@ -116,6 +116,7 @@ public class AggConstant {
 
     public static ArrayList<String> filedUnCatchList = new ArrayList<>();
     public static ArrayList<String> DDTTableList = new ArrayList<>();
+
     public static HashMap<String, String> AchieveMustTableNameMap = new HashMap<>();
     public static ArrayList<String> AchieveCanTableNameList = new ArrayList<>();
 
@@ -128,6 +129,7 @@ public class AggConstant {
     public static String DDI_S = "DDIDaily_S";
     public static String DDI_P = "DDIDaily_P";
     public static String DDI_I = "DDIDaily_I";
+
     public static String month = "month";
     public static String agg = "agg";
     public static String roxolidachieve = "roxolidachieve";
@@ -229,7 +231,6 @@ public class AggConstant {
         DDTTableList.add(DDI_P);
         DDTTableList.add(DDI_I);
 
-
         AchieveCanTableNameList.add("o" );
         AchieveCanTableNameList.add("d" );
 
@@ -249,4 +250,6 @@ public class AggConstant {
     public static ArrayList<String> getDDITableds() {
         return DDTTableList;
     }
+
+
 }

@@ -66,6 +66,7 @@
 	
 //**********************2.中间，区域达成
 	var barlineoption = {
+        color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 	        backgroundColor: "#fff",
 	        tooltip: {
 	            trigger: 'axis',
@@ -193,9 +194,7 @@
 	            "type": "bar",
 	            "barGap": "10%",
 	            "itemStyle": {
-	                "normal": {
-	                    "color": "rgba(255,144,128,1)",
-	                }
+
 	            },
 	            "data": [34888,11227,9582,31655,11256],
 	        },
@@ -204,9 +203,7 @@
 	                "name": "指标",
 	                "type": "bar",
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(0,191,183,1)",
-	                    }
+
 	                },
 	                "data": [
 							11807,
@@ -222,10 +219,7 @@
 	                symbol:'circle',
 	                yAxisIndex: 1,
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(152,130,128,13)",
-	                        "barBorderRadius": 0,
-	                    }
+
 	                },
 	                "data": [
 						295.47,
@@ -262,6 +256,7 @@
 	
 //**********************3.上右，品牌达成
 	var productlineoption = {
+        color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 			 tooltip: {
 			        trigger: 'axis',
 			        formatter: function(params, ticket, callback) {
@@ -392,9 +387,7 @@
 	            "type": "bar",
 	            "barGap": "10%",
 	            "itemStyle": {
-	                "normal": {
-	                    "color": "rgba(255,144,128,1)",
-	                }
+
 	            },
 	            "data": [
 	                   91612,
@@ -407,9 +400,7 @@
 	                "name": "指标",
 	                "type": "bar",
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(0,191,183,1)",
-	                    }
+
 	                },
 	                "data": [
 						67602,
@@ -422,10 +413,7 @@
 	                symbol:'circle',
 	                yAxisIndex: 1,
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(152,130,128,13)",
-	                        "barBorderRadius": 0,
-	                    }
+
 	                },
 	                "data": [
 						135,
@@ -454,7 +442,8 @@
 //**********************4.下中，经销商排名
 	
     var distributorOption = {
-        color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
+        //color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
+        color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     		 tooltip: {
     		        trigger: 'axis',
     		        formatter: function(params, ticket, callback) {
@@ -600,7 +589,7 @@ var topicMap = [
         id:"saleachieve",
         topicCode: "achieve",
         fields: "",
-        dataname:"getGaugeAchieve",
+        dataname:"getDistributorGaugeAchieve",
         type:"total",
         dataType:"Distributor",
 		k:"target;sumdata",
@@ -617,12 +606,12 @@ var topicMap = [
         id:"salehistory",
         topicCode: "achieve",
         fields: "",
-        dataname:"getAreaAchieve",
+        dataname:"getDistributorAreaAchieve",
         type:"total",
         dataType:"Distributor",
         k:"target;sumdata",
         elementMap:{
-            "xAxis[0];data":"Region",
+            "xAxis[0];data":"region",
             "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",
@@ -634,12 +623,12 @@ var topicMap = [
         id:"productlineSale",
         topicCode: "achieve",
         fields: "",
-        dataname:"getBrandAchieve",
+        dataname:"getDistributorBrandAchieve",
         type:"total",
         dataType:"Distributor",
         k:"target;sumdata",
         elementMap:{
-            "xAxis[0];data":"Brand",
+            "xAxis[0];data":"brand",
             "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",

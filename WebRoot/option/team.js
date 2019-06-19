@@ -31,7 +31,7 @@ var middleOption = {
 				show: false,
 				lineStyle: {
 					width: 16,
-					color: [ [0.6, '#67e0e3'],[0.8, '#37a2da'],[1, '#fd666d']]
+                    color: [ [0.6, '#fd666d'],[0.8, '#37a2da'],[1, '#67e0e3']]
 				}
 			},
 			splitLine:{
@@ -61,14 +61,19 @@ var middleOption = {
 
 //**************散点图******
 var scatterOption = {
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 	    yAxis: {
-	        name:"达成率",
-	        axisLabel: {
+	        name:"增长率",
+			type:"value",
+            scale:"true",
+            axisLabel: {
 	            formatter: '{value} %'
 	        },
 	    },
 	    xAxis: {
-	         name:"增长率",
+	    	name:"达成率",
+            type:"value",
+            scale:"true",
 	        axisLabel: {
 	            formatter: '{value} %'
 	        },
@@ -77,8 +82,8 @@ var scatterOption = {
 	        show:true,
 	        formatter: function(param) {
 	                    let data = param.data;
-	                    let value = "成员：" + data[3]+ "<br/>" + "达成率:" + data[0]
-	                    + "<br/>" + "增长率:" + data[1]
+	                    let value = "成员：" + data[3]+ "<br/>" + "增长率:" + data[0]
+	                    + "<br/>" + "达成率:" + data[1]
 	                    + "<br/>" + "销售额:" + data[2]
 	                    return value;
 	                }
@@ -97,20 +102,7 @@ var scatterOption = {
 	            return Math.sqrt(data[2])/3;
 	        },
 	        itemStyle: {
-	            normal: {
-	                color: function(params){
-	                    // build a color map as your need.
-	                    let colorList = [
-	                        '#DF6A85',
-	                        '#716AA9',
-	                        '#34BCC3',
-	                        '#FC6D44',
-	                        '#0B9FCA',
-	                        '#73C234',
-	                    ];
-	                    return colorList[params.dataIndex];
-	                }
-	            }
+
 	        },
 	        label: {
 	        	normal:{
@@ -137,6 +129,7 @@ var scatterOption = {
 //****************各成员排名
 
 var salerank = {
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 		"legend": {
             textStyle: {
                 color: '#222',
@@ -226,9 +219,7 @@ var salerank = {
             "type": "bar",
             "barGap": "10%",
             "itemStyle": {
-                "normal": {
-                    "color": "rgba(255,144,128,1)",
-                }
+
             },
             "data":salesdataset[2],
         },
@@ -237,9 +228,7 @@ var salerank = {
                 "name": "指标",
                 "type": "bar",
                 "itemStyle": {
-                    "normal": {
-                        "color": "rgba(0,191,183,1)",
-                    }
+
                 },
                 "data": salesdataset[1]
             }, {
@@ -249,10 +238,7 @@ var salerank = {
                 symbol:'circle',
                 yAxisIndex: 1,
                 "itemStyle": {
-                    "normal": {
-                        "color": "rgba(152,130,128,13)",
-                        "barBorderRadius": 0,
-                    }
+
                 },
                 "data": salesdataset[3]
             },
@@ -260,6 +246,7 @@ var salerank = {
 };
 
 var businessrank = {
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 		"legend": {
             textStyle: {
                 color: '#222',
@@ -350,9 +337,7 @@ var businessrank = {
             "type": "bar",
             "barGap": "10%",
             "itemStyle": {
-                "normal": {
-                    "color": "rgba(255,144,128,1)",
-                }
+
             },
             "data":purchasedataset[2],
         },
@@ -361,9 +346,7 @@ var businessrank = {
                 "name": "指标",
                 "type": "bar",
                 "itemStyle": {
-                    "normal": {
-                        "color": "rgba(0,191,183,1)",
-                    }
+
                 },
                 "data": purchasedataset[1]
             }, {
@@ -373,10 +356,7 @@ var businessrank = {
                 symbol:'circle',
                 yAxisIndex: 1,
                 "itemStyle": {
-                    "normal": {
-                        "color": "rgba(152,130,128,13)",
-                        "barBorderRadius": 0,
-                    }
+
                 },
                 "data": purchasedataset[3]
             },

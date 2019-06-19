@@ -1,5 +1,6 @@
 
 var achieveOption = {
+    color:["#373e41", "#446d85", "#3d67c7"],
     backgroundColor:"#fff",
     tooltip : {
         formatter: "{a} <br/>{b} = {c}%"
@@ -63,6 +64,7 @@ var achieveOption = {
 };
 
 var totalOption =  {
+    color:["#373e41", "#446d85", "#3d67c7"],
     toolbox: {
         show: true,
         feature: {
@@ -114,7 +116,7 @@ var totalOption =  {
 
 //---------------左上
 var piesoption = {
-
+    color:["#373e41", "#446d85", "#3d67c7"],
     toolbox: {
         show: true, feature: {
             myDownload: {
@@ -360,7 +362,9 @@ var purchasedata = [{
     }
 ];
 var salesAcountOption = {
-
+    //color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00', '#37a2da'],
+    //color:["#373e41", "#446d85", "#3d67c7",'#37a2da'],
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     tooltip: {
         trigger: 'item',
         formatter: function (params) {
@@ -370,7 +374,7 @@ var salesAcountOption = {
             return name + ":\n" + formatterOneMoney(data) + "k (" + percent+")";
         }
     },
-    color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00', '#37a2da'],
+
     legend: {
         data: ['公立', '民营', '连锁诊所', '技工加工所', '二级分销商'],
     },
@@ -401,7 +405,8 @@ var salesAcountOption = {
             normal: {
                 label: {
                     show: true,
-                    //	                            position:'inside',
+
+                    //	                             position:'inside',
                     formatter: function (params) {
                         var data = params.data.value;
                         var percent = params.percent;
@@ -1044,7 +1049,8 @@ var barData1 = [7062.98, 5162.85, 7077.31, 8128.29, 8160.30, 7069.38, 9369.64, 8
 var barData2 = [7646.61, 3676.97, 3676.97, 7102.17, 7861.35, 8374.55, 7696.98, 7798.31, 7653.95, 8287.94, 7514.01, 9116.28, 8998.56];
 
 var compareoption = {
-    color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
+    //color: ['#ff9080', '#00bfb7', '#988280', '#ffcc00','#37a2da'],
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     tooltip: {
         trigger: 'axis',
         formatter: function (params, ticket, callback) {
@@ -1238,7 +1244,7 @@ var heatoption = {
 };
 
 var inventoryOption = {
-
+    color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     tooltip: {
         trigger: 'axis',
         formatter: function (params, ticket, callback) {
@@ -1331,13 +1337,6 @@ var inventoryOption = {
         name: '库存',
         barGap: "10%",
         itemStyle: {
-            normal: {
-                color: function (params) {
-                    return '#28ffb3'
-                },
-                barBorderRadius: [10, 10, 0, 0],
-
-            }
         },
         data: [10150, 8337, 7568, 7377, 5078, 4689, 4486, 4420, 2789, 2507]
     }
@@ -1347,10 +1346,6 @@ var inventoryOption = {
             name: '账期',
             barGap: "10%",
             itemStyle: {
-                normal: {
-                    barBorderRadius: [10, 10, 0, 0],
-
-                }
             },
             data: [1050, 837, 758, 737, 507, 468, 446, 420, 278, 250]
         }]

@@ -66,6 +66,7 @@
 	
 //**********************2.中间，区域达成
 	var barlineoption = {
+        color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 	        backgroundColor: "#fff",
 	        "tooltip": {
 	            "trigger": "axis",
@@ -196,9 +197,7 @@
 	            "type": "bar",
 	            "barGap": "10%",
 	            "itemStyle": {
-	                "normal": {
-	                    "color": "rgba(255,144,128,1)",
-	                }
+
 	            },
 	            "data": [
 	                30677,
@@ -213,9 +212,7 @@
 	                "name": "指标",
 	                "type": "bar",
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(0,191,183,1)",
-	                    }
+
 	                },
 	                "data": [
 	                    31022,
@@ -231,10 +228,7 @@
 	                symbol:'circle',
 	                yAxisIndex: 1,
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(152,130,128,13)",
-	                        "barBorderRadius": 0,
-	                    }
+
 	                },
 	                "data": [
 	                    98.89,
@@ -269,6 +263,8 @@
 	
 //**********************3.上右，品牌达成
 	var productlineoption = {
+        //color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
+        color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 	        backgroundColor: "#fff",
 	        "tooltip": {
 	            "trigger": "axis",
@@ -393,9 +389,7 @@
 	            "type": "bar",
 	            "barGap": "10%",
 	            "itemStyle": {
-	                "normal": {
-	                    "color": "rgba(255,144,128,1)",
-	                }
+
 	            },
 	            "data": [
 	                   84505,
@@ -407,9 +401,7 @@
 	                "name": "指标",
 	                "type": "bar",
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(0,191,183,1)",
-	                    }
+
 	                },
 	                "data": [
 						59835,
@@ -422,10 +414,7 @@
 	                symbol:'circle',
 	                yAxisIndex: 1,
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(152,130,128,13)",
-	                        "barBorderRadius": 0,
-	                    }
+
 	                },
 	                "data": [
 						141,
@@ -452,6 +441,7 @@
 
 //**********************4.下左，经销商排名	
     var distributorOption = {
+        color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
     		"tooltip": {
 	            "trigger": "axis",
 	            "axisPointer": {
@@ -548,9 +538,7 @@
                 barGap: "10%",
                 itemStyle: {
                     normal: {
-                        color: function(params) {
-                            return '#28ffb3'
-                        },
+
                         barBorderRadius: [10,10,0,0],
 
                     }
@@ -576,6 +564,7 @@
     
 //**********************5.右下，a/i排名
     var provienceOption = {
+        color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 	        backgroundColor: "#fff",
 	        "tooltip": {
 	            "trigger": "axis",
@@ -701,9 +690,7 @@
 	            "type": "bar",
 	            "barGap": "10%",
 	            "itemStyle": {
-	                "normal": {
-	                    "color": "rgba(255,144,128,1)",
-	                }
+
 	            },
 	            "data": [
 	                30677,
@@ -718,9 +705,7 @@
 	                "name": "Implant",
 	                "type": "bar",
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(0,191,183,1)",
-	                    }
+
 	                },
 	                "data": [
 	                    31022,
@@ -736,10 +721,7 @@
 	                symbol:'circle',
 	                yAxisIndex: 1,
 	                "itemStyle": {
-	                    "normal": {
-	                        "color": "rgba(152,130,128,13)",
-	                        "barBorderRadius": 0,
-	                    }
+
 	                },
 	                "data": [
 	                    0.89,
@@ -755,6 +737,7 @@
 	//---------------------------------------
     
    var dsoOption = {
+       color:["#373e41", "#446d85", "#3d67c7",'#37a2da','#988280'],
 		   "tooltip": {
 	            "trigger": "axis",
 	            "axisPointer": {
@@ -849,9 +832,7 @@
         barGap: "10%",
         itemStyle: {
             normal: {
-                color: function(params) {
-                    return '#ff9080'
-                },
+
                 barBorderRadius: [10,10,0,0],
 
             }
@@ -864,9 +845,7 @@
                barGap: "10%",
                itemStyle: {
                    normal: {
-                       color: function(params) {
-                           return '#00bfb7'
-                       },
+
                        barBorderRadius: [10,10,0,0],
 
                    }
@@ -917,7 +896,7 @@ var topicMap = [
         dataType:'sellout',
         k:"target;sumdata",
         elementMap:{
-            "xAxis[0];data":"Brand",
+            "xAxis[0];data":"brand",
             "series[0];data":"sumdata",
             "series[1];data":"target",
             "series[2];data":"achieve",

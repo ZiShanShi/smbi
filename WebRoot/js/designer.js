@@ -408,7 +408,8 @@
 				item.text.attr("title", itemOption.caption);
 				item.must = typeof(itemOption.must) == 'undefined' ? false: itemOption.must;
 				item.equal = typeof(itemOption.equal) == 'undefined' ? false: itemOption.equal;
-				
+				item.option = itemOption;
+
 				var input = $("#select_", item);
 				var data = itemOption.defaultvalue;
 				input.empty();
@@ -421,14 +422,22 @@
 				
 				var dataurl = itemOption.url;
 				if(dataurl) {
+                    if (itemOption.parentField) {
+                        var value = me.getValue(itemOption.parentField)
+                        if (value) {
+                            dataurl += "&parentField=" + itemOption.parentField + "&parentId=" + value;
+                        }
+                    }
+
 					Server.getData(dataurl, function(data) {
+
 						if (data && data.length) {
 							for (var i = 0; i < data.length; i++) {
 								var line = data[i];
 								var option = $("<option ></option>");
 								
-								option.val(line[(itemOption.field).toLowerCase()]);
-								option.html(line[(itemOption.filterField).toLowerCase()]);
+								option.val(line[(itemOption.field.toLowerCase())]);
+								option.html(line[(itemOption.showField.toLowerCase())]);
 								
 								input.append(option);
 							}
@@ -468,7 +477,8 @@
 				item.text.attr("title", itemOption.caption);
 				item.must = typeof(itemOption.must) == 'undefined' ? false: itemOption.must;
 				item.equal = typeof(itemOption.equal) == 'undefined' ? false: itemOption.equal;
-				
+                item.option = itemOption;
+
 				item.editorContainer = $("#editorContainer", item);
 				item.input = $("#date_", item);
 
@@ -479,12 +489,13 @@
                             var line = data[0];
 							var date = line[itemOption.field.toLowerCase()];
                             item.input.val(date);
+                            me.onFilterChange(itemOption.field, date, this);
                         }
                     });
                 }else {
-                    var datetime = new DateTime();
+                   /* var datetime = new DateTime();
                     var endtime = datetime.str;
-                    item.input.val(endtime);
+                    item.input.val(endtime);*/
 				}
 
 
@@ -511,7 +522,8 @@
 				item.text.attr("title", itemOption.caption);
 				item.must = typeof(itemOption.must) == 'undefined' ? false: itemOption.must;
 				item.equal = typeof(itemOption.equal) == 'undefined' ? false: itemOption.equal;
-				
+                item.option = itemOption;
+
 				item.editorContainer = $("#editorContainer", item);
 				
 				item.editor = ControlCreator.create({
@@ -569,6 +581,7 @@
 			return value;
 		},
 		getOnlyFilterUrl : function() {
+			//不含必填字段
 			var filter = "";
 			for(var one in this.items) {
 				var val = this.getValue(one);
@@ -589,6 +602,7 @@
 			return filter.substring(4,filter.length) == "" ? "1=1" : filter.substring(4,filter.length);
 		},
 		getFilterUrl: function(raw) {
+			//含必填字段 不含peroid头
 			if (!raw) {
 				raw = false;
 			}
@@ -636,6 +650,110 @@
 			}
 			return url;
 		},
+		getFilterWithPeroidUrl: function(raw) {
+			//含必填字段 含 peroid头
+			if (!raw) {
+				raw = false;
+			}
+			var url = "";
+			var filter = "";
+			for(var one in this.items) {
+				var val = this.getValue(one);
+				var group = this.items[one].group;
+
+				var oneFilterName ="";
+                var groupCode = group.code;
+
+				 if(raw && "area" != groupCode){
+					oneFilterName = groupCode + "." + one;
+				}else{
+                    oneFilterName = one;
+                }
+
+				if(typeof(val) == "undefined" || val == "" || val.toLowerCase() == "all") {
+					continue;
+				}
+
+				if(this.items[one].must  && this.items[one].must == true) {
+					url += "&" + oneFilterName + "=" +  val;
+				}else {
+					var dataType = this.items[one].type;
+					if(!dataType) {
+						filter += " and " + oneFilterName + " like '%" + val + "%'";
+					}
+					else if ("select" == dataType || "date" == dataType){
+                        filter += " and " + oneFilterName + "='" + val + "'";
+					}else {
+                        filter += " and " + oneFilterName + " like '%" + val + "%'";
+					}
+
+				}
+			}
+
+			if(filter == "") {
+				url = url.substring(1,url.length);
+			}
+			else {
+				url = url.substring(1,url.length);
+				url += "&filter=" + filter.substring(4,filter.length);
+			}
+			return url;
+		},
+		resetItemUrl: function (field, url) {
+			var me = this;
+			var item = this.getItem(field);
+			var itemOption = item.option;
+            itemOption.url = url;
+			if (itemOption.type == "date") {
+                if(url) {
+                    Server.getData(url, function(data) {
+                        if (data && data.length == 1) {
+                            var line = data[0];
+                            var date = line[itemOption.field.toLowerCase()];
+                            item.input.val(date);
+                            me.onFilterChange(itemOption.field, date, this);
+                        }
+                    });
+                }else {
+                    var datetime = new DateTime();
+                    var endtime = datetime.str;
+                    item.input.val(endtime);
+                }
+
+			}else if (item.option.type == "select"){
+                var input = $("#select_", item);
+                if(url) {
+
+                    input.empty();
+                    Server.getData(url, function(data) {
+                        if (data && data.length) {
+                            for (var i = 0; i < data.length; i++) {
+                                var line = data[i];
+                                var option = $("<option ></option>");
+
+                                option.val(line[(itemOption.field).toLowerCase()]);
+                                option.html(line[(itemOption.showField).toLowerCase()]);
+
+                                input.append(option);
+                            }
+                        }
+                    });
+                }else if (data && data.length) {
+                    for (var i = 0; i < data.length; i++) {
+                        var line = data[i];
+                        var option = $("<option ></option>");
+
+                        option.val(line.code);
+                        option.html(line.name);
+
+                        input.append(option);
+                    }
+                }
+
+			}else {
+				//text
+			}
+        }
 	};
 	
 //4.AxisArea                                        =========

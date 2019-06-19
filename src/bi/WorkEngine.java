@@ -16,6 +16,7 @@ import foundation.persist.sql.SQLRunner;
 import foundation.rule.RuleEngine;
 import foundation.rule.RuleList;
 import foundation.rule.RuledResult;
+import foundation.util.ContentBuilder;
 import foundation.util.Util;
 
 import java.sql.*;
@@ -401,45 +402,155 @@ public class WorkEngine extends Engine {
 	public void createBaseAggregation(Operator operator) {
 		instance.setState(State.working);
 		progressor.newTask("数据计算");
-		// 1. 校验
-		if (TestOn.Validate) {
-			progressor.newPhase("phase_validate", "数据校验");
-			int errorCnt;
-			try {
-				errorCnt = validate();
-				if (errorCnt > 0) {
-					progressor.terminate("数据校验未通过，请检查");
-					return;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 
-			progressor.endPhase();
-		}
+        //1. 数据初始化(清空)
+        //1.1 删除flow_ 表中数据
+        boolean success = true;
+        progressor.newPhase("phase_initdata", "数据初始化");
+        EntitySet dataSet;
+        Savepoint savepoint = null;
+        Connection connection = null;
+        try {
+            connection = SqlSession.createConnection();
+            connection.setAutoCommit(false);
+            savepoint = connection.setSavepoint(AggConstant.DDITable);
+            dataSet = DataHandler.getDataSet("bi_table", "clear = 'T'");
+            for (Entity entity : dataSet) {
+                String tableName = entity.getString("name");
+                NamedSQL truncateInstance = NamedSQL.getInstance("deleteByCriteria");
+                truncateInstance.setParam("tableName", tableName);
+                truncateInstance.setParam("filter", Util.defaultFilter);
+                int execSQL = SQLRunner.execSQL(connection, truncateInstance);
 
-		//2. 数据初始化(清空)
-		progressor.newPhase("phase_initdata", "数据初始化");
-		EntitySet dataSet;
-		try {
-			dataSet = DataHandler.getDataSet("bi_table", "clear = 'T'");
-			for (Entity entity : dataSet) {
-				String tableName = entity.getString("name");
-				NamedSQL truncateInstance = NamedSQL.getInstance("deleteByCriteria");
-				truncateInstance.setParam("tableName", tableName);
-				truncateInstance.setParam("filter", "period = (select id from peroid where active = 'T')");
-				int execSQL = SQLRunner.execSQL(truncateInstance);
-				
-				logger.info("delete--" + tableName + "----count:" +execSQL);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		//refreshTerrtory();
-		
-		progressor.endPhase();
-		//3. 循环聚合
+                logger.info("delete--" + tableName + "----count:" +execSQL);
+            }
+            connection.commit();
+        } catch (Exception e) {
+            success = false;
+            logger.error("删除flow_ 表中数据出现问题");
+            e.printStackTrace();
+            if (!Util.isNull(connection)) {
+                try {
+                    if (!Util.isNull(savepoint)) {
+                        connection.rollback(savepoint);
+                    } else {
+                        connection.rollback();
+                    }
+
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+        }finally {
+            if (!Util.isNull(connection)) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        //1.2 删除聚合表中数据
+        if (!success) {
+            return;
+        }
+
+        /*try {
+            connection = SqlSession.createConnection();
+            connection.setAutoCommit(false);
+            savepoint = connection.setSavepoint(AggConstant.agg);
+
+            deleteAggR90Data(connection);
+        } catch (Exception e) {
+            success = false;
+            logger.error("删除R90聚合数据出现问题");
+            e.printStackTrace();
+            if (!Util.isNull(connection)) {
+                try {
+                    if (!Util.isNull(savepoint)) {
+                        connection.rollback(savepoint);
+                    } else {
+                        connection.rollback();
+                    }
+
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }finally {
+            if (!Util.isNull(connection)) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }*/
+        if (!success) {
+            return;
+        }
+
+        //2 生成原始数据
+        //2.1 重新生成架构
+        try {
+            Util.changeData("Salesperson", "LoginName", "SuperAdmin");
+        } catch (Exception e) {
+            success = false;
+            logger.error("新生成架构出现问题",e);
+            e.printStackTrace();
+        }
+        progressor.endPhase();
+        if (!success) {
+            return;
+        }
+        //2.2 flow表插入R90数据
+        try {
+            connection = SqlSession.createConnection();
+            connection.setAutoCommit(false);
+            savepoint = connection.setSavepoint(AggConstant.BI_Default_TopicView);
+            NamedSQL insertR90Sql = NamedSQL.getInstance("insertR90FlowAggS");
+            int count = SQLRunner.execSQL(connection, insertR90Sql);
+            logger.info(MessageFormat.format("插入FLOW_AGG_S 表 条数： {0}", count));
+
+            insertR90Sql = NamedSQL.getInstance("insertR90FlowAggP");
+            count = SQLRunner.execSQL(connection, insertR90Sql);
+            logger.info(MessageFormat.format("插入FLOW_AGG_P 表 条数： {0}", count));
+
+            insertR90Sql = NamedSQL.getInstance("insertR90FlowAggI");
+            count = SQLRunner.execSQL(connection, insertR90Sql);
+            logger.info(MessageFormat.format("插入FLOW_AGG_I 表 条数： {0}", count));
+            connection.commit();
+        } catch (Exception e) {
+            success = false;
+            logger.error("flow表插入R90数据", e);
+            e.printStackTrace();
+            if (!Util.isNull(connection)) {
+                try {
+                    if (!Util.isNull(savepoint)) {
+                        connection.rollback(savepoint);
+                    } else {
+                        connection.rollback();
+                    }
+
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }finally {
+            if (!Util.isNull(connection)) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (!success) {
+            return;
+        }
+        //3. 循环聚合90天数据  这个主要看 flow_ 的inset语句 目前是全部 上线后改为R90
 		AggThemeGroupContainer.refresh();
 		List<AggThemeGroup> aggThemeGroupList = AggThemeGroupContainer.getInstance().getAggThemeGroupList();
 		AtomicInteger allSize = new AtomicInteger();
@@ -461,6 +572,56 @@ public class WorkEngine extends Engine {
 
 		instance.setState(State.Idle);
 	}
+
+    private void deleteAggR90Data(Connection connection) throws Exception {
+        NamedSQL getLastDataTime = NamedSQL.getInstance("getLastDataTime");
+        getLastDataTime.setParam("DDITable", "VIEW_DataInventory");
+        Entity entity = SQLRunner.getEntity(getLastDataTime);
+        String bizDate = entity.getString(AggConstant.BizDate);
+
+        int month = Util.getMonth(bizDate);
+        int year = Util.getYear(bizDate);
+        ContentBuilder builder = new ContentBuilder(Util.comma);
+        Entity peroidByYearMonth = getPeroidByYearMonth(year, month);
+        builder.append(Util.quotedStr(peroidByYearMonth.getId()));
+        month--;
+        peroidByYearMonth = getPeroidByYearMonth(year, month);
+        builder.append(Util.quotedStr(peroidByYearMonth.getId()));
+        month--;
+        peroidByYearMonth = getPeroidByYearMonth(year, month);
+        builder.append(Util.quotedStr(peroidByYearMonth.getId()));
+        String filter = MessageFormat.format(" peroid in ({0}) or  BizDate >= DATEADD(month, -2, DATEADD(month, DATEDIFF(month, 0, {1}), 0))", builder.toString(), Util.quotedStr(bizDate));
+
+        AggTableContainer.getInstance().getAggTableMap().keySet().stream().filter(s -> s.startsWith(AggConstant.BI_Default_Agg))
+                .map(s -> {
+                    try {
+                        return deleteAggData(s, filter);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }).count();
+    }
+
+    private <R> R deleteAggData(String tableName, String filter) throws Exception {
+
+            NamedSQL deleteByCriteria = NamedSQL.getInstance("deleteByCriteria");
+            deleteByCriteria.setParam("tablename", tableName);
+            deleteByCriteria.setParam("filter", filter);
+            int deleteAggCount = SQLRunner.execSQL(deleteByCriteria);
+            logger.info(MessageFormat.format("已删除表：{0} R90数据 {1}条", tableName, deleteAggCount));
+
+        return null;
+    }
+
+    private Entity getPeroidByYearMonth(int year, int month) throws Exception {
+        EntitySet md_peroid = DataHandler.getDataSet("md_peroid", MessageFormat.format(" year = {0} and month = {1}", Util.quotedStr(String.valueOf(year)), month));
+        if (md_peroid.size() != 1) {
+            throw new AggBaseException(MessageFormat.format("获取期间错误, year:{0}, month{1}", year, month));
+        } else {
+            return md_peroid.next();
+        }
+    }
 
     private <R> R addAllSize(AggThemeGroup aggThemeGroup, AtomicInteger allSize) {
         List<AggTheme> aggThemesMapList = aggThemeGroup.getAggThemesMapList();
