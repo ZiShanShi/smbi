@@ -1,11 +1,11 @@
 package foundation.shedule;
 
-import org.apache.log4j.Logger;
-
-import report.Console;
-
+import bi.ThemeContext;
+import bi.WorkEngine;
+import bi.agg.Operator;
 import foundation.server.InternalServer;
 import foundation.server.Progressor;
+import org.apache.log4j.Logger;
 
 public class Engine implements Runnable {
 
@@ -55,8 +55,8 @@ public class Engine implements Runnable {
 	@Override
 	public void run() {
 		try {
-			if ("createTransflow".equalsIgnoreCase(command)) {
-				createTransflow();
+			if ("agg".equalsIgnoreCase(command)) {
+				agg();
 			}
 			
 		}
@@ -70,12 +70,21 @@ public class Engine implements Runnable {
 		}
 	}
 
+	private void agg() {
+		try {
+		ThemeContext context = new ThemeContext(null, null);
+		Operator operator = new Operator(context);
 
 
-	private void createTransflow() {
-		Console con = new Console();
-		con.aggData();//聚合
+			WorkEngine.getInstance().exec(operator, "createbaseaggregation");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
 	}
+
+
 
 	public Progressor getProgressor() {
 		return progressor;

@@ -456,7 +456,7 @@ public class WorkEngine extends Engine {
             return;
         }
 
-        /*try {
+        try {
             connection = SqlSession.createConnection();
             connection.setAutoCommit(false);
             savepoint = connection.setSavepoint(AggConstant.agg);
@@ -486,7 +486,7 @@ public class WorkEngine extends Engine {
                     e.printStackTrace();
                 }
             }
-        }*/
+        }
         if (!success) {
             return;
         }
@@ -604,7 +604,6 @@ public class WorkEngine extends Engine {
     }
 
     private <R> R deleteAggData(String tableName, String filter) throws Exception {
-
             NamedSQL deleteByCriteria = NamedSQL.getInstance("deleteByCriteria");
             deleteByCriteria.setParam("tablename", tableName);
             deleteByCriteria.setParam("filter", filter);

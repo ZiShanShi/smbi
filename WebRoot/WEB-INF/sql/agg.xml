@@ -67,7 +67,9 @@
 		</sql>
 
 		<sql name="getBaseUserByOrganization">
+			<![CDATA[
 			SELECT Parent@{baseId}, @{baseId} from organization WHERE type = '@{baseType}' and @{baseId} is not null
+			AND (territoryreject <> 'T' or territoryreject is null)
 			and NOT EXISTS
 			(
 			SELECT o.ParentID, o.id from territory
@@ -75,6 +77,7 @@
 			WHERE type = '@{baseType}' and o.id = organization.id
 
 			);
+			]]>
 		</sql>
 
 		<sql name="dropTable">

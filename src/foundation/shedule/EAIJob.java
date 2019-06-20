@@ -17,7 +17,7 @@ public class EAIJob extends Job {
 	protected void doExecute() throws Exception {
 		logger.debug("开始自动执行");
 		Engine engine = Engine.getInstance();
-		//engine.exec("createTransflow");
+		engine.exec("agg");
 	}
 	
 	@Override

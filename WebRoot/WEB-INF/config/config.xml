@@ -18,7 +18,7 @@
 	<param name="ModelPicPathRoot" value="@{path_application}/model" remark="modelPicPath" />
 	<param name="URL_WebMan" value="http://192.168.5.63:3456/api/" remark="WebMan"/>
 	<param name="adminCode" value="U108272" remark="admin人看的指标对应的人"/>
-	<param name="DbFilePath" value="D:\sqlserverdb\" remark="admin人看的指标对应的人"/>
+	<param name="DbFilePath" value="D:\sqlserverdb\" remark="文件目录"/>
 
 	<!-- 2.不受权限控制的资源 -->
 	<freeVisit>
