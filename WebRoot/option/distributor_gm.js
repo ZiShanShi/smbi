@@ -427,7 +427,7 @@ var salesAcountOption = {
 };
 
 //------------------------
-var geoCoordMap = {
+/*var geoCoordMap = {
     "上海": [121.48, 31.22],
     "珠海": [113.52, 22.3],
     "三亚": [109.31, 18.14],
@@ -480,7 +480,7 @@ var convertData = function (data) {
     return res;
 };
 
-var mapoption = {
+var mapsoption = {
     tooltip: {
         trigger: 'item',
         triggerOn: 'mousemove',
@@ -492,11 +492,7 @@ var mapoption = {
         formatter: function (params) {
             var res;
             if (params.value > 0) {
-                if (params.seriesType == 'map') {
-                    res = params.data.value2 + '<br/>经销商个数：' + parseInt(Math.random() * 50) + params.value + "个";
-                } else {
-                    res = params.data.value2 + '<br/>经销商个数：' + params.value + "个";
-                }
+                res = params.data.value2 + '<br/>经销商个数：' + params.value + "个";
             } else {
                 res = '';
             }
@@ -504,11 +500,7 @@ var mapoption = {
         }
 
     },
-    legend: {
-        show: true,
-        selectedMode: 'single',
-        data: ["士卓曼", '安卓健']
-    },
+
     visualMap: {
         min: 0,
         max: 7,
@@ -619,65 +611,6 @@ var mapoption = {
         }
     },
         {
-            name: '安卓健',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            tooltip: {
-                show: true,
-                formatter: function (params) {
-                    var res;
-                    if (params.data) {
-                        res = params.data.name + ':<br/>' + params.data.value[2] +
-                            "个";
-                    } else {
-                        res = '';
-                    }
-                    return res;
-                }
-
-            },
-            data: convertData([
-                {name: "郑州", value: 94.7},
-                {name: "武汉", value: 97.4},
-                {name: "长沙", value: 95.5},
-                {name: "南昌", value: 97.9},
-
-                {name: "上海", value: 88.6},
-                {name: "珠海", value: 91.5},
-                {name: "三亚", value: 98.4},
-                {name: "惠州", value: 92.8},
-                {name: "海口", value: 99.6},
-                {name: "合肥", value: 87.2},
-                {name: "南京", value: 94.8},
-                {name: "杭州", value: 93.9},
-                {name: "苏州", value: 90.5},
-                {name: "无锡", value: 95.4},
-                {name: "昆山", value: 91.8},
-                {name: "广州", value: 97.0},
-                {name: "深圳", value: 87.7},
-                {name: "佛山", value: 98.6},
-                {name: "东莞", value: 94.9},
-                {name: "福州", value: 95.2},
-                {name: "厦门", value: 89.6},
-                {name: "南宁", value: 98.6},
-
-            ]),
-            symbolSize: 15,
-            label: {
-                normal: {
-                    show: false
-                },
-                emphasis: {
-                    show: true
-                }
-            },
-            itemStyle: {
-                emphasis: {
-                    borderColor: '#fff',
-                    borderWidth: 1
-                }
-            }
-        }, {
             type: 'map',
             mapType: 'china',
             geoIndex: 0,
@@ -854,6 +787,81 @@ var mapoption = {
                 value: 0
             }]
         }]
+};*/
+
+var data1 = [
+    {name: '广西', value: "143"},
+
+];
+
+var mapoption = {
+    backgroundColor: '#fff',
+    tooltip: {
+        trigger: 'item',
+        formatter: function (params) {
+            var data = params.data;
+            return data.name + ":<br/>" + formatterOneMoney(data.value) + "个";
+        }
+    },
+    visualMap: {
+        show:true,
+        textStyle: {
+            color: '#222'
+        },
+        type:"piecewise",
+        categories:[],
+        left: 'left',
+        top: 'bottom',
+
+        inRange: {
+            color: ['#fff',  '#e0f3f8', '#abd9e9',  '#74add1', '#4575b4', '#313695', ]
+        },
+    },
+    grid: {
+        height: 200,
+        width: 8,
+        right: 80,
+        bottom: 10
+    },
+    toolbox: {
+        show: true, feature: {
+            myDownload: {
+                show: true,
+                title: '数据导出',
+                icon: 'image://http://localhost:8080/smbi/image/excel.svg',
+                onclick: function () {
+                    alert('暂不支持');
+                }
+            }, saveAsImage: {}
+        }
+    },
+    series: [
+        {
+            zlevel: 1,
+            name: '经销商个数',
+            type: 'map',
+            map:"china",
+            mapType: 'china',
+            roam: true,
+            left: 0,
+            right: '15%',
+            label: {
+                normal: {
+                    show: true
+                },
+                emphasis: {
+                    show: true
+                }
+            },
+            data: data1,
+            /*itemStyle:{
+                normal:{
+                    areaColor:'#3367d6'
+                }
+
+            },*/
+        },
+    ]
 };
 
 //--------------

@@ -20,7 +20,7 @@
 			RSM
 			FROM
 			territory t
-			WHERE @{userType} = '@{userId}'
+			WHERE @{userType} = '@{userid}'
 			)a
 			LEFT JOIN organization o ON o.LoginName = a.RSM
 			LEFT JOIN RSMRegion r on o.id = r.UserID
@@ -1024,7 +1024,90 @@ ORDER BY Account desc
 
 		</sql>
 		<sql name="getSubUser">
-			SELECT DISTINCT @{subposition}, @{subposition}name from territory WHERE @{userType} = '@{userId}' and @{subposition} is not null
+			SELECT DISTINCT @{subposition}, @{subposition}name from territory WHERE @{userType} = '@{userid}' and @{subposition} is not null
+		</sql>
+
+		<sql name="getDistributorCountByRegion">
+
+			SELECT b.ProvinceName as name, b.cnt as value,
+			CASE WHEN mr.regionname is null THEN 'Unknown'
+			else mr.regionname end  as region
+			from (
+			SELECT ProvinceName, count(ProvinceName) as cnt from (
+			SELECT DISTINCT DistributorCode from agg_Sale_d_o_pe_pr agg
+			left join md_peroid p on p.id = agg.peroid
+			WHERE	aggcode = 'brand-DistributorCode-peroid-@{userType}'
+			and @{userType} = '@{userid}'
+			and @{filter}
+			)a
+			LEFT JOIN Distributor on Distributor.DistributorCode = a.DistributorCode
+			WHERE ProvinceName is not null
+			GROUP BY ProvinceName
+			)b
+			LEFT JOIN md_region_administrative mra on mra.provincename = b.ProvinceName
+			LEFT JOIN md_region mr on mr.id = mra.regionid
+
+		</sql>
+
+
+		<sql name="getDistributorOverlapCountByRegion">
+
+			SELECT
+			b.ProvinceName as name,
+			b.cnt as value,
+			CASE
+			WHEN mr.regionname IS NULL THEN
+			'Unknown'
+			ELSE
+			mr.regionname
+			END AS region
+			FROM
+			(
+			SELECT
+			ProvinceName,
+			COUNT (ProvinceName) AS cnt
+			FROM
+			(
+			SELECT DISTINCT
+			a1.DistributorCode
+			FROM
+			(
+			SELECT
+			DistributorCode
+			FROM
+			agg_Sale_d_o_pe_pr agg
+			left join md_peroid p on p.id = agg.peroid
+			WHERE
+			aggcode = 'brand-DistributorCode-peroid-@{userType}'
+			AND brand = 'Straumann'
+			and @{userType} = '@{userid}'
+			and @{filter}
+			) a1
+			LEFT JOIN (
+			SELECT
+			DistributorCode
+			FROM
+			agg_Sale_d_o_pe_pr agg
+			left join md_peroid p on p.id = agg.peroid
+			WHERE
+			aggcode = 'brand-DistributorCode-peroid-@{userType}'
+			AND brand = 'Anthogyr'
+			and @{userType} = '@{userid}'
+			and @{filter}
+			) a2 ON a1.DistributorCode = a2.DistributorCode
+			WHERE
+			a2.DistributorCode IS NOT NULL
+			) a
+			LEFT JOIN Distributor ON Distributor.DistributorCode = a.DistributorCode
+			WHERE
+			ProvinceName IS NOT NULL
+			GROUP BY
+			ProvinceName
+			) b
+			LEFT JOIN md_region_administrative mra ON mra.provincename = b.ProvinceName
+
+			LEFT JOIN md_region mr on mr.id = mra.regionid
+
 		</sql>
 
 		<!--  agg  -->

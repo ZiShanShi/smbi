@@ -536,14 +536,41 @@ function getHeaderFilter(filters) {
     return filter;
 }
 
-function getCommonFilter() {
-    var year = $($("#year").multiselect("getChecked")[0]).val();
+function getCommonFilter(unNeeded) {
+    var year = "";
+    var quarter = "";
+    var month = "";
+    var brands = "";
+    if (unNeeded) {
+        var unneededs = unNeeded.split(";");
+        unneededs.forEach(function (one) {
+            if (!"year" == one) {
+                year = $($("#year").multiselect("getChecked")[0]).val();
+            }
+            if (!"quarter" == one) {
+                quarter = getMutiInputData("quarter");
+            }
+            if (!"month" == one) {
+                month = getMutiInputData("month");
+            }
+            if (!"brand" == one) {
+                brands = getMutiInputData("brand");
+            }
+        })
+    }else {
+        year = $($("#year").multiselect("getChecked")[0]).val();
 
-    var quarter = getMutiInputData("quarter");
-    var month = getMutiInputData("month");
-    var brands = getMutiInputData("brand");
+        quarter = getMutiInputData("quarter");
+        month = getMutiInputData("month");
+        brands = getMutiInputData("brand");
+    }
 
-    var filter = "year=" + year;
+
+    var filter = "";
+    if(year) {
+        filter = "year=" + year;
+    }
+
     if (quarter.length > 0) {
         var subMutiFilter = getMutiFilter("quarter", quarter);
         filter += " and " + subMutiFilter;
@@ -575,10 +602,11 @@ function getMutiFilter(field, rawdata, type) {
     return result;
 }
 
-function resetChartData(one, user) {
+function resetChartData(one, user, filter) {
+    if (!filter) {
+        filter = getHeaderFilter();
+    }
 
-    var filter = getHeaderFilter();
-    var user;
     if(!user) {
         user = getLocalData("user");
     }
@@ -689,6 +717,7 @@ function resetChartData(one, user) {
 
         }
         var opt = JSON.stringify(option);
+        //TODO webman
         option.toolbox[0].feature.myDownload.onclick = downloadExcel(eleId, "root/bi/data?" + params);
         chartInstance.setOption(option);
         chartInstance.hideLoading();

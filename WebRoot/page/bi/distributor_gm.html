@@ -7,6 +7,7 @@
     <link href="../../css/control.css" rel="stylesheet">
     		<link href="../../css/jquery-ui.min.css" rel="stylesheet">
 		<link href="../../css/jquery.multiselect.css" rel="stylesheet">
+	<link href="../../css/checkbox.css" rel="stylesheet">
     <script type="text/javascript" src="../../js/jquery1.8.min.js"></script>
     		<script type="text/javascript" src="../../js/jquery-ui-1.10.4.js" ></script>
 		<script type="text/javascript" src="../../js/jquery.multiselect.js" ></script>
@@ -563,6 +564,101 @@
         });
     }
 
+    function fixData(result) {
+	    var fixArray = [];
+		var regionArray = result.region;
+
+        var names = result.name;
+        names.forEach(function (onename,index) {
+
+			var region = regionArray[index];
+            var find = false;
+            fixArray.forEach(function (one) {
+                if (one.region == region) {
+                    find = true;
+                }
+            });
+	        if (!find) {
+                var onedata = {
+                    region: region,
+					data:[onename]
+				};
+                fixArray.push(onedata);
+			}else {
+	            var onedata = fixArray.find(function (one) {
+                    if(one.region == region) {
+                        return one;
+                    }
+                })
+                onedata.data.push(onename);
+			}
+
+        });
+
+	    return fixArray;
+    }
+    function uniq(array){
+        var temp = []; //一个新的临时数组
+        for(var i = 0; i < array.length; i++){
+            if(temp.indexOf(array[i]) == -1){
+                temp.push(array[i]);
+            }
+        }
+        return temp;
+    }
+
+    function resetMapArea() {
+		//var filter = getCommonFilter("brand");
+		var filter = getCommonFilter();
+        var user = getLocalData("user");
+        var topicCode = "achieve";
+
+        var dataname = "getDistributorCountByRegion";
+
+        var chartInstance = echarts.getInstanceByDom(document.getElementById("invetory-variance"));
+
+        var params = "code=" + topicCode + "&userType="+user.type + "&userId=" + user.name;
+
+
+        if(dataname) {
+            params += "&dataName=" + dataname;
+        }
+
+        if(filter) {
+            params += "&filter=" + filter;
+        }
+
+        chartInstance.showLoading('default', {text:'获取中..'});
+        Server.call("root/bi/data", params, function (result) {
+            if(!result) {
+                return;
+            }
+
+            var regionArray = fixData(result);
+			console.info(regionArray);
+            var option = chartInstance.getOption();
+            var category =  uniq(result.region);
+            option.visualMap[0].categories = category;
+
+            var datas = [];
+
+            var names =result.name;
+            names.forEach(function (one, index) {
+
+                var onedata = {
+                    name:one,
+                    value:result.value[index]
+                }
+                datas.push(onedata);
+            })
+
+            option.series[0].data = datas;
+            var opt= JSON.stringify(option);
+            chartInstance.setOption(option);
+            chartInstance.hideLoading();
+        });
+    }
+
     function chartRefresh() {
         for(var i = 0; i <topicMap.length; i++) {
             var one = topicMap[i];
@@ -573,6 +669,7 @@
         resetTotalInvetory();
         resetInvetoryDetail();
         resetAccountDetail();
+		resetMapArea();
     }
 
     $(document).ready(function () {
@@ -609,7 +706,7 @@
         
         $(window).bind('resize',resizeChart);
 
-       	setMapRegion(mapchart);
+       	//setMapRegion(mapchart);
 
         initCommonMutiSelect();
 
@@ -639,8 +736,14 @@
 		<div class="title-img">
 			<img src="../../image/report-color.png" width="24">
 		</div>
-		<div class="title">经销商区域占比</div>
+		<div class="title">渠道Coverage</div>
 		<div id="invetory-variance" class="report-body"></div>
+
+		<div class="el-checkbox" style="margin-left: 85%;margin-top: 20px; font-family: ;: 'Microsoft YaHei', 'Hiragino Sans GB W3';">
+			<span>Overlap:</span>
+			<input type="checkbox" id="overlap" name="productlineSale" value="0">
+			<label for="overlap" class="el-checkbox-style"></label>
+		</div>
 	</div>
 </div>
 
