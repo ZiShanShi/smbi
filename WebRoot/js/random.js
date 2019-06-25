@@ -544,16 +544,16 @@ function getCommonFilter(unNeeded) {
     if (unNeeded) {
         var unneededs = unNeeded.split(";");
         unneededs.forEach(function (one) {
-            if (!"year" == one) {
+            if (!("year" == one)) {
                 year = $($("#year").multiselect("getChecked")[0]).val();
             }
-            if (!"quarter" == one) {
+            if (!("quarter" == one)) {
                 quarter = getMutiInputData("quarter");
             }
-            if (!"month" == one) {
+            if (!("month" == one)) {
                 month = getMutiInputData("month");
             }
-            if (!"brand" == one) {
+            if (!("brand" == one)) {
                 brands = getMutiInputData("brand");
             }
         })

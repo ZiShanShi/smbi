@@ -796,25 +796,30 @@ var data1 = [
 
 var mapoption = {
     backgroundColor: '#fff',
+    //color: ['#fff',  '#e0f3f8', '#abd9e9',  '#74add1', '#4575b4', '#313695', ],
     tooltip: {
         trigger: 'item',
         formatter: function (params) {
             var data = params.data;
-            return data.name + ":<br/>" + formatterOneMoney(data.value) + "个";
+            if(data && data.region) {
+                return "区域:" + data.region +"<br/>总个数：" + data.regionCnt +"家<br/>"  + data.name + ":" + parseInt(data.cnt) + "家";
+            }else {
+                return data.name + ": 无数据";
+            }
         }
     },
+
     visualMap: {
-        show:true,
+        show:false,
         textStyle: {
             color: '#222'
         },
-        type:"piecewise",
-        categories:[],
         left: 'left',
         top: 'bottom',
-
+        min: 0,
+        max: 5,
         inRange: {
-            color: ['#fff',  '#e0f3f8', '#abd9e9',  '#74add1', '#4575b4', '#313695', ]
+            color:  ['#b9d8ff',  '#e0f3f8', '#abd9e9',  '#74add1', '#4575b4', '#313695', ]
         },
     },
     grid: {
@@ -837,6 +842,7 @@ var mapoption = {
     },
     series: [
         {
+            zoom:0.7,
             zlevel: 1,
             name: '经销商个数',
             type: 'map',

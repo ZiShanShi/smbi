@@ -567,11 +567,12 @@
     function fixData(result) {
 	    var fixArray = [];
 		var regionArray = result.region;
-
+        var cntArray = result.cnt;
         var names = result.name;
         names.forEach(function (onename,index) {
 
 			var region = regionArray[index];
+			var cnt = cntArray[index];
             var find = false;
             fixArray.forEach(function (one) {
                 if (one.region == region) {
@@ -581,7 +582,8 @@
 	        if (!find) {
                 var onedata = {
                     region: region,
-					data:[onename]
+					data:[onename],
+                    cnt:[cnt]
 				};
                 fixArray.push(onedata);
 			}else {
@@ -591,6 +593,7 @@
                     }
                 })
                 onedata.data.push(onename);
+	            onedata.cnt.push(cnt);
 			}
 
         });
@@ -607,13 +610,20 @@
         return temp;
     }
 
-    function resetMapArea() {
-		//var filter = getCommonFilter("brand");
-		var filter = getCommonFilter();
+    function resetMapArea(isOverlap) {
+
+        if (isOverlap) {
+            var filter = getCommonFilter("brand");
+            var dataname = "getDistributorOverlapCountByRegion";
+        }else {
+            var filter = getCommonFilter();
+            var dataname = "getDistributorCountByRegion";
+        }
+
+		//var filter = getCommonFilter();
         var user = getLocalData("user");
         var topicCode = "achieve";
 
-        var dataname = "getDistributorCountByRegion";
 
         var chartInstance = echarts.getInstanceByDom(document.getElementById("invetory-variance"));
 
@@ -638,21 +648,29 @@
 			console.info(regionArray);
             var option = chartInstance.getOption();
             var category =  uniq(result.region);
-            option.visualMap[0].categories = category;
+            //option.visualMap[0].categories = category;
 
             var datas = [];
 
-            var names =result.name;
-            names.forEach(function (one, index) {
+            regionArray.forEach(function (one,index) {
+                var onenames = one.data;
+                var region = one.region;
+                var cnts = one.cnt;
+                var count = 0;
+                cnts.forEach(function (one) {
+                    count += parseInt(one);
+                });
+                one.regionCnt = count;
 
-                var onedata = {
-                    name:one,
-                    value:result.value[index]
-                }
-                datas.push(onedata);
+                onenames.forEach(function (onename,idx) {
+                    var onecnt = cnts[idx];
+                    datas.push({name:onename, value: index, region: region,cnt:onecnt, regionCnt: count});
+                });
             })
 
             option.series[0].data = datas;
+            //option.dataRange.pieces = splitArray;
+            //option.visualMap[0].target = undefined;
             var opt= JSON.stringify(option);
             chartInstance.setOption(option);
             chartInstance.hideLoading();
@@ -670,7 +688,17 @@
         resetInvetoryDetail();
         resetAccountDetail();
 		resetMapArea();
+
+
+		$("#overlap").click(function () {
+            if($("#overlap").is(':checked')) {
+                resetMapArea(true);
+            }else {
+                resetMapArea();
+            }
+        });
     }
+
 
     $(document).ready(function () {
      	var middleChart = echarts.init(document.getElementById("achieve"));

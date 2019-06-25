@@ -1029,7 +1029,7 @@ ORDER BY Account desc
 
 		<sql name="getDistributorCountByRegion">
 
-			SELECT b.ProvinceName as name, b.cnt as value,
+			SELECT gp.shortname as name, b.cnt,
 			CASE WHEN mr.regionname is null THEN 'Unknown'
 			else mr.regionname end  as region
 			from (
@@ -1046,15 +1046,15 @@ ORDER BY Account desc
 			)b
 			LEFT JOIN md_region_administrative mra on mra.provincename = b.ProvinceName
 			LEFT JOIN md_region mr on mr.id = mra.regionid
-
+			LEFT JOIN gi_province gp on gp.cnname = b.ProvinceName
+            order BY regionname
 		</sql>
 
 
 		<sql name="getDistributorOverlapCountByRegion">
-
 			SELECT
-			b.ProvinceName as name,
-			b.cnt as value,
+			gp.shortname as name,
+			b.cnt,
 			CASE
 			WHEN mr.regionname IS NULL THEN
 			'Unknown'
@@ -1107,7 +1107,8 @@ ORDER BY Account desc
 			LEFT JOIN md_region_administrative mra ON mra.provincename = b.ProvinceName
 
 			LEFT JOIN md_region mr on mr.id = mra.regionid
-
+			LEFT JOIN gi_province gp on gp.cnname = b.ProvinceName
+            order BY regionname
 		</sql>
 
 		<!--  agg  -->
